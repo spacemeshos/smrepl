@@ -25,13 +25,13 @@ type Account struct {
 }
 
 type AccountInfo struct {
-	Nonce string
+	Nonce   string
 	Balance string
 }
 
 var (
 	// Accounts Registry app singleton
-	Accounts *Registry
+	Accounts     *Registry
 	LocalAccount *Account
 )
 
@@ -108,7 +108,7 @@ func NewAccount(passphrase string) (*Account, error) {
 		Salt:    kdfParams.Salt,
 	}
 
-	NetworkID := 0//nodeconfig.ConfigValues.NetworkID
+	NetworkID := 0 //nodeconfig.ConfigValues.NetworkID
 
 	// save all data in newly created account obj
 	acct := &Account{priv,

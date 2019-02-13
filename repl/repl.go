@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
-
 )
 
 const (
@@ -38,7 +37,7 @@ type Client interface {
 	IsAccountUnLock(id string) bool
 	Lock(passphrase string) error
 	AccountInfo(id string) (*accounts.AccountInfo, error)
-	Transfer(from, to, amount,nonce, passphrase string) error
+	Transfer(from, to, amount, nonce, passphrase string) error
 	//SetVariables(params, flags []string) error
 	//GetVariable(key string) string
 	//Restart(params, flags []string) error
@@ -102,6 +101,7 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 }
 
 func (r *repl) firstTime() {
+	fmt.Println(printPrefix, splash)
 	createNewAccount := yesOrNoQuestion(welcomeMsg) == "y"
 	if createNewAccount {
 		r.createAccount()
@@ -111,11 +111,11 @@ func (r *repl) firstTime() {
 func (r *repl) createAccount() {
 	generatePassphrase := yesOrNoQuestion(generateMsg) == "y"
 	/*accountInfo := prompt.Input(prefix+accountInfoMsg,
-		emptyComplete,
-		prompt.OptionPrefixTextColor(prompt.LightGray))*/
+	emptyComplete,
+	prompt.OptionPrefixTextColor(prompt.LightGray))*/
 	passphrase := ""
 	if generatePassphrase {
-		passphrase = prompt.Input(prefix + addPassphraseMsg,
+		passphrase = prompt.Input(prefix+addPassphraseMsg,
 			emptyComplete,
 			prompt.OptionPrefixTextColor(prompt.LightGray))
 	}
@@ -126,7 +126,6 @@ func (r *repl) createAccount() {
 		return
 	}
 }
-
 
 func (r *repl) unlockAccount() {
 	passphrase := r.commandLineParams(1, r.input)
@@ -165,11 +164,18 @@ func (r *repl) account() {
 	if accountID != "" {
 		r.client.AccountInfo(accountID)
 	} else {
+		accountID = inputNotBlank(getAccountInfoMsg)
 		if acct := r.client.LocalAccount(); acct == nil &&
 			yesOrNoQuestion(accountNotFoundoMsg) == "y" {
 			r.createAccount()
 		} else {
-			r.client.AccountInfo(accountID)
+			acc, err := r.client.AccountInfo("1")
+			if err != nil {
+				fmt.Println(printPrefix, "Error", err.Error())
+				return
+			}
+			fmt.Println(printPrefix, "Balance:", acc.Balance)
+			fmt.Println(printPrefix, "Nonce:", acc.Nonce)
 		}
 	}
 }
@@ -189,7 +195,7 @@ func (r *repl) transferCoins() {
 		return
 	}
 
-	accountID = acct.PrivKey.String()
+	accountID = acct.PubKey.String()
 	msg := fmt.Sprintf(transferFromLocalAccountMsg, accountID)
 	isTransferFromLocal := yesOrNoQuestion(msg) == "y"
 
@@ -204,104 +210,23 @@ func (r *repl) transferCoins() {
 		passphrase = inputNotBlank(accountPassphrase)
 	}
 
+	acc, err := r.client.AccountInfo(accountID)
+	if err != nil {
+		log.Error("can't get client info")
+		return
+	}
+
 	fmt.Println(printPrefix, "Transaction summary:")
 	fmt.Println(printPrefix, "From:", accountID)
 	fmt.Println(printPrefix, "To:", destinationAccountID)
 	fmt.Println(printPrefix, "Amount:", amount)
-
-	id, err := r.client.AccountInfo(accountID)
-	if err != nil {
-		log.Info("couldn't get account nonce")
-		return
-	}
+	fmt.Println(printPrefix, "Nonce:", acc.Nonce)
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		err := r.client.Transfer(accountID, destinationAccountID, amount, id.Nonce, passphrase)
+		err := r.client.Transfer(accountID, destinationAccountID, amount, acc.Nonce, passphrase)
 		if err != nil {
-			//log.Debug(err.Error())
+			log.Info(err.Error())
 			return
 		}
 	}
 }
-
-/*func (r *repl) setCLIFlagOrParam() {
-	var err error
-	params, flags := r.getParamsAndFlags(r.commandLineParams(5, r.input))
-
-	if r.client.NeedRestartNode(params, flags) {
-		if yesOrNoQuestion(restartNodeMsg) == "y" {
-			err = r.client.Restart(params, flags)
-		}
-	} else {
-		err = r.client.SetVariables(params, flags)
-
-	}
-
-	if err != nil {
-		log.Debug(err.Error())
-		return
-	}
-}
-
-func (*repl) getParamsAndFlags(input string) ([]string, []string) {
-	values := strings.Split(input, " ")
-	updateParams := false
-	params := make([]string, 0)
-	flags := make([]string, 0)
-
-	for _, v := range values {
-		if v == "param" {
-			updateParams = true
-			continue
-		}
-
-		if v == "flag" {
-			updateParams = false
-			continue
-		}
-
-		if updateParams {
-			params = append(params, v)
-		} else {
-			flags = append(flags, v)
-		}
-	}
-
-	return params, flags
-}
-
-func (r *repl) restartNode() {
-	flagsAndParams := prompt.Input(prefix+newFlagsAndParamsMsg,
-		emptyComplete,
-		prompt.OptionPrefixTextColor(prompt.LightGray))
-
-	params, flags := r.getParamsAndFlags(flagsAndParams)
-
-	err := r.client.Restart(params, flags)
-	if err != nil {
-		log.Debug(err.Error())
-		return
-	}
-}
-
-func (r *repl) setup() {
-	allocation := inputNotBlank(postAllocationMsg)
-
-	err := r.client.Setup(allocation)
-	if err != nil {
-		log.Debug(err.Error())
-		return
-	}
-}
-
-func (r *repl) echoVariable() {
-	echoInput := r.commandLineParams(8, r.input)
-	variables := strings.Split(echoInput, " ")
-
-	for _, v := range variables {
-		key := strings.TrimPrefix(v, "$")
-		value := r.client.GetVariable(key)
-		fmt.Println(printPrefix, value)
-	}
-}
-*/

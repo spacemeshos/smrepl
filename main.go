@@ -10,14 +10,13 @@ import (
 )
 
 type mockClient struct {
-
 }
 
-func (m mockClient) LocalAccount() *accounts.Account{
+func (m mockClient) LocalAccount() *accounts.Account {
 	return nil
 }
 
-func (m mockClient) AccountInfo(id string){
+func (m mockClient) AccountInfo(id string) {
 
 }
 func (m mockClient) Transfer(from, to, amount, passphrase string) error {

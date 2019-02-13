@@ -5,12 +5,11 @@ import (
 	"github.com/CLIWallet/accounts"
 )
 
-const DataPath = "/tmp/whatever"
+const DataPath = "/tmp/"
 
 type WalletBE struct {
 	*HTTPRequester
 	localAccount *accounts.Account
-
 }
 
 func NewWalletBE() (*WalletBE, error) {
@@ -22,7 +21,7 @@ func NewWalletBE() (*WalletBE, error) {
 }
 
 func (w *WalletBE) CreateAccount(passphrase string) error {
-	acc, err :=  accounts.NewAccount(passphrase)
+	acc, err := accounts.NewAccount(passphrase)
 	if err != nil {
 		return err
 	}
@@ -54,4 +53,3 @@ func (w *WalletBE) Lock(passphrase string) error {
 	w.localAccount.LockAccount(passphrase)
 	return nil
 }
-
