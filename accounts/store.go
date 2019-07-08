@@ -1,132 +1,64 @@
 package accounts
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/CLIWallet/crypto"
 	"github.com/CLIWallet/log"
-	"github.com/spacemeshos/go-spacemesh/filesystem"
-	"io/ioutil"
-	"path/filepath"
-	"strings"
+	"github.com/spacemeshos/ed25519"
+	"os"
 )
 
-// AccountData is used to persist an account.
-type AccountData struct {
-	PublicKey  string          `json:"publicKey"`
-	CryptoData CryptoData      `json:"crypto"`
-	KDParams   crypto.KDParams `json:"kd"`
-	NetworkID  int             `json:"networkId"`
+type AccountKeys struct {
+	PubKey string `json:"pubkey"`
+	PrivKey string `json:"privkey"`
 }
 
-// CryptoData is the data use to encrypt/decrypt locally stored account data.
-type CryptoData struct {
-	Cipher     string `json:"cipher"`
-	CipherText string `json:"cipherText"` // encrypted private key
-	CipherIv   string `json:"cipherIv"`
-	Mac        string `json:"mac"`
-}
+type Store map[string]AccountKeys
 
-// LoadAllAccounts loads all account persisted to store
-func LoadAllAccounts(accountsDataFolder string) error {
-
-	files, err := ioutil.ReadDir(accountsDataFolder)
+func StoreAccounts(path string, store *Store) error{
+	w, err := os.Create(path)
 	if err != nil {
-		log.Error("Failed to read account directory files", err)
+		return err
+	}
+	enc := json.NewEncoder(w)
+	defer w.Close()
+	if err := enc.Encode(store); err != nil {
+		return err
+	}
+	return nil
+}
+
+func LoadAccounts(path string) (*Store, error){
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		log.Warning("genesis config not lodad since file does not exist. file=%v", path)
+		return nil, err
+	}
+	r, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %v", err)
+	}
+	defer r.Close()
+
+	dec := json.NewDecoder(r)
+	cfg := &Store{}
+	err = dec.Decode(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+func (s Store) CreateAccount(owner string) *Account{
+	sPub, key, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		log.Error("cannot create account: %s", err)
 		return nil
 	}
-
-	for _, f := range files {
-		fileName := f.Name()
-		if !f.IsDir() && strings.HasSuffix(fileName, ".json") {
-			accountID := fileName[:strings.LastIndex(fileName, ".")]
-			_, err := NewAccountFromStore(accountID, accountsDataFolder)
-			if err != nil {
-				log.Error(fmt.Sprintf("failed to load account %s", accountID), err)
-			}
-		}
-	}
-
-	return nil
-
-}
-
-// NewAccountFromStore creates a new account by id and stored data.
-// Account will be locked after creation as there's no persisted passphrase.
-// accountsDataPath: os-specific full path to accounts data folder.
-func NewAccountFromStore(accountID string, accountsDataPath string) (*Account, error) {
-
-	log.Debug("Loading account from store. Id: %s ...", accountID)
-
-	fileName := accountID + ".json"
-	dataFilePath := filepath.Join(accountsDataPath, fileName)
-
-	data, err := ioutil.ReadFile(dataFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	var accountData AccountData
-	err = json.Unmarshal(data, &accountData)
-	if err != nil {
-		return nil, err
-	}
-
-	pubKey, err := crypto.NewPublicKeyFromString(accountData.PublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	acct := &Account{nil,
-		pubKey,
-		accountData.CryptoData,
-		accountData.KDParams,
-		accountData.NetworkID}
-
-	log.Debug("Loaded account from store: %s", pubKey.String())
-	if LocalAccount == nil {
-		LocalAccount = acct
-	}
-
-	Accounts.All[acct.String()] = acct
-
-	return acct, nil
-}
-
-// Persist all account data to store
-// Passphrases are never persisted to store
-// accountsDataPath: os-specific full path to accounts data folder
-// Returns full path of persisted file (useful for testing)
-func (a *Account) Persist(accountsDataPath string) (string, error) {
-
-	pubKeyStr := a.PubKey.String()
-
-	if LocalAccount == nil {
-		LocalAccount = a
-	}
-
-	data := &AccountData{
-		pubKeyStr,
-		a.cryptoData,
-		a.kdParams,
-		a.NetworkID,
-	}
-
-	bytes, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Error("Failed to marshal node data to json", err)
-		return "", err
-	}
-
-	fileName := a.String() + ".json"
-	dataFilePath := filepath.Join(accountsDataPath, fileName)
-	err = ioutil.WriteFile(dataFilePath, bytes, filesystem.OwnerReadWrite)
-	if err != nil {
-		log.Error("Failed to write account to file", err)
-		return "", err
-	}
-
-	log.Debug("Persisted account to store. Id: %s", a.String())
-
-	return dataFilePath, nil
+	acc :=  &Account{Name: owner, PubKey:sPub, PrivKey:key}
+	s[owner] = AccountKeys{PubKey: hex.EncodeToString(sPub), PrivKey:hex.EncodeToString(key)}
+	return acc
 }

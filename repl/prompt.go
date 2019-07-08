@@ -42,6 +42,32 @@ func yesOrNoQuestion(msg string) string {
 	return input
 }
 
+func multipleChoice(names []string) string{
+	fmt.Println(printPrefix, "choose one:")
+	var input string
+	accounts := make(map[string]struct{})
+	for _, name := range names {
+		accounts[name] = struct{}{}
+	}
+	if len(accounts) == 0 {
+		return ""
+	}
+	for {
+		for ac := range accounts{
+			fmt.Println(printPrefix, ac)
+		}
+		input = prompt.Input(prefix,
+			emptyComplete,
+			prompt.OptionPrefixTextColor(prompt.LightGray))
+
+		if _, ok := accounts[input]; ok {
+			return input
+		}
+		fmt.Println(printPrefix, "invalid command.")
+
+	}
+}
+
 // executes prompt waiting an input not blank
 func inputNotBlank(msg string) string {
 	var input string

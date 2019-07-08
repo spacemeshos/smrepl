@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/CLIWallet/client"
 	"github.com/CLIWallet/repl"
 	"github.com/spacemeshos/go-spacemesh/accounts"
@@ -24,11 +25,13 @@ func (m mockClient) Transfer(from, to, amount, passphrase string) error {
 }
 
 func main() { // run the app
+	wordPtr := flag.String("node", "", "node ip in port in format of IP:[PORT]")
+	flag.Parse()
 	_, err := syscall.Open("/dev/tty", syscall.O_RDONLY, 0)
 	if err != nil {
 		return
 	}
-	be, err := client.NewWalletBE()
+	be, err := client.NewWalletBE(*wordPtr)
 	if err != nil {
 		return
 	}

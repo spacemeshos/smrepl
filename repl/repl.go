@@ -1,9 +1,13 @@
 package repl
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/CLIWallet/accounts"
 	"github.com/CLIWallet/log"
+	"github.com/spacemeshos/ed25519"
+	"github.com/spacemeshos/go-spacemesh/address"
+	"strconv"
 	"strings"
 
 	"github.com/c-bata/go-prompt"
@@ -24,20 +28,24 @@ type command struct {
 }
 
 type repl struct {
-	commands []command
-	client   Client
-	input    string
+	commands     []command
+	client       Client
+	input        string
 }
 
 // Client interface to REPL clients.
 type Client interface {
-	CreateAccount(passphrase string) error
+	CreateAccount(owner string) *accounts.Account
 	LocalAccount() *accounts.Account
-	Unlock(passphrase string) error
-	IsAccountUnLock(id string) bool
-	Lock(passphrase string) error
+	SetLocalAccount(a *accounts.Account)
 	AccountInfo(id string) (*accounts.AccountInfo, error)
-	Transfer(from, to, amount, nonce, passphrase string) error
+	Transfer(recipient address.Address,nonce , amount, gasPrice, gasLimit uint64 ,key ed25519.PrivateKey) error
+	ListAccounts() []string
+	GetAccount(name string) (*accounts.Account, error)
+	StoreAccounts() error
+	//Unlock(passphrase string) error
+	//IsAccountUnLock(id string) bool
+	//Lock(passphrase string) error
 	//SetVariables(params, flags []string) error
 	//GetVariable(key string) string
 	//Restart(params, flags []string) error
@@ -62,10 +70,11 @@ func Start(c Client) {
 func (r *repl) initializeCommands() {
 	r.commands = []command{
 		{"create account", "Create account.", r.createAccount},
-		{"unlock account", "Unlock account.", r.unlockAccount},
-		{"lock account", "Lock Account.", r.lockAccount},
 		{"account", "Shows basic local account info about the local account.", r.account},
 		{"transfer coins", "Transfer coins between 2 accounts.", r.transferCoins},
+		{"switch account", "Switches to another account from account list", r.chooseAccount},
+		//{"unlock account", "Unlock account.", r.unlockAccount},
+		//{"lock account", "Lock Account.", r.lockAccount},
 		//{"setup", "Setup POST.", r.setup},
 		//{"restart node", "Restart node.", r.restartNode},
 		//{"set", "change CLI flag or param. E.g. set param a=5 flag c=5 or E.g. set param a=5", r.setCLIFlagOrParam},
@@ -102,31 +111,117 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 
 func (r *repl) firstTime() {
 	fmt.Println(printPrefix, splash)
-	createNewAccount := yesOrNoQuestion(welcomeMsg) == "y"
-	if createNewAccount {
+	accs := r.client.ListAccounts()
+	fmt.Println(accs)
+	if len(accs) > 0 {
+		r.chooseAccount()
+	} else {
 		r.createAccount()
 	}
 }
 
+func (r *repl) chooseAccount(){
+	accs := r.client.ListAccounts()
+	accName := multipleChoice(accs)
+	account, err := r.client.GetAccount(accName)
+	if err != nil {
+		panic("wtf")
+	}
+	fmt.Printf("%s Loaded account: %s pubkey: %x \n", printPrefix, account.Name, account.PubKey)
+	r.client.SetLocalAccount(account)
+}
+
+
+
 func (r *repl) createAccount() {
-	generatePassphrase := yesOrNoQuestion(generateMsg) == "y"
-	/*accountInfo := prompt.Input(prefix+accountInfoMsg,
-	emptyComplete,
-	prompt.OptionPrefixTextColor(prompt.LightGray))*/
-	passphrase := ""
-	if generatePassphrase {
-		passphrase = prompt.Input(prefix+addPassphraseMsg,
-			emptyComplete,
-			prompt.OptionPrefixTextColor(prompt.LightGray))
+	//accountInfo := prompt.Input(prefix+accountInfoMsg,
+	//emptyComplete,
+	//prompt.OptionPrefixTextColor(prompt.LightGray))
+	accName := ""
+	accName = prompt.Input(prefix+createAccountMsg,
+		emptyComplete,
+		prompt.OptionPrefixTextColor(prompt.LightGray))
+
+
+	ac := r.client.CreateAccount(accName)
+	err := r.client.StoreAccounts()
+	if err != nil {
+		log.Error("%s", err)
+	}
+	fmt.Printf("%s Created account: %s pubkey: %x \n", printPrefix, ac.Name, ac.PubKey)
+	r.client.SetLocalAccount(ac)
+}
+
+func (r *repl) commandLineParams(idx int, input string) string {
+	c := r.commands[idx]
+	params := strings.Replace(input, c.text, "", -1)
+
+	return strings.TrimSpace(params)
+}
+
+func (r *repl) account() {
+	if r.client.LocalAccount() == nil {
+		r.chooseAccount()
+	}
+	account := r.client.LocalAccount()
+	info, err := r.client.AccountInfo(hex.EncodeToString(account.PubKey))
+	if err != nil {
+		log.Error("cannot find account: %s : %s",account.Name, err)
+		return
+	}
+	fmt.Println(printPrefix, "Name: ",account.Name)
+	fmt.Println(printPrefix, "Balance: ",info.Balance)
+	fmt.Println(printPrefix, "Nonce: ",info.Nonce)
+}
+
+func (r *repl) transferCoins() {
+	fmt.Println(printPrefix, initialTransferMsg)
+
+	acct := r.client.LocalAccount()
+	if acct == nil {
+		accountCommand := r.commands[3]
+
+		// executing account command to create a local account
+		r.executor(accountCommand.text)
+		return
 	}
 
-	err := r.client.CreateAccount(passphrase)
+	accountID := hex.EncodeToString(acct.PubKey)
+
+	destinationAccountID := multipleChoice(r.client.ListAccounts())
+	dest, err := r.client.GetAccount(destinationAccountID)
 	if err != nil {
-		log.Debug(err.Error())
+		log.Error("unknown account")
 		return
+	}
+	amountStr := inputNotBlank(amountToTransferMsg)
+
+	acc, err := r.client.AccountInfo(accountID)
+	if err != nil {
+		log.Error("can't get client info")
+		return
+	}
+
+	fmt.Println(printPrefix, "Transaction summary:")
+	fmt.Println(printPrefix, "From: ", address.BytesToAddress(acct.PubKey).String())
+	fmt.Println(printPrefix, "To: ", address.BytesToAddress(dest.PubKey).String())
+	fmt.Println(printPrefix, "Amount:", amountStr)
+	fmt.Println(printPrefix, "Nonce:", acc.Nonce)
+
+	nonce, err := strconv.ParseUint(acc.Nonce, 10, 32)
+	amount, err := strconv.ParseUint(amountStr, 10, 32)
+
+
+	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
+		err := r.client.Transfer(address.BytesToAddress(dest.PubKey), nonce, amount, 1,  100, acct.PrivKey)
+		if err != nil {
+			log.Info(err.Error())
+			return
+		}
 	}
 }
 
+/*
 func (r *repl) unlockAccount() {
 	passphrase := r.commandLineParams(1, r.input)
 	err := r.client.Unlock(passphrase)
@@ -139,13 +234,6 @@ func (r *repl) unlockAccount() {
 	r.executor(fmt.Sprintf("%s %s", acctCmd.text, passphrase))
 }
 
-func (r *repl) commandLineParams(idx int, input string) string {
-	c := r.commands[idx]
-	params := strings.Replace(input, c.text, "", -1)
-
-	return strings.TrimSpace(params)
-}
-
 func (r *repl) lockAccount() {
 	passphrase := r.commandLineParams(2, r.input)
 	err := r.client.Lock(passphrase)
@@ -156,77 +244,4 @@ func (r *repl) lockAccount() {
 
 	acctCmd := r.commands[3]
 	r.executor(fmt.Sprintf("%s %s", acctCmd.text, passphrase))
-}
-
-func (r *repl) account() {
-	accountID := r.commandLineParams(3, r.input)
-
-	if accountID != "" {
-		r.client.AccountInfo(accountID)
-	} else {
-		accountID = inputNotBlank(getAccountInfoMsg)
-		if acct := r.client.LocalAccount(); acct == nil &&
-			yesOrNoQuestion(accountNotFoundoMsg) == "y" {
-			r.createAccount()
-		} else {
-			acc, err := r.client.AccountInfo("1")
-			if err != nil {
-				fmt.Println(printPrefix, "Error", err.Error())
-				return
-			}
-			fmt.Println(printPrefix, "Balance:", acc.Balance)
-			fmt.Println(printPrefix, "Nonce:", acc.Nonce)
-		}
-	}
-}
-
-func (r *repl) transferCoins() {
-	accountID := ""
-	passphrase := ""
-
-	fmt.Println(printPrefix, initialTransferMsg)
-
-	acct := r.client.LocalAccount()
-	if acct == nil {
-		accountCommand := r.commands[3]
-
-		// executing account command to create a local account
-		r.executor(accountCommand.text)
-		return
-	}
-
-	accountID = acct.PubKey.String()
-	msg := fmt.Sprintf(transferFromLocalAccountMsg, accountID)
-	isTransferFromLocal := yesOrNoQuestion(msg) == "y"
-
-	if !isTransferFromLocal {
-		accountID = inputNotBlank(transferFromAccountMsg)
-	}
-
-	destinationAccountID := inputNotBlank(transferToAccountMsg)
-	amount := inputNotBlank(amountToTransferMsg)
-
-	if !r.client.IsAccountUnLock(accountID) {
-		passphrase = inputNotBlank(accountPassphrase)
-	}
-
-	acc, err := r.client.AccountInfo(accountID)
-	if err != nil {
-		log.Error("can't get client info")
-		return
-	}
-
-	fmt.Println(printPrefix, "Transaction summary:")
-	fmt.Println(printPrefix, "From:", accountID)
-	fmt.Println(printPrefix, "To:", destinationAccountID)
-	fmt.Println(printPrefix, "Amount:", amount)
-	fmt.Println(printPrefix, "Nonce:", acc.Nonce)
-
-	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		err := r.client.Transfer(accountID, destinationAccountID, amount, acc.Nonce, passphrase)
-		if err != nil {
-			log.Info(err.Error())
-			return
-		}
-	}
-}
+}*/

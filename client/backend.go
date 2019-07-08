@@ -1,55 +1,70 @@
 package client
 
 import (
-	"fmt"
+	"bytes"
 	"github.com/CLIWallet/accounts"
+	"github.com/CLIWallet/log"
+	xdr "github.com/davecgh/go-xdr/xdr2"
+	"github.com/spacemeshos/ed25519"
+	"github.com/spacemeshos/go-spacemesh/address"
 )
 
 const DataPath = "/tmp/"
+const accountsPath = "accounts.json"
 
 type WalletBE struct {
 	*HTTPRequester
+	accounts.Store
 	localAccount *accounts.Account
 }
 
-func NewWalletBE() (*WalletBE, error) {
-	err := accounts.LoadAllAccounts(DataPath)
-	if err != nil {
-		return nil, err
+func NewWalletBE(node string) (*WalletBE, error) {
+	server := ServerAddress
+	if node != "" {
+		server = "http://" + node + "/v1"
 	}
-	return &WalletBE{NewHTTPRequester(ServerAddress), accounts.LocalAccount}, nil
-}
 
-func (w *WalletBE) CreateAccount(passphrase string) error {
-	acc, err := accounts.NewAccount(passphrase)
+	acc, err := accounts.LoadAccounts(accountsPath)
 	if err != nil {
-		return err
+		log.Error("cannot load account from file %s: %s", accountsPath, err)
+		acc = &accounts.Store{}
 	}
-	acc.Persist(DataPath)
-	return nil
+	return &WalletBE{NewHTTPRequester(server), *acc,nil}, nil
 }
 
 func (w *WalletBE) LocalAccount() *accounts.Account {
 	return w.localAccount
 }
 
-func (w *WalletBE) Unlock(passphrase string) error {
-	if w.localAccount == nil {
-		return fmt.Errorf("no local account")
-	}
-	w.localAccount.UnlockAccount(passphrase)
-	return nil
+func (w *WalletBE) SetLocalAccount(a *accounts.Account){
+	w.localAccount = a
 }
 
-func (w *WalletBE) IsAccountUnLock(id string) bool {
-	w.localAccount.IsAccountLocked()
-	return false
+func InterfaceToBytes(i interface{}) ([]byte, error) {
+	var w bytes.Buffer
+	if _, err := xdr.Marshal(&w, &i); err != nil {
+		return nil, err
+	}
+	return w.Bytes(), nil
 }
 
-func (w *WalletBE) Lock(passphrase string) error {
-	if w.localAccount == nil {
-		return fmt.Errorf("no local account")
+func (w *WalletBE ) StoreAccounts() error{
+	return accounts.StoreAccounts(accountsPath, &w.Store)
+}
+
+func (w *WalletBE) Transfer(recipient address.Address,nonce , amount, gasPrice, gasLimit uint64 ,key ed25519.PrivateKey) error {
+	tx := SerializableSignedTransaction{}
+	tx.AccountNonce = nonce
+	tx.Amount = amount
+	tx.Recipient = recipient
+	tx.GasLimit = gasLimit
+	tx.Price = gasPrice
+
+	buf, _ := InterfaceToBytes(&tx.InnerSerializableSignedTransaction)
+	copy(tx.Signature[:], ed25519.Sign2(key, buf))
+	b, err := InterfaceToBytes(&tx)
+	if err != nil {
+		return err
 	}
-	w.localAccount.LockAccount(passphrase)
-	return nil
+	return w.HTTPRequester.Send(b)
 }
