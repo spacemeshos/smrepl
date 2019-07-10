@@ -43,6 +43,7 @@ type Client interface {
 	ListAccounts() []string
 	GetAccount(name string) (*accounts.Account, error)
 	StoreAccounts() error
+	NodeURL() string
 	//Unlock(passphrase string) error
 	//IsAccountUnLock(id string) bool
 	//Lock(passphrase string) error
@@ -111,6 +112,7 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 
 func (r *repl) firstTime() {
 	fmt.Println(printPrefix, splash)
+	fmt.Println("connected to node at ", r.client.NodeURL())
 	accs := r.client.ListAccounts()
 	fmt.Println(accs)
 	if len(accs) > 0 {
@@ -201,19 +203,31 @@ func (r *repl) transferCoins() {
 		log.Error("can't get client info")
 		return
 	}
+	gas := uint64(1)
+	if yesOrNoQuestion(useDefaultGasMsg) == "y"{
+		gasStr := inputNotBlank(enterGasPrice)
+		gas, err = strconv.ParseUint(gasStr, 10, 64)
+		if err != nil {
+			log.Error("invalid gas", err)
+			return
+		}
+	}
+
+
 
 	fmt.Println(printPrefix, "Transaction summary:")
-	fmt.Println(printPrefix, "From: ", address.BytesToAddress(acct.PubKey).String())
-	fmt.Println(printPrefix, "To: ", address.BytesToAddress(dest.PubKey).String())
+	fmt.Println(printPrefix, "From:  ", address.BytesToAddress(acct.PubKey).String())
+	fmt.Println(printPrefix, "To:    ", address.BytesToAddress(dest.PubKey).String())
 	fmt.Println(printPrefix, "Amount:", amountStr)
-	fmt.Println(printPrefix, "Nonce:", acc.Nonce)
+	fmt.Println(printPrefix, "Gas:   ", gas)
+	fmt.Println(printPrefix, "Nonce: ", acc.Nonce)
 
 	nonce, err := strconv.ParseUint(acc.Nonce, 10, 32)
 	amount, err := strconv.ParseUint(amountStr, 10, 32)
 
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		err := r.client.Transfer(address.BytesToAddress(dest.PubKey), nonce, amount, 1,  100, acct.PrivKey)
+		err := r.client.Transfer(address.BytesToAddress(dest.PubKey), nonce, amount, gas,  100, acct.PrivKey)
 		if err != nil {
 			log.Info(err.Error())
 			return

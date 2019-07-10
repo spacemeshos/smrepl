@@ -18,6 +18,8 @@ const (
 	postAllocationMsg       = "POST allocation (GB): "
 	restartNodeMsg          = "Restart node?"
 	createAccountMsg        = "Account name:"
+	useDefaultGasMsg        = "Use non default gas price (default: 1) ? (y/n)"
+	enterGasPrice           = "Enter gas price for transaction:"
 	getAccountInfoMsg       = "Enter account id to query"
 )
 

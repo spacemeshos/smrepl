@@ -67,6 +67,10 @@ type HttpClient struct {
 	Requester
 }
 
+func (hr *HTTPRequester) NodeURL() string{
+	return hr.url
+}
+
 func printBuffer(b []byte) string{
 	st := "["
 	for _, byt := range b {

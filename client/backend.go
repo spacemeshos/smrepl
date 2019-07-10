@@ -23,7 +23,6 @@ func NewWalletBE(node string) (*WalletBE, error) {
 	if node != "" {
 		server = "http://" + node + "/v1"
 	}
-
 	acc, err := accounts.LoadAccounts(accountsPath)
 	if err != nil {
 		log.Error("cannot load account from file %s: %s", accountsPath, err)
