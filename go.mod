@@ -1,4 +1,4 @@
-module github.com/CLIWallet
+module github.com/spacemeshos/CLIWallet
 
 require (
 	github.com/btcsuite/btcd v0.0.0-20190213025234-306aecffea32
