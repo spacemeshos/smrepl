@@ -17,14 +17,14 @@ type AccountInfo struct {
 	Balance string
 }
 
-func (s Store) GetAccount(name string) (*Account, error){
+func (s Store) GetAccount(name string) (*Account, error) {
 	if acc, ok := s[name]; ok {
 		priv, err := hex.DecodeString(acc.PrivKey)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		pub, err := hex.DecodeString(acc.PubKey)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 
@@ -33,11 +33,10 @@ func (s Store) GetAccount(name string) (*Account, error){
 	return nil, fmt.Errorf("account not found")
 }
 
-func  (s Store) ListAccounts() []string {
+func (s Store) ListAccounts() []string {
 	lst := make([]string, 0, len(s))
 	for key := range s {
 		lst = append(lst, key)
 	}
 	return lst
 }
-

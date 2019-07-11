@@ -28,9 +28,9 @@ type command struct {
 }
 
 type repl struct {
-	commands     []command
-	client       Client
-	input        string
+	commands []command
+	client   Client
+	input    string
 }
 
 // Client interface to REPL clients.
@@ -39,7 +39,7 @@ type Client interface {
 	LocalAccount() *accounts.Account
 	SetLocalAccount(a *accounts.Account)
 	AccountInfo(id string) (*accounts.AccountInfo, error)
-	Transfer(recipient address.Address,nonce , amount, gasPrice, gasLimit uint64 ,key ed25519.PrivateKey) error
+	Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) error
 	ListAccounts() []string
 	GetAccount(name string) (*accounts.Account, error)
 	StoreAccounts() error
@@ -122,7 +122,7 @@ func (r *repl) firstTime() {
 	}
 }
 
-func (r *repl) chooseAccount(){
+func (r *repl) chooseAccount() {
 	accs := r.client.ListAccounts()
 	accName := multipleChoice(accs)
 	account, err := r.client.GetAccount(accName)
@@ -133,8 +133,6 @@ func (r *repl) chooseAccount(){
 	r.client.SetLocalAccount(account)
 }
 
-
-
 func (r *repl) createAccount() {
 	//accountInfo := prompt.Input(prefix+accountInfoMsg,
 	//emptyComplete,
@@ -143,7 +141,6 @@ func (r *repl) createAccount() {
 	accName = prompt.Input(prefix+createAccountMsg,
 		emptyComplete,
 		prompt.OptionPrefixTextColor(prompt.LightGray))
-
 
 	ac := r.client.CreateAccount(accName)
 	err := r.client.StoreAccounts()
@@ -168,12 +165,12 @@ func (r *repl) account() {
 	account := r.client.LocalAccount()
 	info, err := r.client.AccountInfo(hex.EncodeToString(account.PubKey))
 	if err != nil {
-		log.Error("cannot find account: %s : %s",account.Name, err)
+		log.Error("cannot find account: %s : %s", account.Name, err)
 		return
 	}
-	fmt.Println(printPrefix, "Name: ",account.Name)
-	fmt.Println(printPrefix, "Balance: ",info.Balance)
-	fmt.Println(printPrefix, "Nonce: ",info.Nonce)
+	fmt.Println(printPrefix, "Name: ", account.Name)
+	fmt.Println(printPrefix, "Balance: ", info.Balance)
+	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 }
 
 func (r *repl) transferCoins() {
@@ -204,7 +201,7 @@ func (r *repl) transferCoins() {
 		return
 	}
 	gas := uint64(1)
-	if yesOrNoQuestion(useDefaultGasMsg) == "y"{
+	if yesOrNoQuestion(useDefaultGasMsg) == "y" {
 		gasStr := inputNotBlank(enterGasPrice)
 		gas, err = strconv.ParseUint(gasStr, 10, 64)
 		if err != nil {
@@ -212,8 +209,6 @@ func (r *repl) transferCoins() {
 			return
 		}
 	}
-
-
 
 	fmt.Println(printPrefix, "Transaction summary:")
 	fmt.Println(printPrefix, "From:  ", address.BytesToAddress(acct.PubKey).String())
@@ -225,9 +220,8 @@ func (r *repl) transferCoins() {
 	nonce, err := strconv.ParseUint(acc.Nonce, 10, 32)
 	amount, err := strconv.ParseUint(amountStr, 10, 32)
 
-
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		err := r.client.Transfer(address.BytesToAddress(dest.PubKey), nonce, amount, gas,  100, acct.PrivKey)
+		err := r.client.Transfer(address.BytesToAddress(dest.PubKey), nonce, amount, gas, 100, acct.PrivKey)
 		if err != nil {
 			log.Info(err.Error())
 			return

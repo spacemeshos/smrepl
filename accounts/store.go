@@ -11,13 +11,13 @@ import (
 )
 
 type AccountKeys struct {
-	PubKey string `json:"pubkey"`
+	PubKey  string `json:"pubkey"`
 	PrivKey string `json:"privkey"`
 }
 
 type Store map[string]AccountKeys
 
-func StoreAccounts(path string, store *Store) error{
+func StoreAccounts(path string, store *Store) error {
 	w, err := os.Create(path)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func StoreAccounts(path string, store *Store) error{
 	return nil
 }
 
-func LoadAccounts(path string) (*Store, error){
+func LoadAccounts(path string) (*Store, error) {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		log.Warning("genesis config not lodad since file does not exist. file=%v", path)
@@ -52,13 +52,13 @@ func LoadAccounts(path string) (*Store, error){
 	return cfg, nil
 }
 
-func (s Store) CreateAccount(owner string) *Account{
+func (s Store) CreateAccount(owner string) *Account {
 	sPub, key, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		log.Error("cannot create account: %s", err)
 		return nil
 	}
-	acc :=  &Account{Name: owner, PubKey:sPub, PrivKey:key}
-	s[owner] = AccountKeys{PubKey: hex.EncodeToString(sPub), PrivKey:hex.EncodeToString(key)}
+	acc := &Account{Name: owner, PubKey: sPub, PrivKey: key}
+	s[owner] = AccountKeys{PubKey: hex.EncodeToString(sPub), PrivKey: hex.EncodeToString(key)}
 	return acc
 }

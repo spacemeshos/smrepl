@@ -42,7 +42,7 @@ func yesOrNoQuestion(msg string) string {
 	return input
 }
 
-func multipleChoice(names []string) string{
+func multipleChoice(names []string) string {
 	fmt.Println(printPrefix, "choose one:")
 	var input string
 	accounts := make(map[string]struct{})
@@ -53,7 +53,7 @@ func multipleChoice(names []string) string{
 		return ""
 	}
 	for {
-		for ac := range accounts{
+		for ac := range accounts {
 			fmt.Println(printPrefix, ac)
 		}
 		input = prompt.Input(prefix,

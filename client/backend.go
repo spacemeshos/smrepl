@@ -2,9 +2,9 @@ package client
 
 import (
 	"bytes"
+	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/accounts"
 	"github.com/spacemeshos/CLIWallet/log"
-	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/address"
 )
@@ -28,14 +28,14 @@ func NewWalletBE(node string) (*WalletBE, error) {
 		log.Error("cannot load account from file %s: %s", accountsPath, err)
 		acc = &accounts.Store{}
 	}
-	return &WalletBE{NewHTTPRequester(server), *acc,nil}, nil
+	return &WalletBE{NewHTTPRequester(server), *acc, nil}, nil
 }
 
 func (w *WalletBE) LocalAccount() *accounts.Account {
 	return w.localAccount
 }
 
-func (w *WalletBE) SetLocalAccount(a *accounts.Account){
+func (w *WalletBE) SetLocalAccount(a *accounts.Account) {
 	w.localAccount = a
 }
 
@@ -47,11 +47,11 @@ func InterfaceToBytes(i interface{}) ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func (w *WalletBE ) StoreAccounts() error{
+func (w *WalletBE) StoreAccounts() error {
 	return accounts.StoreAccounts(accountsPath, &w.Store)
 }
 
-func (w *WalletBE) Transfer(recipient address.Address,nonce , amount, gasPrice, gasLimit uint64 ,key ed25519.PrivateKey) error {
+func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) error {
 	tx := SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
