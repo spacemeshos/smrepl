@@ -2,8 +2,8 @@ package client
 
 import (
 	"bytes"
-	"github.com/CLIWallet/accounts"
-	"github.com/CLIWallet/log"
+	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/log"
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/address"

@@ -4,8 +4,8 @@ package main
 
 import (
 	"flag"
-	"github.com/CLIWallet/client"
-	"github.com/CLIWallet/repl"
+	"github.com/spacemeshos/CLIWallet/client"
+	"github.com/spacemeshos/CLIWallet/repl"
 	"github.com/spacemeshos/go-spacemesh/accounts"
 	"syscall"
 )

@@ -3,8 +3,8 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/CLIWallet/accounts"
-	"github.com/CLIWallet/log"
+	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/address"
 	"strconv"

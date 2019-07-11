@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/CLIWallet/log"
+	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
 	"os"
 )
