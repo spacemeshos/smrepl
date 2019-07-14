@@ -5,7 +5,7 @@ The CLI Wallet app currently only supports the [local testnet](https://github.co
 
 ## Building
 ```
-go make
+go get && go build
 ```
 
 ## Using
