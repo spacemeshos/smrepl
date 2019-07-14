@@ -2,6 +2,7 @@ package repl
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/c-bata/go-prompt"
@@ -63,6 +64,14 @@ func multipleChoice(names []string) string {
 		if _, ok := accounts[input]; ok {
 			return input
 		}
+
+		s := strings.TrimSpace(input)
+		if s == "quit" || s == "exit" {
+			fmt.Println("Bye!")
+			os.Exit(0)
+			return "";
+		}
+
 		fmt.Println(printPrefix, "invalid command.")
 
 	}

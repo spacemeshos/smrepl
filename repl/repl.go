@@ -7,6 +7,7 @@ import (
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/address"
+	"os"
 	"strconv"
 	"strings"
 
@@ -84,6 +85,14 @@ func (r *repl) initializeCommands() {
 }
 
 func (r *repl) executor(text string) {
+
+	s := strings.TrimSpace(text)
+	if s == "quit" || s == "exit" {
+		fmt.Println("Bye!")
+		os.Exit(0)
+		return
+	}
+
 	for _, c := range r.commands {
 		if len(text) >= len(c.text) && text[:len(c.text)] == c.text {
 			r.input = text
@@ -92,6 +101,7 @@ func (r *repl) executor(text string) {
 			return
 		}
 	}
+
 
 	fmt.Println(printPrefix, "invalid command.")
 }
