@@ -70,7 +70,7 @@ func Start(c Client) {
 
 func (r *repl) initializeCommands() {
 	r.commands = []command{
-		{"create account", "Create a new coin user account.", r.createAccount},
+		{"create account", "Create a new coin account.", r.createAccount},
 		{"account", "Display account info.", r.account},
 		{"transfer coins", "Transfer coins between any two accounts.", r.transferCoins},
 		{"switch account", "Switch to another account.", r.chooseAccount},
@@ -112,7 +112,7 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 
 func (r *repl) firstTime() {
 	fmt.Println(printPrefix, splash)
-	fmt.Println("connected to node at ", r.client.NodeURL())
+	fmt.Println("Connected to node at ", r.client.NodeURL())
 	accs := r.client.ListAccounts()
 	fmt.Println(accs)
 	if len(accs) > 0 {
@@ -129,7 +129,7 @@ func (r *repl) chooseAccount() {
 	if err != nil {
 		panic("wtf")
 	}
-	fmt.Printf("%s Loaded account: %s pubkey: %x \n", printPrefix, account.Name, account.PubKey)
+	fmt.Printf("%s Loaded account: %s pubkey: 0x%x \n", printPrefix, account.Name, account.PubKey)
 	r.client.SetLocalAccount(account)
 }
 
@@ -147,7 +147,7 @@ func (r *repl) createAccount() {
 	if err != nil {
 		log.Error("%s", err)
 	}
-	fmt.Printf("%s Created account: %s pubkey: %x \n", printPrefix, ac.Name, ac.PubKey)
+	fmt.Printf("%s Created account: %s pubkey: 0x%x \n", printPrefix, ac.Name, ac.PubKey)
 	r.client.SetLocalAccount(ac)
 }
 

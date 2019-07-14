@@ -9,7 +9,7 @@ const (
 	transferFromLocalAccountMsg = "Transfer from local account %s ? (y/n) "
 	transferFromAccountMsg      = "Enter or paste account id: "
 	transferToAccountMsg        = "Enter or paste destination account id: "
-	amountToTransferMsg         = "Enter Meshcoins amount to transfer: "
+	amountToTransferMsg         = "Enter Spacemesh Coins (SMC) amount to transfer: "
 	accountPassphrase           = "Enter local account passphrase: "
 	confirmTransactionMsg       = "Confirm transaction (y/n): "
 	newFlagsAndParamsMsg        = "provide CLI flags and params or press ENTER for none: "
@@ -18,8 +18,8 @@ const (
 	postAllocationMsg           = "POST allocation (GB): "
 	restartNodeMsg              = "Restart node?"
 	createAccountMsg            = "Account name:"
-	useDefaultGasMsg            = "Use non default gas price (default: 1) ? (y/n)"
-	enterGasPrice               = "Enter gas price for transaction:"
+	useDefaultGasMsg            = "Use non-default gas price (default: 1) ? (y/n)"
+	enterGasPrice               = "Enter transaction gas price:"
 	getAccountInfoMsg           = "Enter account id to query"
 )
 
