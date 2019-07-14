@@ -70,10 +70,10 @@ func Start(c Client) {
 
 func (r *repl) initializeCommands() {
 	r.commands = []command{
-		{"create account", "Create account.", r.createAccount},
-		{"account", "Shows basic local account info about the local account.", r.account},
-		{"transfer coins", "Transfer coins between 2 accounts.", r.transferCoins},
-		{"switch account", "Switches to another account from account list", r.chooseAccount},
+		{"create account", "Create a new coin user account.", r.createAccount},
+		{"account", "Display account info.", r.account},
+		{"transfer coins", "Transfer coins between any two accounts.", r.transferCoins},
+		{"switch account", "Switch to another account.", r.chooseAccount},
 		//{"unlock account", "Unlock account.", r.unlockAccount},
 		//{"lock account", "Lock Account.", r.lockAccount},
 		//{"setup", "Setup POST.", r.setup},
