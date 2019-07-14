@@ -70,10 +70,10 @@ func Start(c Client) {
 
 func (r *repl) initializeCommands() {
 	r.commands = []command{
-		{"create account", "Create a new coin account.", r.createAccount},
-		{"account", "Display account info.", r.account},
-		{"transfer coins", "Transfer coins between any two accounts.", r.transferCoins},
-		{"switch account", "Switch to another account.", r.chooseAccount},
+		{"create account", "Create a new coin account", r.createAccount},
+		{"account", "Display account info", r.account},
+		{"transfer coins", "Transfer coins between any two accounts", r.transferCoins},
+		{"switch account", "Switch to another account", r.chooseAccount},
 		//{"unlock account", "Unlock account.", r.unlockAccount},
 		//{"lock account", "Lock Account.", r.lockAccount},
 		//{"setup", "Setup POST.", r.setup},
@@ -112,7 +112,7 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 
 func (r *repl) firstTime() {
 	fmt.Println(printPrefix, splash)
-	fmt.Println("Connected to node at ", r.client.NodeURL())
+	fmt.Println("Welcome to Spacemesh. Connected to node at ", r.client.NodeURL())
 	accs := r.client.ListAccounts()
 	fmt.Println(accs)
 	if len(accs) > 0 {
