@@ -43,7 +43,7 @@ func yesOrNoQuestion(msg string) string {
 }
 
 func multipleChoice(names []string) string {
-	fmt.Println(printPrefix, "choose one:")
+	fmt.Println(printPrefix, "Choose an account to receive the coins: ")
 	var input string
 	accounts := make(map[string]struct{})
 	for _, name := range names {
