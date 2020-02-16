@@ -6,12 +6,12 @@ import "github.com/spacemeshos/go-spacemesh/accounts"
 // doesn't implement the methods.
 type Mock struct{}
 
-// CreateAccount creates account.
+// CreateAccount creates accountInfo.
 func (Mock) CreateAccount(generatePassphrase bool, accountInfo string) error {
 	return nil
 }
 
-// LocalAccount returns local account.
+// CurrentAccount returns local accountInfo.
 func (Mock) LocalAccount() *accounts.Account {
 	acct, err := accounts.NewAccount("")
 	if err != nil {
@@ -21,26 +21,26 @@ func (Mock) LocalAccount() *accounts.Account {
 	return acct
 }
 
-// Unlock unlock local account or the account by passphrase.
+// Unlock unlock local accountInfo or the accountInfo by passphrase.
 func (Mock) Unlock(passphrase string) error {
 	return nil
 }
 
-// IsAccountUnLock checks if the account with id is unlock.
+// IsAccountUnLock checks if the accountInfo with id is unlock.
 func (Mock) IsAccountUnLock(id string) bool {
 	return false
 }
 
-// Lock locks local account or the account by passphrase.
+// Lock locks local accountInfo or the accountInfo by passphrase.
 func (Mock) Lock(passphrase string) error {
 	return nil
 }
 
-// AccountInfo prints account info.
+// AccountInfo prints accountInfo info.
 func (Mock) AccountInfo(id string) {
 }
 
-// Transfer transfers the amount from an account to the other.
+// Transfer transfers the amount from an accountInfo to the other.
 func (Mock) Transfer(from, to, amount, passphrase string) error {
 	return nil
 }
