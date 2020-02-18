@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spacemeshos/CLIWallet/accounts"
-	"github.com/spacemeshos/CLIWallet/log"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -29,7 +28,7 @@ func NewHTTPRequester(url string) *HTTPRequester {
 func (hr *HTTPRequester) Get(api, data string) (map[string]interface{}, error) {
 	var jsonStr = []byte(data)
 	url := hr.url + api
-	log.Info("Sending to url: %v request : %v ", url, string(jsonStr))
+	//	log.Info("Sending to url: %v request : %v ", url, string(jsonStr))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return nil, err
@@ -43,7 +42,7 @@ func (hr *HTTPRequester) Get(api, data string) (map[string]interface{}, error) {
 	defer res.Body.Close()
 
 	resBody, _ := ioutil.ReadAll(res.Body)
-	log.Info("response: %s", resBody)
+	//	log.Info("response: %s", resBody)
 
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("`%v` response status code: %d", api, res.StatusCode)
@@ -205,6 +204,15 @@ func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error 
 func (m HTTPRequester) SetCoinbase(coinbase string) error {
 	str := fmt.Sprintf(`{ "address": "%s"}`, coinbase)
 	_, err := m.Get("/setawardsaddr", str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m HTTPRequester) Sanity() error {
+	_, err := m.Get("/example/echo", "")
 	if err != nil {
 		return err
 	}

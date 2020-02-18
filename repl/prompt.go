@@ -18,11 +18,11 @@ func runPrompt(executor func(string), completer func(prompt.Document) []prompt.S
 		prompt.OptionPrefix(prefix),
 		prompt.OptionPrefixTextColor(prompt.LightGray),
 		prompt.OptionMaxSuggestion(length),
+		prompt.OptionShowCompletionAtStart(),
 	)
 
 	firstTime()
 	p.Run()
-
 }
 
 // executes prompt waiting for an input with y or n

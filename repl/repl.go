@@ -42,6 +42,7 @@ type Client interface {
 	SetCurrentAccount(a *accounts.Account)
 	AccountInfo(address string) (*accounts.AccountInfo, error)
 	NodeInfo() (*client.NodeInfo, error)
+	Sanity() error
 	Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) error
 	ListAccounts() []string
 	GetAccount(name string) (*accounts.Account, error)
@@ -84,6 +85,7 @@ func (r *repl) initializeCommands() {
 		{"sign", "Sign a text message with the current account private key", r.sign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
 		{"smesh", "Start smeshing", r.smesh},
+		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
 		//{"lock accountInfo", "Lock Account.", r.lockAccount},
@@ -95,14 +97,6 @@ func (r *repl) initializeCommands() {
 }
 
 func (r *repl) executor(text string) {
-
-	s := strings.TrimSpace(text)
-	if s == "quit" || s == "exit" {
-		fmt.Println("Bye!")
-		os.Exit(0)
-		return
-	}
-
 	for _, c := range r.commands {
 		if len(text) >= len(c.text) && text[:len(c.text)] == c.text {
 			r.input = text
@@ -131,13 +125,13 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 
 func (r *repl) firstTime() {
 	fmt.Println(printPrefix, splash)
-	fmt.Println("Welcome to Spacemesh. Connected to node at ", r.client.NodeURL())
-	accs := r.client.ListAccounts()
-	if len(accs) > 0 {
-		r.chooseAccount()
-	} else {
-		r.createAccount()
+
+	if err := r.client.Sanity(); err != nil {
+		log.Error("Failed to connect to node at %v: %v", r.client.NodeURL(), err)
+		r.quit()
 	}
+
+	fmt.Println("Welcome to Spacemesh. Connected to node at ", r.client.NodeURL())
 }
 
 func (r *repl) chooseAccount() {
@@ -175,12 +169,13 @@ func (r *repl) commandLineParams(idx int, input string) string {
 }
 
 func (r *repl) accountInfo() {
-	acct := r.client.CurrentAccount()
-	if acct == nil {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
 		r.chooseAccount()
+		acc = r.client.CurrentAccount()
 	}
 
-	address := address.BytesToAddress(acct.PubKey)
+	address := address.BytesToAddress(acc.PubKey)
 
 	info, err := r.client.AccountInfo(hex.EncodeToString(address.Bytes()))
 	if err != nil {
@@ -188,20 +183,15 @@ func (r *repl) accountInfo() {
 		info = &accounts.AccountInfo{}
 	}
 
-	fmt.Println(printPrefix, "Local alias: ", acct.Name)
+	fmt.Println(printPrefix, "Local alias: ", acc.Name)
 	fmt.Println(printPrefix, "Address: ", accounts.StringAddress(address))
 	fmt.Println(printPrefix, "Balance: ", info.Balance)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
-	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acct.PubKey)))
-	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acct.PrivKey)))
+	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
+	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
 }
 
 func (r *repl) nodeInfo() {
-	acct := r.client.CurrentAccount()
-	if acct == nil {
-		r.chooseAccount()
-	}
-
 	info, err := r.client.NodeInfo()
 	if err != nil {
 		log.Error("failed to get node info: %v", err)
@@ -223,12 +213,13 @@ func (r *repl) nodeInfo() {
 
 func (r *repl) transferCoins() {
 	fmt.Println(printPrefix, initialTransferMsg)
-	acct := r.client.CurrentAccount()
-	if acct == nil {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
 		r.chooseAccount()
+		acc = r.client.CurrentAccount()
 	}
 
-	srcAddress := address.BytesToAddress(acct.PubKey)
+	srcAddress := address.BytesToAddress(acc.PubKey)
 	info, err := r.client.AccountInfo(hex.EncodeToString(srcAddress.Bytes()))
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
@@ -261,7 +252,7 @@ func (r *repl) transferCoins() {
 	amount, err := strconv.ParseUint(amountStr, 10, 32)
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		err := r.client.Transfer(destAddress, nonce, amount, gas, 100, acct.PrivKey)
+		err := r.client.Transfer(destAddress, nonce, amount, gas, 100, acc.PrivKey)
 		if err != nil {
 			log.Info(err.Error())
 			return
@@ -270,9 +261,10 @@ func (r *repl) transferCoins() {
 }
 
 func (r *repl) smesh() {
-	acct := r.client.CurrentAccount()
-	if acct == nil {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
 		r.chooseAccount()
+		acc = r.client.CurrentAccount()
 	}
 
 	datadir := inputNotBlank(smeshingDatadirMsg)
@@ -284,28 +276,34 @@ func (r *repl) smesh() {
 		return
 	}
 
-	if err := r.client.Smesh(datadir, uint(space)<<30, accounts.StringAddress(acct.Address())); err != nil {
+	if err := r.client.Smesh(datadir, uint(space)<<30, accounts.StringAddress(acc.Address())); err != nil {
 		log.Error("failed to start smeshing: %v", err)
 		return
 	}
 }
 
+func (r *repl) quit() {
+	os.Exit(0)
+}
+
 func (r *repl) coinbase() {
-	acct := r.client.CurrentAccount()
-	if acct == nil {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
 		r.chooseAccount()
+		acc = r.client.CurrentAccount()
 	}
 
-	if err := r.client.SetCoinbase(accounts.StringAddress(acct.Address())); err != nil {
+	if err := r.client.SetCoinbase(accounts.StringAddress(acc.Address())); err != nil {
 		log.Error("failed to set coinbase: %v", err)
 		return
 	}
 }
 
 func (r *repl) sign() {
-	acct := r.client.CurrentAccount()
-	if acct == nil {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
 		r.chooseAccount()
+		acc = r.client.CurrentAccount()
 	}
 
 	msgStr := inputNotBlank(msgSignMsg)
@@ -315,7 +313,7 @@ func (r *repl) sign() {
 		return
 	}
 
-	signature := ed25519.Sign2(acct.PrivKey, msg)
+	signature := ed25519.Sign2(acc.PrivKey, msg)
 
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }
