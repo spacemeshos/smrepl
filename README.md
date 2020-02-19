@@ -17,7 +17,7 @@ with `docker`
 ## Using with a local full node and an open testnet
 1. Build go-spacemesh from source code.
 2. Obtain the testnet's toml config file.
-3. Start go-spacemesh wit the following arguments:
+3. Start go-spacemesh with the following arguments:
 
 ```bash
 ./go-spacemesh --grpc-server --json-server --tcp-port [a_port] --config [tomlFileLocation] -d [nodeDataFilesPath]
