@@ -15,7 +15,7 @@ with `docker`
 ---
 
 ## Using with a local full node and an open testnet
-1. Build go-spacemesh from source code.
+1. Build [go-spacemesh](https://github.com/spacemeshos/go-spacemesh) from source code.
 2. Obtain the testnet's toml config file.
 3. Start go-spacemesh with the following arguments:
 
