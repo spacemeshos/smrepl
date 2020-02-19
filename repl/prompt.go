@@ -18,11 +18,11 @@ func runPrompt(executor func(string), completer func(prompt.Document) []prompt.S
 		prompt.OptionPrefix(prefix),
 		prompt.OptionPrefixTextColor(prompt.LightGray),
 		prompt.OptionMaxSuggestion(length),
+		prompt.OptionShowCompletionAtStart(),
 	)
 
 	firstTime()
 	p.Run()
-
 }
 
 // executes prompt waiting for an input with y or n
@@ -44,7 +44,6 @@ func yesOrNoQuestion(msg string) string {
 }
 
 func multipleChoice(names []string) string {
-	fmt.Println(printPrefix, "Choose an account to receive the coins: ")
 	var input string
 	accounts := make(map[string]struct{})
 	for _, name := range names {
@@ -69,7 +68,7 @@ func multipleChoice(names []string) string {
 		if s == "quit" || s == "exit" {
 			fmt.Println("Bye!")
 			os.Exit(0)
-			return "";
+			return ""
 		}
 
 		fmt.Println(printPrefix, "invalid command.")

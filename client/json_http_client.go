@@ -5,16 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spacemeshos/CLIWallet/accounts"
-	"github.com/spacemeshos/CLIWallet/log"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
 
-const ServerAddress = "http://localhost:9090/v1"
-const Nonce = "nonce"
-const Balance = "balance"
-const SendTransmission = "submittransaction"
+const DefaultNodeHostPort = "localhost:9090"
 
 type Requester interface {
 	Get(api, data string) []byte
@@ -31,36 +27,34 @@ func NewHTTPRequester(url string) *HTTPRequester {
 
 func (hr *HTTPRequester) Get(api, data string) (map[string]interface{}, error) {
 	var jsonStr = []byte(data)
-	url := hr.url + "/" + api
-	log.Info("Sending to url: %v request : %v ", url, string(jsonStr))
+	url := hr.url + api
+	//	log.Info("Sending to url: %v request : %v ", url, string(jsonStr))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := hr.Do(req)
-
+	res, err := hr.Do(req)
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
-	buf := bytes.NewBuffer([]byte{})
-	_, err = io.Copy(buf, resp.Body)
+	resBody, _ := ioutil.ReadAll(res.Body)
+	//	log.Info("response: %s", resBody)
 
-	if err != nil {
-		return nil, err
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("`%v` response status code: %d", api, res.StatusCode)
 	}
-	log.Info("resp: %v len %v", buf.String(), buf.Len())
-	resp.Body.Close()
+
 	var f interface{}
-	err = json.NewDecoder(buf).Decode(&f)
+	err = json.NewDecoder(bytes.NewBuffer(resBody)).Decode(&f)
 	if err != nil {
 		return nil, err
 	}
 
 	return f.(map[string]interface{}), nil
-
 }
 
 type HttpClient struct {
@@ -80,11 +74,11 @@ func printBuffer(b []byte) string {
 	return st
 }
 
-func (m HTTPRequester) AccountInfo(id string) (*accounts.AccountInfo, error) {
-	str := fmt.Sprintf(`{ "address": "0x%s"}`, id)
-	output, err := m.Get(Nonce, str)
+func (m HTTPRequester) AccountInfo(address string) (*accounts.AccountInfo, error) {
+	str := fmt.Sprintf(`{ "address": "0x%s"}`, address)
+	output, err := m.Get("/nonce", str)
 	if err != nil {
-		return nil, fmt.Errorf("cant get nonce %v", err)
+		return nil, err
 	}
 
 	acc := accounts.AccountInfo{}
@@ -94,25 +88,134 @@ func (m HTTPRequester) AccountInfo(id string) (*accounts.AccountInfo, error) {
 		return nil, fmt.Errorf("cant get nonce %v", output)
 	}
 
-	output, err = m.Get(Balance, str)
+	output, err = m.Get("/balance", str)
 	if err != nil {
-		return nil, fmt.Errorf("cant get balance: %v", err)
+		return nil, err
 	}
 
 	if val, ok := output["value"]; ok {
 		acc.Balance = val.(string)
 	} else {
-		return nil, fmt.Errorf("cant get nonce %v", output)
+		return nil, fmt.Errorf("cant get balance %v", output)
 	}
 
 	return &acc, nil
 }
 
+type NodeInfo struct {
+	Synced                 bool
+	SyncedLayer            string
+	CurrentLayer           string
+	VerifiedLayer          string
+	Peers                  string
+	MinPeers               string
+	MaxPeers               string
+	SmeshingDatadir        string
+	SmeshingStatus         string
+	SmeshingCoinbase       string
+	SmeshingRemainingBytes string
+}
+
+func (m HTTPRequester) NodeInfo() (*NodeInfo, error) {
+	nodeStatus, err := m.Get("/nodestatus", "")
+	if err != nil {
+		return nil, err
+	}
+
+	stats, err := m.Get("/stats", "")
+	if err != nil {
+		return nil, err
+	}
+
+	info := &NodeInfo{
+		SyncedLayer:            "0",
+		CurrentLayer:           "0",
+		VerifiedLayer:          "0",
+		Peers:                  "0",
+		MinPeers:               "0",
+		MaxPeers:               "0",
+		SmeshingRemainingBytes: "0",
+	}
+
+	if val, ok := nodeStatus["synced"]; ok {
+		info.Synced = val.(bool)
+	}
+	if val, ok := nodeStatus["syncedLayer"]; ok {
+		info.SyncedLayer = val.(string)
+	}
+	if val, ok := nodeStatus["currentLayer"]; ok {
+		info.CurrentLayer = val.(string)
+	}
+	if val, ok := nodeStatus["verifiedLayer"]; ok {
+		info.VerifiedLayer = val.(string)
+	}
+	if val, ok := nodeStatus["peers"]; ok {
+		info.Peers = val.(string)
+	}
+	if val, ok := nodeStatus["minPeers"]; ok {
+		info.MinPeers = val.(string)
+	}
+	if val, ok := nodeStatus["maxPeers"]; ok {
+		info.MaxPeers = val.(string)
+	}
+	if val, ok := stats["dataDir"]; ok {
+		info.SmeshingDatadir = val.(string)
+	}
+	if val, ok := stats["status"]; ok {
+		switch val.(float64) {
+		case 1:
+			info.SmeshingStatus = "`idle`"
+		case 2:
+			info.SmeshingStatus = "`in-progress`"
+		case 3:
+			info.SmeshingStatus = "`done`"
+		}
+	}
+	if val, ok := stats["coinbase"]; ok {
+		info.SmeshingCoinbase = val.(string)
+	}
+	if val, ok := stats["remainingBytes"]; ok {
+		info.SmeshingRemainingBytes = val.(string)
+	}
+
+	return info, nil
+}
+
 func (m HTTPRequester) Send(b []byte) error {
 	str := fmt.Sprintf(`{ "tx": %s}`, printBuffer(b))
-	_, err := m.Get(SendTransmission, str)
+	_, err := m.Get("/submittransaction", str)
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error {
+	str := fmt.Sprintf(`{ "logicalDrive": "%s", "commitmentSize": %d, "coinbase": "%s"}`, datadir, space, coinbase)
+	_, err := m.Get("/startmining", str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m HTTPRequester) SetCoinbase(coinbase string) error {
+	str := fmt.Sprintf(`{ "address": "%s"}`, coinbase)
+	_, err := m.Get("/setawardsaddr", str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m HTTPRequester) Sanity() error {
+	_, err := m.Get("/example/echo", "")
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

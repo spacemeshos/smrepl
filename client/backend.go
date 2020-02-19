@@ -2,41 +2,42 @@ package client
 
 import (
 	"bytes"
+	"fmt"
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/accounts"
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/address"
+	"path"
 )
 
-const DataPath = "/tmp/"
-const accountsPath = "accounts.json"
+const accountsFileName = "accounts.json"
 
 type WalletBE struct {
 	*HTTPRequester
 	accounts.Store
-	localAccount *accounts.Account
+	accountsFilePath string
+	currentAccount   *accounts.Account
 }
 
-func NewWalletBE(node string) (*WalletBE, error) {
-	server := ServerAddress
-	if node != "" {
-		server = "http://" + node + "/v1"
-	}
-	acc, err := accounts.LoadAccounts(accountsPath)
+func NewWalletBE(serverHostPort, datadir string) (*WalletBE, error) {
+	accountsFilePath := path.Join(datadir, accountsFileName)
+	acc, err := accounts.LoadAccounts(accountsFilePath)
 	if err != nil {
-		log.Error("cannot load account from file %s: %s", accountsPath, err)
+		log.Error("cannot load account from file %s: %s", accountsFilePath, err)
 		acc = &accounts.Store{}
 	}
-	return &WalletBE{NewHTTPRequester(server), *acc, nil}, nil
+
+	url := fmt.Sprintf("http://%s/v1", serverHostPort)
+	return &WalletBE{NewHTTPRequester(url), *acc, accountsFilePath, nil}, nil
 }
 
-func (w *WalletBE) LocalAccount() *accounts.Account {
-	return w.localAccount
+func (w *WalletBE) CurrentAccount() *accounts.Account {
+	return w.currentAccount
 }
 
-func (w *WalletBE) SetLocalAccount(a *accounts.Account) {
-	w.localAccount = a
+func (w *WalletBE) SetCurrentAccount(a *accounts.Account) {
+	w.currentAccount = a
 }
 
 func InterfaceToBytes(i interface{}) ([]byte, error) {
@@ -48,7 +49,7 @@ func InterfaceToBytes(i interface{}) ([]byte, error) {
 }
 
 func (w *WalletBE) StoreAccounts() error {
-	return accounts.StoreAccounts(accountsPath, &w.Store)
+	return accounts.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
 func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) error {
