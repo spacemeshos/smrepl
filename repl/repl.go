@@ -136,6 +136,11 @@ func (r *repl) firstTime() {
 
 func (r *repl) chooseAccount() {
 	accs := r.client.ListAccounts()
+	if len(accs) == 0 {
+		r.createAccount()
+		return
+	}
+
 	fmt.Println(printPrefix, "Choose an account to load:")
 	accName := multipleChoice(accs)
 	account, err := r.client.GetAccount(accName)
@@ -148,6 +153,7 @@ func (r *repl) chooseAccount() {
 }
 
 func (r *repl) createAccount() {
+	fmt.Println(printPrefix, "Create a new account")
 	alias := inputNotBlank(createAccountMsg)
 
 	ac := r.client.CreateAccount(alias)
