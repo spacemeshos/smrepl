@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/log"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -25,10 +26,12 @@ func NewHTTPRequester(url string) *HTTPRequester {
 	return &HTTPRequester{&http.Client{}, url}
 }
 
-func (hr *HTTPRequester) Get(api, data string) (map[string]interface{}, error) {
+func (hr *HTTPRequester) Get(api, data string, logIO bool) (map[string]interface{}, error) {
 	var jsonStr = []byte(data)
 	url := hr.url + api
-	//	log.Info("Sending to url: %v request : %v ", url, string(jsonStr))
+	if logIO {
+		log.Info("request: %v, body: %v", url, data)
+	}
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return nil, err
@@ -42,7 +45,9 @@ func (hr *HTTPRequester) Get(api, data string) (map[string]interface{}, error) {
 	defer res.Body.Close()
 
 	resBody, _ := ioutil.ReadAll(res.Body)
-	//	log.Info("response: %s", resBody)
+	if logIO {
+		log.Info("response body: %s", resBody)
+	}
 
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("`%v` response status code: %d", api, res.StatusCode)
@@ -76,7 +81,7 @@ func printBuffer(b []byte) string {
 
 func (m HTTPRequester) AccountInfo(address string) (*accounts.AccountInfo, error) {
 	str := fmt.Sprintf(`{ "address": "0x%s"}`, address)
-	output, err := m.Get("/nonce", str)
+	output, err := m.Get("/nonce", str, true)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +93,7 @@ func (m HTTPRequester) AccountInfo(address string) (*accounts.AccountInfo, error
 		return nil, fmt.Errorf("cant get nonce %v", output)
 	}
 
-	output, err = m.Get("/balance", str)
+	output, err = m.Get("/balance", str, true)
 	if err != nil {
 		return nil, err
 	}
@@ -117,12 +122,12 @@ type NodeInfo struct {
 }
 
 func (m HTTPRequester) NodeInfo() (*NodeInfo, error) {
-	nodeStatus, err := m.Get("/nodestatus", "")
+	nodeStatus, err := m.Get("/nodestatus", "", true)
 	if err != nil {
 		return nil, err
 	}
 
-	stats, err := m.Get("/stats", "")
+	stats, err := m.Get("/stats", "", true)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +188,7 @@ func (m HTTPRequester) NodeInfo() (*NodeInfo, error) {
 
 func (m HTTPRequester) Send(b []byte) error {
 	str := fmt.Sprintf(`{ "tx": %s}`, printBuffer(b))
-	_, err := m.Get("/submittransaction", str)
+	_, err := m.Get("/submittransaction", str, true)
 	if err != nil {
 		return err
 	}
@@ -193,7 +198,7 @@ func (m HTTPRequester) Send(b []byte) error {
 
 func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error {
 	str := fmt.Sprintf(`{ "logicalDrive": "%s", "commitmentSize": %d, "coinbase": "%s"}`, datadir, space, coinbase)
-	_, err := m.Get("/startmining", str)
+	_, err := m.Get("/startmining", str, true)
 	if err != nil {
 		return err
 	}
@@ -203,7 +208,7 @@ func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error 
 
 func (m HTTPRequester) SetCoinbase(coinbase string) error {
 	str := fmt.Sprintf(`{ "address": "%s"}`, coinbase)
-	_, err := m.Get("/setawardsaddr", str)
+	_, err := m.Get("/setawardsaddr", str, true)
 	if err != nil {
 		return err
 	}
@@ -212,7 +217,7 @@ func (m HTTPRequester) SetCoinbase(coinbase string) error {
 }
 
 func (m HTTPRequester) Sanity() error {
-	_, err := m.Get("/example/echo", "")
+	_, err := m.Get("/example/echo", "", false)
 	if err != nil {
 		return err
 	}

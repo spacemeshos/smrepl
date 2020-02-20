@@ -1,7 +1,7 @@
 package repl
 
 const (
-	welcomeMsg                  = "Welcome to Spacemesh. To get started you need a new local accountInfo. Choose accountInfo "
+	welcomeMsg                  = "Welcome to Spacemesh. To get started you need a new local account."
 	generateMsg                 = "Generate account passphrase? (y/n) "
 	accountInfoMsg              = "Add account info (enter text or ENTER):"
 	accountNotFoundoMsg         = "Local account not found. Create one? (y/n) "
