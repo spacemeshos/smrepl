@@ -17,7 +17,7 @@ const (
 	requiresSetupMsg            = "Spacemesh requires a minimum of 300GB of free disk space. 250GB are used for POST and 50GB are reserved for the global computer state. You may allocate additional disk space for POST in 300GB increments. "
 	restartNodeMsg              = "Restart node?"
 	createAccountMsg            = "Account alias (name): "
-	useDefaultGasMsg            = "Use non-default gas price (default: 1)? (y/n) "
+	useDefaultGasMsg            = "Use default gas price (1 Smidge)? (y/n) "
 	enterGasPrice               = "Enter transaction gas price:"
 	getAccountInfoMsg           = "Enter account id to query"
 	smeshingDatadirMsg          = "Enter files datadir: "
