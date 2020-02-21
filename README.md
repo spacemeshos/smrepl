@@ -1,17 +1,38 @@
 # CLIWallet
 
 ## Overview
-The CLI Wallet app currently only supports the [local testnet](https://github.com/spacemeshos/local-testnet/).
+A basic reference Spacemesh CLI Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh).
 
 ## Building
-with `go`
-```
+
+### Build for your current platform with go:
+
+```bash
 go get && go build
 ```
-with `docker`
 
-`make dockerbuild-go`
+### Build for all platforms:
+```bash
+make
+```
 
+### Build for a specific platforms:
+```bash
+make build-win
+```
+
+```bash
+make build-mac
+```
+
+```bash
+make build-linux
+```
+
+### With `docker`:
+```
+make dockerbuild-go
+```
 ---
 
 ## Using with a local full node and an open testnet
