@@ -25,7 +25,7 @@ dockerbuild-go:
 build-win:
 	env GOOS=windows GOARCH=amd64 go build -o $(WINDOWS)
 .PHONY: build-win
-
+\
 build-linux:
 	env GOOS=linux GOARCH=amd64 go build -o $(LINUX)
 .PHONY: build-win

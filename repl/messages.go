@@ -9,7 +9,7 @@ const (
 	transferFromLocalAccountMsg = "Transfer from local account %s ? (y/n) "
 	transferFromAccountMsg      = "Enter or paste account id: "
 	destAddressMsg              = "Enter or paste destination address: "
-	amountToTransferMsg         = "Enter Spacemesh Coins (SMC) amount to transfer: "
+	amountToTransferMsg         = "Enter amount to transfer in Smidge (SMD): "
 	accountPassphrase           = "Enter local account passphrase: "
 	confirmTransactionMsg       = "Confirm transaction (y/n): "
 	newFlagsAndParamsMsg        = "provide CLI flags and params or press ENTER for none: "
@@ -20,42 +20,42 @@ const (
 	useDefaultGasMsg            = "Use default gas price (1 Smidge)? (y/n) "
 	enterGasPrice               = "Enter transaction gas price:"
 	getAccountInfoMsg           = "Enter account id to query"
-	smeshingDatadirMsg          = "Enter files datadir: "
+	smeshingDatadirMsg          = "Enter data file directory: "
 	smeshingSpaceAllocationMsg  = "Enter space allocation (GB): "
 	msgSignMsg                  = "Enter message to sign (in hex): "
 )
 
-const splash = `                                                                                                    
-                                                                                                    
-                                    .++++++++++++++++++++++++++.                                    
-                                    %@@@@@@@@@@@@@@@@@@@@@@@@@@%                                    
-                                   -@@@@@@@##############@@@@@@@-                                   
-                                     +@@@@@*.          .*@@@@@+                                     
-                                      .+@@@@@*.      .*@@@@@+.                                      
-                                        .*@@@@@+.  .+@@@@@*.                                        
-                                          .*@@@@@++@@@@@*.                                          
-                                            .*@@@@@@@@*.                                            
-                                              *@@@@@@*                                              
-                                            =@@@@@@@@@@=                                            
-                                          =@@@@@#::#@@@@@=                                          
-                                        =%@@@@%:    :#@@@@%=                                        
-                                      -%@@@@%-        -%@@@@%-                                      
-                                    -%@@@@%-            -%@@@@%-                                    
-                                   *@@@@%-                -%@@@@*                                   
-                                   *@@@@#:                :#@@@@*                                   
-                                    =@@@@@#:            :#@@@@@=                                    
-                                      =@@@@@#:        :#@@@@@=                                      
-                                        =@@@@@#:    :#@@@@@=                                        
-                                          +@@@@@*..*@@@@@+                                          
-                                            +@@@@@@@@@@+                                            
-                                             .*@@@@@@*                                              
-                                            .*@@@@@@@@*.                                            
-                                          .+@@@@@**@@@@@+.                                          
-                                         +@@@@@*.  .*@@@@@+                                         
-                                       +@@@@@*.      .*@@@@@+                                       
-                                     +@@@@@*.          .*@@@@@+                                     
-                                   -@@@@@@@##############@@@@@@@-                                   
-                                    %@@@@@@@@@@@@@@@@@@@@@@@@@@%                                    
-                                    .++++++++++++++++++++++++++.                                    
+const splash = `
+
+                                    .++++++++++++++++++++++++++.
+                                    %@@@@@@@@@@@@@@@@@@@@@@@@@@%
+                                   -@@@@@@@##############@@@@@@@-
+                                     +@@@@@*.          .*@@@@@+
+                                      .+@@@@@*.      .*@@@@@+.
+                                        .*@@@@@+.  .+@@@@@*.
+                                          .*@@@@@++@@@@@*.
+                                            .*@@@@@@@@*.
+                                              *@@@@@@*
+                                            =@@@@@@@@@@=
+                                          =@@@@@#::#@@@@@=
+                                        =%@@@@%:    :#@@@@%=
+                                      -%@@@@%-        -%@@@@%-
+                                    -%@@@@%-            -%@@@@%-
+                                   *@@@@%-                -%@@@@*
+                                   *@@@@#:                :#@@@@*
+                                    =@@@@@#:            :#@@@@@=
+                                      =@@@@@#:        :#@@@@@=
+                                        =@@@@@#:    :#@@@@@=
+                                          +@@@@@*..*@@@@@+
+                                            +@@@@@@@@@@+
+                                             .*@@@@@@*
+                                            .*@@@@@@@@*.
+                                          .+@@@@@**@@@@@+.
+                                         +@@@@@*.  .*@@@@@+
+                                       +@@@@@*.      .*@@@@@+
+                                     +@@@@@*.          .*@@@@@+
+                                   -@@@@@@@##############@@@@@@@-
+                                    %@@@@@@@@@@@@@@@@@@@@@@@@@@%
+                                    .++++++++++++++++++++++++++.
 
 `
