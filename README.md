@@ -5,6 +5,9 @@ A basic reference Spacemesh CLI Wallet designed to work together with a [go-spac
 
 The CLI Wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
 
+## Functionality
+The CLI wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
+
 ## Building
 
 ### Build for your current platform with go:
