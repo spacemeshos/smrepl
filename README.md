@@ -41,20 +41,8 @@ make dockerbuild-go
 ---
 
 ## Using with a local full node and an open testnet
-1. Build [go-spacemesh](https://github.com/spacemeshos/go-spacemesh) from source code.
-2. Obtain the testnet's toml config file.
-3. Start go-spacemesh with the following arguments:
-
-```bash
-./go-spacemesh --grpc-server --json-server --tcp-port [a_port] --config [tomlFileLocation] -d [nodeDataFilesPath]
-```
-
-For example:
-```bash
-./go-spacemesh --grpc-server --json-server --tcp-port 7153 --config tn1.toml -d ~/spacemesh_data
-```
-
-4. Build the CLI Wallet from this repository and run it:
+1. Build and run [go-spacemesh](https://github.com/spacemeshos/go-spacemesh) from source code. Please look at the go-spacemesh repo readme for instructions.
+2. Build the CLI Wallet from this repository and run it:
 
 ```bash
 ./cli_wallet
