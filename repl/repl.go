@@ -43,12 +43,13 @@ type Client interface {
 	AccountInfo(address string) (*accounts.AccountInfo, error)
 	NodeInfo() (*client.NodeInfo, error)
 	Sanity() error
-	Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) error
+	Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error)
 	ListAccounts() []string
 	GetAccount(name string) (*accounts.Account, error)
 	StoreAccounts() error
 	NodeURL() string
 	Smesh(datadir string, space uint, coinbase string) error
+	ListTxs(address string) ([]string, error)
 	SetCoinbase(coinbase string) error
 
 	//Unlock(passphrase string) error
@@ -80,11 +81,12 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.accountInfo},
+		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.listTxs},
 		{"net", "Display the node status", r.nodeInfo},
 		{"tx", "Transfer coins from current account to another account", r.transferCoins},
 		{"sign", "Sign a text message with the current account private key", r.sign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
-		{"smesh", "Start smeshing", r.smesh},
+		//{"smesh", "Start smeshing", r.smesh},
 		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
@@ -258,11 +260,12 @@ func (r *repl) transferCoins() {
 	amount, err := strconv.ParseUint(amountStr, 10, 32)
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		err := r.client.Transfer(destAddress, nonce, amount, gas, 100, acc.PrivKey)
+		id, err := r.client.Transfer(destAddress, nonce, amount, gas, 100, acc.PrivKey)
 		if err != nil {
-			log.Info(err.Error())
+			log.Error(err.Error())
 			return
 		}
+		fmt.Println(printPrefix, fmt.Sprintf("tx submitted, id: %v", id))
 	}
 }
 
@@ -286,6 +289,22 @@ func (r *repl) smesh() {
 		log.Error("failed to start smeshing: %v", err)
 		return
 	}
+}
+
+func (r *repl) listTxs() {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
+		r.chooseAccount()
+		acc = r.client.CurrentAccount()
+	}
+
+	txs, err := r.client.ListTxs(accounts.StringAddress(acc.Address()))
+	if err != nil {
+		log.Error("failed to list txs: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, fmt.Sprintf("txs: %v", txs))
 }
 
 func (r *repl) quit() {
