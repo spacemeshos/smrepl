@@ -207,16 +207,16 @@ func (r *repl) nodeInfo() {
 	}
 
 	fmt.Println(printPrefix, "Synced:", info.Synced)
-	fmt.Println(printPrefix, "SyncedLayer:", info.SyncedLayer)
-	fmt.Println(printPrefix, "CurrentLayer:", info.CurrentLayer)
-	fmt.Println(printPrefix, "VerifiedLayer:", info.VerifiedLayer)
+	fmt.Println(printPrefix, "Synced layer:", info.SyncedLayer)
+	fmt.Println(printPrefix, "Current layer:", info.CurrentLayer)
+	fmt.Println(printPrefix, "Verified layer:", info.VerifiedLayer)
 	fmt.Println(printPrefix, "Peers:", info.Peers)
-	fmt.Println(printPrefix, "MinPeers:", info.MinPeers)
-	fmt.Println(printPrefix, "MaxPeers:", info.MaxPeers)
-	fmt.Println(printPrefix, "Smeshing datadir:", info.SmeshingDatadir)
+	fmt.Println(printPrefix, "Min peers:", info.MinPeers)
+	fmt.Println(printPrefix, "Max peers:", info.MaxPeers)
+	fmt.Println(printPrefix, "Smeshing data directory:", info.SmeshingDatadir)
 	fmt.Println(printPrefix, "Smeshing status:", info.SmeshingStatus)
 	fmt.Println(printPrefix, "Smeshing coinbase:", info.SmeshingCoinbase)
-	fmt.Println(printPrefix, "Smeshing remainingBytes:", info.SmeshingRemainingBytes)
+	fmt.Println(printPrefix, "Smeshing remaining bytes:", info.SmeshingRemainingBytes)
 }
 
 func (r *repl) transferCoins() {
