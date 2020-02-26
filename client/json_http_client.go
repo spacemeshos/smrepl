@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/spacemeshos/CLIWallet/accounts"
 	"github.com/spacemeshos/CLIWallet/log"
@@ -186,14 +187,18 @@ func (m HTTPRequester) NodeInfo() (*NodeInfo, error) {
 	return info, nil
 }
 
-func (m HTTPRequester) Send(b []byte) error {
+func (m HTTPRequester) Send(b []byte) (string, error) {
 	str := fmt.Sprintf(`{ "tx": %s}`, printBuffer(b))
-	_, err := m.Get("/submittransaction", str, true)
+	res, err := m.Get("/submittransaction", str, true)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	val, ok := res["id"]
+	if !ok {
+		return "", errors.New("failed to submit tx")
+	}
+	return val.(string), nil
 }
 
 func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error {
@@ -204,6 +209,24 @@ func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error 
 	}
 
 	return nil
+}
+
+func (m HTTPRequester) ListTxs(address string) ([]string, error) {
+	str := fmt.Sprintf(`{ "account": { "address": "%s"} }`, address)
+	res, err := m.Get("/accounttxs", str, true)
+	if err != nil {
+		return nil, err
+	}
+
+	txs := make([]string, 0)
+	val, ok := res["txs"]
+	if !ok {
+		return txs, nil
+	}
+	for _, val := range val.([]interface{}) {
+		txs = append(txs, val.(string))
+	}
+	return txs, nil
 }
 
 func (m HTTPRequester) SetCoinbase(coinbase string) error {
