@@ -52,7 +52,7 @@ func (w *WalletBE) StoreAccounts() error {
 	return accounts.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
-func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) error {
+func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
 	tx := SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
@@ -64,7 +64,7 @@ func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, 
 	copy(tx.Signature[:], ed25519.Sign2(key, buf))
 	b, err := InterfaceToBytes(&tx)
 	if err != nil {
-		return err
+		return "", err
 	}
 	return w.HTTPRequester.Send(b)
 }

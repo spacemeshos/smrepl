@@ -41,6 +41,7 @@ make dockerbuild-go
 ---
 
 ## Using with a local full node and an open testnet
+
 1. Follow the instructions in the readme to build and run [go-spacemesh](https://github.com/spacemeshos/go-spacemesh) from source code.
 
 2. Build the CLI Wallet from this repository and run it:
@@ -48,10 +49,6 @@ make dockerbuild-go
 ```bash
 ./cli_wallet
 ```
-
-
-
----
 
 ## Using with a Local testnet
 Please follow the instructions in our [local testnet guide](https://testnet.spacemesh.io/#/local)
