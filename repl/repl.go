@@ -256,8 +256,8 @@ func (r *repl) transferCoins() {
 	fmt.Println(printPrefix, "Gas:   ", gas)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 
-	nonce, err := strconv.ParseUint(info.Nonce, 10, 32)
-	amount, err := strconv.ParseUint(amountStr, 10, 32)
+	nonce, err := strconv.ParseUint(info.Nonce, 10, 64)
+	amount, err := strconv.ParseUint(amountStr, 10, 64)
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
 		id, err := r.client.Transfer(destAddress, nonce, amount, gas, 100, acc.PrivKey)
