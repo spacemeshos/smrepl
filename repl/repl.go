@@ -84,7 +84,8 @@ func (r *repl) initializeCommands() {
 		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.listTxs},
 		{"net", "Display the node status", r.nodeInfo},
 		{"tx", "Transfer coins from current account to another account", r.transferCoins},
-		{"sign", "Sign a text message with the current account private key", r.sign},
+		{"sign", "Sign a hex message with the current account private key", r.sign},
+		{"textsign", "Sign a text message with the current account private key", r.textsign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
 		//{"smesh", "Start smeshing", r.smesh},
 		{"quit", "Quit the CLI", r.quit},
@@ -339,6 +340,19 @@ func (r *repl) sign() {
 	}
 
 	signature := ed25519.Sign2(acc.PrivKey, msg)
+
+	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
+}
+
+func(r *repl) textsign() {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
+		r.chooseAccount()
+		acc = r.client.CurrentAccount()
+	}
+
+	msg := inputNotBlank(msgTextSignMsg)
+	signature := ed25519.Sign2(acc.PrivKey, []byte(msg))
 
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }

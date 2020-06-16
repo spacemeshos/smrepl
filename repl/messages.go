@@ -23,6 +23,7 @@ const (
 	smeshingDatadirMsg          = "Enter data file directory: "
 	smeshingSpaceAllocationMsg  = "Enter space allocation (GB): "
 	msgSignMsg                  = "Enter message to sign (in hex): "
+	msgTextSignMsg              = "Enter text message to sign: "
 )
 
 const splash = `
