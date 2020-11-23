@@ -211,7 +211,7 @@ func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error 
 	return nil
 }
 
-func (m HTTPRequester) ListTxs(address string) ([]string, error) {
+func (m HTTPRequester) ListTxs(address []byte) ([]string, error) {
 	str := fmt.Sprintf(`{ "account": { "address": "%s"} }`, address)
 	res, err := m.Get("/accounttxs", str, true)
 	if err != nil {

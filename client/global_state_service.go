@@ -7,9 +7,9 @@ import (
 )
 
 func (c *GRPCClient) AccountInfo(address []byte) (*localtypes.AccountState, error) {
-	gss := c.globalStateClient()
+	gsc := c.globalStateClient()
 
-	resp, err := gss.Account(context.Background(), &pb.AccountRequest{
+	resp, err := gsc.Account(context.Background(), &pb.AccountRequest{
 		AccountId: &pb.AccountId{Address: address}})
 	if err != nil {
 		return nil, err
@@ -20,10 +20,4 @@ func (c *GRPCClient) AccountInfo(address []byte) (*localtypes.AccountState, erro
 		Nonce:   resp.AccountWrapper.StateCurrent.Counter,
 	}, nil
 
-}
-
-func (c *GRPCClient) ListTxs(address string) ([]string, error) {
-	//gss := c.globalStateClient()
-	txs := make([]string, 0)
-	return txs, nil
 }

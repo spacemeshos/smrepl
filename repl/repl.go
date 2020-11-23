@@ -48,9 +48,9 @@ type Client interface {
 	ListAccounts() []string
 	GetAccount(name string) (*localtypes.LocalAccount, error)
 	StoreAccounts() error
-	NodeURL() string
+	ServerUrl() string
 	Smesh(datadir string, space uint, coinbase string) error
-	ListTxs(address string) ([]string, error)
+	GetMeshTransactions(address []byte, offset uint32, maxResults uint32) ([]*pb.Transaction, uint32, error)
 	SetCoinbase(coinbase string) error
 	DebugAllAccounts() ([]*pb.Account, error)
 
@@ -83,7 +83,7 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.accountInfo},
-		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.listTxs},
+		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.getMeshTransactions},
 		{"net", "Display the node status", r.nodeInfo},
 		{"tx", "Transfer coins from current account to another account", r.transferCoins},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
@@ -133,11 +133,11 @@ func (r *repl) firstTime() {
 	fmt.Println(printPrefix, splash)
 
 	if err := r.client.Sanity(); err != nil {
-		log.Error("Failed to connect to node at %v: %v", r.client.NodeURL(), err)
+		log.Error("Failed to connect to node at %v: %v", r.client.ServerUrl(), err)
 		r.quit()
 	}
 
-	fmt.Println("Welcome to Spacemesh. Connected to node at ", r.client.NodeURL())
+	fmt.Println("Welcome to Spacemesh. Connected to node at ", r.client.ServerUrl())
 }
 
 func (r *repl) chooseAccount() {
@@ -310,20 +310,29 @@ func (r *repl) smesh() {
 	}
 }
 
-func (r *repl) listTxs() {
+func (r *repl) getMeshTransactions() {
 	acc := r.client.CurrentAccount()
 	if acc == nil {
 		r.chooseAccount()
 		acc = r.client.CurrentAccount()
 	}
 
-	txs, err := r.client.ListTxs(localtypes.StringAddress(acc.Address()))
+	// todo: request offset and total from user
+	txs, total, err := r.client.GetMeshTransactions(acc.Address().Bytes(), 0, 100)
 	if err != nil {
 		log.Error("failed to list txs: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("txs: %v", txs))
+	fmt.Println(printPrefix, fmt.Sprintf("Total mesh transactions: %d", total))
+	for _, tx := range txs {
+		printTransaction(tx)
+	}
+}
+
+// helper method - prints tx info
+func printTransaction(transaction *pb.Transaction) {
+	// todo: implement me
 }
 
 func (r *repl) quit() {

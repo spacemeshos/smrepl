@@ -4,12 +4,7 @@ import (
 	"errors"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"golang.org/x/net/context"
-	"strconv"
 )
-
-func (c *GRPCClient) NodeURL() string {
-	return c.server + ":" + strconv.Itoa(int(c.port)) + " (GRPC API 2.0)"
-}
 
 func (c *GRPCClient) Sanity() error {
 	service := c.nodeServiceClient()
@@ -24,7 +19,7 @@ func (c *GRPCClient) Sanity() error {
 	}
 
 	if resp.Msg.Value != msg {
-		return errors.New("unexpected service response")
+		return errors.New("unexpected node service echo response")
 	}
 
 	return nil

@@ -45,6 +45,10 @@ func (c *GRPCClient) Close() error {
 	return nil
 }
 
+func (c *GRPCClient) ServerUrl() string {
+	return c.server + ":" + strconv.Itoa(int(c.port)) + " (GRPC API 2.0)"
+}
+
 //// services clients
 
 func (c *GRPCClient) nodeServiceClient() pb.NodeServiceClient {
