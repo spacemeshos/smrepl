@@ -21,6 +21,7 @@ const (
 	printPrefix = ">"
 )
 
+
 // TestMode variable used for check if unit test is running
 var TestMode = false
 
@@ -85,14 +86,14 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.accountInfo},
-		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.getMeshTransactions},
-		{"tx", "Transfer coins from current account to another account", r.submitCoinTransaction},
+		{"all-txs", "List all transactions (outgoing and incoming) for the current account", r.getMeshTransactions},
+		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
-		{"coinbase", "Set current account as coinbase account in the node", r.setCoinbase},
+		{"rewards", "Set current account as rewards account in the node", r.setCoinbase},
 		//{"smesh", "Start smeshing", r.smesh},
 		{"node", "Get current p2p node info", r.nodeInfo},
-		{"dbg-all-accounts", "Display all mesh accounts (debug)", r.debugAllAccounts},
+		{"all", "Display all mesh accounts (debug)", r.debugAllAccounts},
 		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
@@ -199,7 +200,7 @@ func (r *repl) accountInfo() {
 
 	fmt.Println(printPrefix, "Local alias: ", acc.Name)
 	fmt.Println(printPrefix, "Address: ", address.String())
-	fmt.Println(printPrefix, "Balance: ", info.Balance)
+	fmt.Println(printPrefix, "Balance: ", info.Balance, coinUnitName)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
 	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
@@ -247,7 +248,7 @@ func (r *repl) debugAllAccounts() {
 
 	for _, a := range accounts {
 		fmt.Println(printPrefix, "Address:", gosmtypes.BytesToAddress(a.AccountId.Address).String())
-		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value)
+		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value , coinUnitName)
 		fmt.Println(printPrefix, "Nonce:", a.StateCurrent.Counter)
 		fmt.Println(printPrefix, "-----")
 	}
@@ -271,14 +272,14 @@ func (r *repl) submitCoinTransaction() {
 	destAddressStr := inputNotBlank(destAddressMsg)
 	destAddress := gosmtypes.HexToAddress(destAddressStr)
 
-	amountStr := inputNotBlank(amountToTransferMsg)
+	amountStr := inputNotBlank(amountToTransferMsg) + coinUnitName
 
 	gas := uint64(1)
 	if yesOrNoQuestion(useDefaultGasMsg) == "n" {
 		gasStr := inputNotBlank(enterGasPrice)
 		gas, err = strconv.ParseUint(gasStr, 10, 64)
 		if err != nil {
-			log.Error("invalid gas", err)
+			log.Error("invalid transaction fee", err)
 			return
 		}
 	}
@@ -287,7 +288,7 @@ func (r *repl) submitCoinTransaction() {
 	fmt.Println(printPrefix, "From:  ", srcAddress.String())
 	fmt.Println(printPrefix, "To:    ", destAddress.String())
 	fmt.Println(printPrefix, "Amount:", amountStr)
-	fmt.Println(printPrefix, "Gas:   ", gas)
+	fmt.Println(printPrefix, "Fee:   ", gas , coinUnitName)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 
 	amount, err := strconv.ParseUint(amountStr, 10, 64)
@@ -299,9 +300,9 @@ func (r *repl) submitCoinTransaction() {
 			return
 		}
 
-		fmt.Println(printPrefix, "tx submitted.")
-		fmt.Println(printPrefix, fmt.Sprintf("tx id: 0x%v", hex.EncodeToString(txState.Id.Id)))
-		fmt.Println(printPrefix, fmt.Sprintf("tx state: 0x%v", txState.State.String()))
+		fmt.Println(printPrefix, "Transaction submitted.")
+		fmt.Println(printPrefix, fmt.Sprintf("Transaction id: 0x%v", hex.EncodeToString(txState.Id.Id)))
+		fmt.Println(printPrefix, fmt.Sprintf("Transaction state: 0x%v", txState.State.String()))
 	}
 }
 
@@ -337,7 +338,7 @@ func (r *repl) getMeshTransactions() {
 	// todo: request offset and total from user
 	txs, total, err := r.client.GetMeshTransactions(acc.Address(), 0, 100)
 	if err != nil {
-		log.Error("failed to list txs: %v", err)
+		log.Error("failed to list transactions: %v", err)
 		return
 	}
 
@@ -363,15 +364,15 @@ func (r *repl) setCoinbase() {
 		acc = r.client.CurrentAccount()
 	}
 
-	status, err := r.client.SetCoinbase(acc.Address())
+	status, err := r.client.SetCoinbase(acc.Address() 	)
 
 	if err != nil {
-		log.Error("failed to set coinbase: %v", err)
+		log.Error("failed to set rewards address: %v", err)
 		return
 	}
 
 	if status.Code == 0 {
-		fmt.Println(printPrefix, "Coinbase set to address: ", acc.Address().String())
+		fmt.Println(printPrefix, "Rewards address set to:", acc.Address().String())
 	} else {
 		// todo: what are possible non-zero status codes here?
 		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", status.Code))
