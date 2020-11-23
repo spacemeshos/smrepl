@@ -21,7 +21,6 @@ const (
 	printPrefix = ">"
 )
 
-
 // TestMode variable used for check if unit test is running
 var TestMode = false
 
@@ -248,7 +247,7 @@ func (r *repl) debugAllAccounts() {
 
 	for _, a := range accounts {
 		fmt.Println(printPrefix, "Address:", gosmtypes.BytesToAddress(a.AccountId.Address).String())
-		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value , coinUnitName)
+		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value, coinUnitName)
 		fmt.Println(printPrefix, "Nonce:", a.StateCurrent.Counter)
 		fmt.Println(printPrefix, "-----")
 	}
@@ -272,7 +271,7 @@ func (r *repl) submitCoinTransaction() {
 	destAddressStr := inputNotBlank(destAddressMsg)
 	destAddress := gosmtypes.HexToAddress(destAddressStr)
 
-	amountStr := inputNotBlank(amountToTransferMsg) + coinUnitName
+	amountStr := inputNotBlank(amountToTransferMsg)
 
 	gas := uint64(1)
 	if yesOrNoQuestion(useDefaultGasMsg) == "n" {
@@ -287,8 +286,8 @@ func (r *repl) submitCoinTransaction() {
 	fmt.Println(printPrefix, "Transaction summary:")
 	fmt.Println(printPrefix, "From:  ", srcAddress.String())
 	fmt.Println(printPrefix, "To:    ", destAddress.String())
-	fmt.Println(printPrefix, "Amount:", amountStr)
-	fmt.Println(printPrefix, "Fee:   ", gas , coinUnitName)
+	fmt.Println(printPrefix, "Amount:", amountStr, coinUnitName)
+	fmt.Println(printPrefix, "Fee:   ", gas, coinUnitName)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 
 	amount, err := strconv.ParseUint(amountStr, 10, 64)
@@ -364,7 +363,7 @@ func (r *repl) setCoinbase() {
 		acc = r.client.CurrentAccount()
 	}
 
-	status, err := r.client.SetCoinbase(acc.Address() 	)
+	status, err := r.client.SetCoinbase(acc.Address())
 
 	if err != nil {
 		log.Error("failed to set rewards address: %v", err)
