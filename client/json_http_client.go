@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/log"
 	"io/ioutil"
 	"net/http"
@@ -82,14 +82,14 @@ func printBuffer(b []byte) string {
 	return st
 }
 
-func (m HTTPRequester) AccountInfo(address string) (*accounts.AccountInfo, error) {
+func (m HTTPRequester) AccountInfo(address string) (*localtypes.AccountInfo, error) {
 	str := fmt.Sprintf(`{ "address": "0x%s"}`, address)
 	output, err := m.Get("/nonce", str, true)
 	if err != nil {
 		return nil, err
 	}
 
-	acc := accounts.AccountInfo{}
+	acc := localtypes.AccountInfo{}
 	if val, ok := output["value"]; ok {
 		acc.Nonce = val.(string)
 	} else {

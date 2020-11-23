@@ -3,7 +3,7 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
@@ -37,15 +37,15 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
-	CreateAccount(alias string) *accounts.LocalAccount
-	CurrentAccount() *accounts.LocalAccount
-	SetCurrentAccount(a *accounts.LocalAccount)
-	AccountInfo(address string) (*accounts.AccountInfo, error)
+	CreateAccount(alias string) *localtypes.LocalAccount
+	CurrentAccount() *localtypes.LocalAccount
+	SetCurrentAccount(a *localtypes.LocalAccount)
+	AccountInfo(address string) (*localtypes.AccountInfo, error)
 	NodeInfo() (*client.NodeInfo, error)
 	Sanity() error
 	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error)
 	ListAccounts() []string
-	GetAccount(name string) (*accounts.LocalAccount, error)
+	GetAccount(name string) (*localtypes.LocalAccount, error)
 	StoreAccounts() error
 	NodeURL() string
 	Smesh(datadir string, space uint, coinbase string) error
@@ -150,7 +150,7 @@ func (r *repl) chooseAccount() {
 	if err != nil {
 		panic("wtf")
 	}
-	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, accounts.StringAddress(account.Address()))
+	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, localtypes.StringAddress(account.Address()))
 
 	r.client.SetCurrentAccount(account)
 }
@@ -166,7 +166,7 @@ func (r *repl) createAccount() {
 		return
 	}
 
-	fmt.Printf("%s Created account alias: `%s`, address: %s \n", printPrefix, ac.Name, accounts.StringAddress(ac.Address()))
+	fmt.Printf("%s Created account alias: `%s`, address: %s \n", printPrefix, ac.Name, localtypes.StringAddress(ac.Address()))
 	r.client.SetCurrentAccount(ac)
 }
 
@@ -189,11 +189,11 @@ func (r *repl) accountInfo() {
 	info, err := r.client.AccountInfo(hex.EncodeToString(address.Bytes()))
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
-		info = &accounts.AccountInfo{}
+		info = &localtypes.AccountInfo{}
 	}
 
 	fmt.Println(printPrefix, "Local alias: ", acc.Name)
-	fmt.Println(printPrefix, "Address: ", accounts.StringAddress(address))
+	fmt.Println(printPrefix, "Address: ", localtypes.StringAddress(address))
 	fmt.Println(printPrefix, "Balance: ", info.Balance)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
@@ -286,7 +286,7 @@ func (r *repl) smesh() {
 		return
 	}
 
-	if err := r.client.Smesh(datadir, uint(space)<<30, accounts.StringAddress(acc.Address())); err != nil {
+	if err := r.client.Smesh(datadir, uint(space)<<30, localtypes.StringAddress(acc.Address())); err != nil {
 		log.Error("failed to start smeshing: %v", err)
 		return
 	}
@@ -299,7 +299,7 @@ func (r *repl) listTxs() {
 		acc = r.client.CurrentAccount()
 	}
 
-	txs, err := r.client.ListTxs(accounts.StringAddress(acc.Address()))
+	txs, err := r.client.ListTxs(localtypes.StringAddress(acc.Address()))
 	if err != nil {
 		log.Error("failed to list txs: %v", err)
 		return
@@ -319,7 +319,7 @@ func (r *repl) coinbase() {
 		acc = r.client.CurrentAccount()
 	}
 
-	if err := r.client.SetCoinbase(accounts.StringAddress(acc.Address())); err != nil {
+	if err := r.client.SetCoinbase(localtypes.StringAddress(acc.Address())); err != nil {
 		log.Error("failed to set coinbase: %v", err)
 		return
 	}

@@ -1,4 +1,4 @@
-package accounts
+package localtypes
 
 import (
 	"encoding/hex"

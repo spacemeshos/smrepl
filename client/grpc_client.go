@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"google.golang.org/grpc"
 	// "google.golang.org/grpc/codes"
 	// "google.golang.org/grpc/status"
@@ -41,11 +42,50 @@ func (c *GRPCClient) Close() error {
 	 return nil
 }
 
-func (c *GRPCClient) NodeServiceClient() pb.NodeServiceClient {
+//// services
+
+func (c *GRPCClient) nodeServiceClient() pb.NodeServiceClient {
 	return pb.NewNodeServiceClient(c.connection)
 }
 
-func (c *GRPCClient) DebugService() pb.DebugServiceClient {
+func (c *GRPCClient) debugService() pb.DebugServiceClient {
 	return pb.NewDebugServiceClient(c.connection)
 }
+
+//// Current CLI Wallet commands
+
+func (c *GRPCClient) AccountInfo(address string) (*localtypes.AccountInfo, error) {
+	return nil, nil
+}
+
+func (c *GRPCClient) NodeInfo() (*NodeInfo, error) {
+	return nil, nil
+}
+
+// submit transaction
+func (c *GRPCClient) Send(b []byte) (string, error) {
+	return "", nil
+}
+
+func (c *GRPCClient) Smesh(datadir string, space uint, coinbase string) error {
+	return nil
+}
+
+func (c *GRPCClient) ListTxs(address string) ([]string, error) {
+	txs := make([]string, 0)
+	return txs, nil
+}
+
+func (c *GRPCClient) SetCoinbase(coinbase string) error {
+	return nil
+}
+
+func (c *GRPCClient) NodeURL() string {
+	return c.server + ":" + strconv.Itoa(int(c.port)) + " (GRPC API 2.0)."
+}
+
+func (c *GRPCClient) Sanity() error {
+	return nil
+}
+
 

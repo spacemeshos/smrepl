@@ -2,44 +2,48 @@ package client
 
 import (
 	"bytes"
-	"fmt"
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
 	go_sm_types "github.com/spacemeshos/go-spacemesh/common/types"
-
 	"path"
 )
 
 const accountsFileName = "accounts.json"
 
-type WalletBE struct {
-	grpcClient *GRPCClient
-	*HTTPRequester
-	accounts.Store
+type WalletBackend struct {
+	*GRPCClient // Embedded interface
+	localtypes.Store
 	accountsFilePath string
-	currentAccount   *accounts.LocalAccount
+	currentAccount   *localtypes.LocalAccount
 }
 
-func NewWalletBE(serverHostPort, datadir string, grpcServer string, grpcPort uint) (*WalletBE, error) {
+
+
+func NewWalletBackend(serverHostPort, datadir string, grpcServer string, grpcPort uint) (*WalletBackend, error) {
 	accountsFilePath := path.Join(datadir, accountsFileName)
-	acc, err := accounts.LoadAccounts(accountsFilePath)
+	acc, err := localtypes.LoadAccounts(accountsFilePath)
 	if err != nil {
 		log.Error("cannot load account from file %s: %s", accountsFilePath, err)
-		acc = &accounts.Store{}
+		acc = &localtypes.Store{}
 	}
 
+	grpcClient := NewGRPCClient(grpcServer, grpcPort)
+	err = grpcClient.Connect()
+	if err != nil {
+		// failed to connect to grpc server
+		return nil, err
+	}
 
-	url := fmt.Sprintf("http://%s/v1", serverHostPort)
-	return &WalletBE{NewGRPCClient(grpcServer, grpcPort), NewHTTPRequester(url), *acc, accountsFilePath, nil}, nil
+	return &WalletBackend{grpcClient, *acc, accountsFilePath, nil}, nil
 }
 
-func (w *WalletBE) CurrentAccount() *accounts.LocalAccount {
+func (w *WalletBackend) CurrentAccount() *localtypes.LocalAccount {
 	return w.currentAccount
 }
 
-func (w *WalletBE) SetCurrentAccount(a *accounts.LocalAccount) {
+func (w *WalletBackend) SetCurrentAccount(a *localtypes.LocalAccount) {
 	w.currentAccount = a
 }
 
@@ -51,12 +55,12 @@ func InterfaceToBytes(i interface{}) ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func (w *WalletBE) StoreAccounts() error {
-	return accounts.StoreAccounts(w.accountsFilePath, &w.Store)
+func (w *WalletBackend) StoreAccounts() error {
+	return localtypes.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
-func (w *WalletBE) Transfer(recipient go_sm_types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
-	tx := SerializableSignedTransaction{}
+func (w *WalletBackend) Transfer(recipient go_sm_types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
+	tx := localtypes.SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
 	tx.Recipient = recipient
@@ -69,5 +73,5 @@ func (w *WalletBE) Transfer(recipient go_sm_types.Address, nonce, amount, gasPri
 	if err != nil {
 		return "", err
 	}
-	return w.HTTPRequester.Send(b)
+	return w.Send(b)
 }

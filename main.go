@@ -4,7 +4,7 @@ package main
 
 import (
 	"flag"
-	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/repl"
 	"os"
@@ -14,7 +14,7 @@ import (
 type mockClient struct {
 }
 
-func (m mockClient) LocalAccount() *accounts.LocalAccount {
+func (m mockClient) LocalAccount() *localtypes.LocalAccount {
 	return nil
 }
 
@@ -43,7 +43,7 @@ func main() {
 	if err != nil {
 		return
 	}
-	be, err := client.NewWalletBE(serverHostPort, datadir, grpcServer, grpcServerPort)
+	be, err := client.NewWalletBackend(serverHostPort, datadir, grpcServer, grpcServerPort)
 	if err != nil {
 		return
 	}

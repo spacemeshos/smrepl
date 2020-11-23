@@ -1,4 +1,4 @@
-package accounts
+package localtypes
 
 import (
 	"crypto/rand"
