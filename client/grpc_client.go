@@ -4,7 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"strconv"
 
-	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
+	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 )
 
 const DefaultGRPCPort = 9092
@@ -51,28 +51,28 @@ func (c *GRPCClient) ServerUrl() string {
 
 //// services clients
 
-func (c *GRPCClient) nodeServiceClient() pb.NodeServiceClient {
-	return pb.NewNodeServiceClient(c.connection)
+func (c *GRPCClient) nodeServiceClient() apitypes.NodeServiceClient {
+	return apitypes.NewNodeServiceClient(c.connection)
 }
 
-func (c *GRPCClient) debugServiceClient() pb.DebugServiceClient {
-	return pb.NewDebugServiceClient(c.connection)
+func (c *GRPCClient) debugServiceClient() apitypes.DebugServiceClient {
+	return apitypes.NewDebugServiceClient(c.connection)
 }
 
-func (c *GRPCClient) meshServiceClient() pb.MeshServiceClient {
-	return pb.NewMeshServiceClient(c.connection)
+func (c *GRPCClient) meshServiceClient() apitypes.MeshServiceClient {
+	return apitypes.NewMeshServiceClient(c.connection)
 }
 
-func (c *GRPCClient) globalStateClient() pb.GlobalStateServiceClient {
-	return pb.NewGlobalStateServiceClient(c.connection)
+func (c *GRPCClient) globalStateClient() apitypes.GlobalStateServiceClient {
+	return apitypes.NewGlobalStateServiceClient(c.connection)
 }
 
-func (c *GRPCClient) transactionServiceClient() pb.TransactionServiceClient {
-	return pb.NewTransactionServiceClient(c.connection)
+func (c *GRPCClient) transactionServiceClient() apitypes.TransactionServiceClient {
+	return apitypes.NewTransactionServiceClient(c.connection)
 }
 
-func (c *GRPCClient) smeshServiceClient() pb.SmesherServiceClient {
-	return pb.NewSmesherServiceClient(c.connection)
+func (c *GRPCClient) smeshServiceClient() apitypes.SmesherServiceClient {
+	return apitypes.NewSmesherServiceClient(c.connection)
 }
 
 //// Current CLI Wallet commands

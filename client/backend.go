@@ -5,8 +5,9 @@ import (
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/log"
+	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
-	go_sm_types "github.com/spacemeshos/go-spacemesh/common/types"
+	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"path"
 )
 
@@ -57,7 +58,8 @@ func (w *WalletBackend) StoreAccounts() error {
 	return localtypes.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
-func (w *WalletBackend) Transfer(recipient go_sm_types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
+// Transfer creates a sign coin transaction and submits it
+func (w *WalletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error) {
 	tx := localtypes.SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
@@ -69,7 +71,7 @@ func (w *WalletBackend) Transfer(recipient go_sm_types.Address, nonce, amount, g
 	copy(tx.Signature[:], ed25519.Sign2(key, buf))
 	b, err := InterfaceToBytes(&tx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return w.Send(b)
+	return w.SubmitCoinTransaction(b)
 }

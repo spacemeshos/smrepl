@@ -187,7 +187,7 @@ func (m HTTPRequester) NodeInfo() (*NodeInfo, error) {
 	return info, nil
 }
 
-func (m HTTPRequester) Send(b []byte) (string, error) {
+func (m HTTPRequester) SubmitNewTransaction(b []byte) (string, error) {
 	str := fmt.Sprintf(`{ "tx": %s}`, printBuffer(b))
 	res, err := m.Get("/submittransaction", str, true)
 	if err != nil {

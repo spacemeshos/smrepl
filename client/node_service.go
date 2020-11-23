@@ -2,7 +2,7 @@ package client
 
 import (
 	"errors"
-	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
+	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"golang.org/x/net/context"
 )
 
@@ -11,8 +11,8 @@ func (c *GRPCClient) Sanity() error {
 
 	const msg = "hello spacemesh"
 
-	resp, err := service.Echo(context.Background(), &pb.EchoRequest{
-		Msg: &pb.SimpleString{Value: msg}})
+	resp, err := service.Echo(context.Background(), &apitypes.EchoRequest{
+		Msg: &apitypes.SimpleString{Value: msg}})
 
 	if err != nil {
 		return err

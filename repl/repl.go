@@ -44,7 +44,7 @@ type Client interface {
 	AccountInfo(address []byte) (*localtypes.AccountState, error)
 	NodeInfo() (*client.NodeInfo, error)
 	Sanity() error
-	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error)
+	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error)
 	ListAccounts() []string
 	GetAccount(name string) (*localtypes.LocalAccount, error)
 	StoreAccounts() error
@@ -85,7 +85,7 @@ func (r *repl) initializeCommands() {
 		{"info", "Display the current account info", r.accountInfo},
 		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.getMeshTransactions},
 		{"net", "Display the node status", r.nodeInfo},
-		{"tx", "Transfer coins from current account to another account", r.transferCoins},
+		{"tx", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
@@ -239,7 +239,7 @@ func (r *repl) debugAllAccounts() {
 	}
 }
 
-func (r *repl) transferCoins() {
+func (r *repl) submitCoinTransaction() {
 	fmt.Println(printPrefix, initialTransferMsg)
 	acc := r.client.CurrentAccount()
 	if acc == nil {
@@ -279,12 +279,15 @@ func (r *repl) transferCoins() {
 	amount, err := strconv.ParseUint(amountStr, 10, 64)
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		id, err := r.client.Transfer(destAddress, info.Nonce, amount, gas, 100, acc.PrivKey)
+		txState, err := r.client.Transfer(destAddress, info.Nonce, amount, gas, 100, acc.PrivKey)
 		if err != nil {
 			log.Error(err.Error())
 			return
 		}
-		fmt.Println(printPrefix, fmt.Sprintf("tx submitted, id: %v", id))
+
+		fmt.Println(printPrefix, "tx submitted.")
+		fmt.Println(printPrefix, fmt.Sprintf("tx id: 0x%v", hex.EncodeToString(txState.Id.Id)))
+		fmt.Println(printPrefix, fmt.Sprintf("tx state: 0x%v", txState.State.String()))
 	}
 }
 
