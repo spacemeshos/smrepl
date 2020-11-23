@@ -7,7 +7,7 @@ import (
 	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
-	"github.com/spacemeshos/go-spacemesh/common/types"
+	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"google.golang.org/genproto/googleapis/rpc/status"
 	"os"
 	"strconv"
@@ -41,19 +41,19 @@ type Client interface {
 	CreateAccount(alias string) *localtypes.LocalAccount
 	CurrentAccount() *localtypes.LocalAccount
 	SetCurrentAccount(a *localtypes.LocalAccount)
-	AccountInfo(address []byte) (*localtypes.AccountState, error)
+	AccountInfo(address gosmtypes.Address) (*localtypes.AccountState, error)
 	NodeStatus() (*apitypes.NodeStatus, error)
 	NodeInfo() (*localtypes.NodeInfo, error)
 	Sanity() error
-	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
+	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
 	ListAccounts() []string
 	GetAccount(name string) (*localtypes.LocalAccount, error)
 	StoreAccounts() error
 	ServerUrl() string
 	Smesh(datadir string, space uint, coinbase string) error
-	GetMeshTransactions(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
-	GetMeshActivations(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
-	SetCoinbase(coinbase []byte) (*status.Status, error)
+	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
+	GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
+	SetCoinbase(coinbase gosmtypes.Address) (*status.Status, error)
 	DebugAllAccounts() ([]*apitypes.Account, error)
 
 	//Unlock(passphrase string) error
@@ -89,11 +89,10 @@ func (r *repl) initializeCommands() {
 		{"tx", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
-		{"set-coinbase", "Set current account as coinbase account in the node", r.setCoinbase},
-		{"all", "Display all mesh accounts (debug)", r.debugAllAccounts},
+		{"coinbase", "Set current account as coinbase account in the node", r.setCoinbase},
 		//{"smesh", "Start smeshing", r.smesh},
 		{"node", "Get current p2p node info", r.nodeInfo},
-
+		{"dbg-all-accounts", "Display all mesh accounts (debug)", r.debugAllAccounts},
 		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
@@ -156,7 +155,7 @@ func (r *repl) chooseAccount() {
 	if err != nil {
 		panic("wtf")
 	}
-	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, localtypes.StringAddress(account.Address()))
+	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, account.Address().String())
 
 	r.client.SetCurrentAccount(account)
 }
@@ -172,7 +171,7 @@ func (r *repl) createAccount() {
 		return
 	}
 
-	fmt.Printf("%s Created account alias: `%s`, address: %s \n", printPrefix, ac.Name, localtypes.StringAddress(ac.Address()))
+	fmt.Printf("%s Created account alias: `%s`, address: %s \n", printPrefix, ac.Name, ac.Address().String())
 	r.client.SetCurrentAccount(ac)
 }
 
@@ -190,16 +189,16 @@ func (r *repl) accountInfo() {
 		acc = r.client.CurrentAccount()
 	}
 
-	address := types.BytesToAddress(acc.PubKey)
+	address := gosmtypes.BytesToAddress(acc.PubKey)
 
-	info, err := r.client.AccountInfo(address.Bytes())
+	info, err := r.client.AccountInfo(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		info = &localtypes.AccountState{}
 	}
 
 	fmt.Println(printPrefix, "Local alias: ", acc.Name)
-	fmt.Println(printPrefix, "Address: ", localtypes.StringAddress(address))
+	fmt.Println(printPrefix, "Address: ", address.String())
 	fmt.Println(printPrefix, "Balance: ", info.Balance)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
@@ -247,7 +246,7 @@ func (r *repl) debugAllAccounts() {
 	}
 
 	for _, a := range accounts {
-		fmt.Println(printPrefix, "Address:", localtypes.AddressBytesDisplayString(a.AccountId.Address))
+		fmt.Println(printPrefix, "Address:", gosmtypes.BytesToAddress(a.AccountId.Address).String())
 		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value)
 		fmt.Println(printPrefix, "Nonce:", a.StateCurrent.Counter)
 		fmt.Println(printPrefix, "-----")
@@ -262,15 +261,15 @@ func (r *repl) submitCoinTransaction() {
 		acc = r.client.CurrentAccount()
 	}
 
-	srcAddress := types.BytesToAddress(acc.PubKey)
-	info, err := r.client.AccountInfo(srcAddress.Bytes())
+	srcAddress := gosmtypes.BytesToAddress(acc.PubKey)
+	info, err := r.client.AccountInfo(srcAddress)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
 	}
 
 	destAddressStr := inputNotBlank(destAddressMsg)
-	destAddress := types.HexToAddress(destAddressStr)
+	destAddress := gosmtypes.HexToAddress(destAddressStr)
 
 	amountStr := inputNotBlank(amountToTransferMsg)
 
@@ -322,7 +321,7 @@ func (r *repl) smesh() {
 		return
 	}
 
-	if err := r.client.Smesh(datadir, uint(space)<<30, localtypes.StringAddress(acc.Address())); err != nil {
+	if err := r.client.Smesh(datadir, uint(space)<<30, acc.Address().String()); err != nil {
 		log.Error("failed to start smeshing: %v", err)
 		return
 	}
@@ -336,7 +335,7 @@ func (r *repl) getMeshTransactions() {
 	}
 
 	// todo: request offset and total from user
-	txs, total, err := r.client.GetMeshTransactions(acc.Address().Bytes(), 0, 100)
+	txs, total, err := r.client.GetMeshTransactions(acc.Address(), 0, 100)
 	if err != nil {
 		log.Error("failed to list txs: %v", err)
 		return
@@ -364,15 +363,19 @@ func (r *repl) setCoinbase() {
 		acc = r.client.CurrentAccount()
 	}
 
-	status, err := r.client.SetCoinbase(acc.Address().Bytes())
+	status, err := r.client.SetCoinbase(acc.Address())
 
 	if err != nil {
 		log.Error("failed to set coinbase: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", status.Code))
-
+	if status.Code == 0 {
+		fmt.Println(printPrefix, "Coinbase set to address: ", acc.Address().String())
+	} else {
+		// todo: what are possible non-zero status codes here?
+		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", status.Code))
+	}
 }
 
 func (r *repl) sign() {

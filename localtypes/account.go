@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/spacemeshos/ed25519"
-	types "github.com/spacemeshos/go-spacemesh/common/types"
+	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
 type LocalAccount struct {
@@ -13,11 +13,11 @@ type LocalAccount struct {
 	PubKey  ed25519.PublicKey  // only the pub key part
 }
 
-func (a *LocalAccount) Address() types.Address {
-	return types.BytesToAddress(a.PubKey[:])
+func (a *LocalAccount) Address() gosmtypes.Address {
+	return gosmtypes.BytesToAddress(a.PubKey[:])
 }
 
-func StringAddress(addr types.Address) string {
+func StringAddress(addr gosmtypes.Address) string {
 	return fmt.Sprintf("0x%s", hex.EncodeToString(addr.Bytes()))
 }
 

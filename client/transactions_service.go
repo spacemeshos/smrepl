@@ -5,7 +5,7 @@ import (
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 )
 
-// submit transaction
+// SubmitCoinTransaction submits a signed binary transaction to the node.
 func (c *GRPCClient) SubmitCoinTransaction(tx []byte) (*pb.TransactionState, error) {
 
 	s := c.transactionServiceClient()
