@@ -8,6 +8,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Sanity is a basic api sanity test. It verifies that the client can connect to
+// the node service and get a response from it to an echo request.s
 func (c *GRPCClient) Sanity() error {
 	service := c.nodeServiceClient()
 
@@ -27,6 +29,7 @@ func (c *GRPCClient) Sanity() error {
 	return nil
 }
 
+// NodeInfo returns static node info such as build, version and api server url
 func (c *GRPCClient) NodeInfo() (*localtypes.NodeInfo, error) {
 
 	info := &localtypes.NodeInfo{}
@@ -47,6 +50,7 @@ func (c *GRPCClient) NodeInfo() (*localtypes.NodeInfo, error) {
 	return info, nil
 }
 
+// NodeStatus returns dynamic node status such as sync status and number of connected peers
 func (c *GRPCClient) NodeStatus() (*apitypes.NodeStatus, error) {
 
 	s := c.nodeServiceClient()

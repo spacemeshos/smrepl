@@ -34,3 +34,33 @@ func (c *GRPCClient) GetMeshTransactions(address []byte, offset uint32, maxResul
 
 	return txs, resp.TotalResults, nil
 }
+
+func (c *GRPCClient) GetMeshActivations(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error) {
+	ms := c.meshServiceClient()
+
+	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
+		Filter: &apitypes.AccountMeshDataFilter{
+			AccountId:            &apitypes.AccountId{Address: address},
+			AccountMeshDataFlags: uint32(apitypes.AccountMeshDataFlag_ACCOUNT_MESH_DATA_FLAG_ACTIVATIONS),
+		},
+		MinLayer:   &apitypes.LayerNumber{Number: 0},
+		MaxResults: maxResults,
+		Offset:     offset,
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	activations := make([]*apitypes.Activation, 0)
+
+	for _, data := range resp.Data {
+		a := data.GetActivation()
+		// todo: add warning, each result should be a transaction
+		if a != nil {
+			activations = append(activations, a)
+		}
+	}
+
+	return activations, resp.TotalResults, nil
+}

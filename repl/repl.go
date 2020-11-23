@@ -51,6 +51,7 @@ type Client interface {
 	ServerUrl() string
 	Smesh(datadir string, space uint, coinbase string) error
 	GetMeshTransactions(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
+	GetMeshActivations(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
 	SetCoinbase(coinbase string) error
 	DebugAllAccounts() ([]*apitypes.Account, error)
 
