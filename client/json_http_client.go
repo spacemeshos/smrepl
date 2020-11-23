@@ -13,6 +13,8 @@ import (
 )
 
 const DefaultNodeHostPort = "localhost:9090"
+const DefaultGRPCPort = 9092
+const DefaultGRPCServer = "localhost"
 
 type Requester interface {
 	Get(api, data string) []byte

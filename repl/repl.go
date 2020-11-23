@@ -7,7 +7,7 @@ import (
 	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
-	"github.com/spacemeshos/go-spacemesh/address"
+	"github.com/spacemeshos/go-spacemesh/common/types"
 	"os"
 	"strconv"
 	"strings"
@@ -37,15 +37,15 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
-	CreateAccount(alias string) *accounts.Account
-	CurrentAccount() *accounts.Account
-	SetCurrentAccount(a *accounts.Account)
+	CreateAccount(alias string) *accounts.LocalAccount
+	CurrentAccount() *accounts.LocalAccount
+	SetCurrentAccount(a *accounts.LocalAccount)
 	AccountInfo(address string) (*accounts.AccountInfo, error)
 	NodeInfo() (*client.NodeInfo, error)
 	Sanity() error
-	Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error)
+	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error)
 	ListAccounts() []string
-	GetAccount(name string) (*accounts.Account, error)
+	GetAccount(name string) (*accounts.LocalAccount, error)
 	StoreAccounts() error
 	NodeURL() string
 	Smesh(datadir string, space uint, coinbase string) error
@@ -91,7 +91,7 @@ func (r *repl) initializeCommands() {
 		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
-		//{"lock accountInfo", "Lock Account.", r.lockAccount},
+		//{"lock accountInfo", "Lock LocalAccount.", r.lockAccount},
 		//{"setup", "Setup POST.", r.setup},
 		//{"restart node", "Restart node.", r.restartNode},
 		//{"set", "change CLI flag or param. E.g. set param a=5 flag c=5 or E.g. set param a=5", r.setCLIFlagOrParam},
@@ -184,7 +184,7 @@ func (r *repl) accountInfo() {
 		acc = r.client.CurrentAccount()
 	}
 
-	address := address.BytesToAddress(acc.PubKey)
+	address := types.BytesToAddress(acc.PubKey)
 
 	info, err := r.client.AccountInfo(hex.EncodeToString(address.Bytes()))
 	if err != nil {
@@ -228,7 +228,7 @@ func (r *repl) transferCoins() {
 		acc = r.client.CurrentAccount()
 	}
 
-	srcAddress := address.BytesToAddress(acc.PubKey)
+	srcAddress := types.BytesToAddress(acc.PubKey)
 	info, err := r.client.AccountInfo(hex.EncodeToString(srcAddress.Bytes()))
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
@@ -236,7 +236,7 @@ func (r *repl) transferCoins() {
 	}
 
 	destAddressStr := inputNotBlank(destAddressMsg)
-	destAddress := address.HexToAddress(destAddressStr)
+	destAddress := types.HexToAddress(destAddressStr)
 
 	amountStr := inputNotBlank(amountToTransferMsg)
 

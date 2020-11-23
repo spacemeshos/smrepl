@@ -7,20 +7,22 @@ import (
 	"github.com/spacemeshos/CLIWallet/accounts"
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
-	"github.com/spacemeshos/go-spacemesh/address"
+	go_sm_types "github.com/spacemeshos/go-spacemesh/common/types"
+
 	"path"
 )
 
 const accountsFileName = "accounts.json"
 
 type WalletBE struct {
+	grpcClient *GRPCClient
 	*HTTPRequester
 	accounts.Store
 	accountsFilePath string
-	currentAccount   *accounts.Account
+	currentAccount   *accounts.LocalAccount
 }
 
-func NewWalletBE(serverHostPort, datadir string) (*WalletBE, error) {
+func NewWalletBE(serverHostPort, datadir string, grpcServer string, grpcPort uint) (*WalletBE, error) {
 	accountsFilePath := path.Join(datadir, accountsFileName)
 	acc, err := accounts.LoadAccounts(accountsFilePath)
 	if err != nil {
@@ -28,15 +30,16 @@ func NewWalletBE(serverHostPort, datadir string) (*WalletBE, error) {
 		acc = &accounts.Store{}
 	}
 
+
 	url := fmt.Sprintf("http://%s/v1", serverHostPort)
-	return &WalletBE{NewHTTPRequester(url), *acc, accountsFilePath, nil}, nil
+	return &WalletBE{NewGRPCClient(grpcServer, grpcPort), NewHTTPRequester(url), *acc, accountsFilePath, nil}, nil
 }
 
-func (w *WalletBE) CurrentAccount() *accounts.Account {
+func (w *WalletBE) CurrentAccount() *accounts.LocalAccount {
 	return w.currentAccount
 }
 
-func (w *WalletBE) SetCurrentAccount(a *accounts.Account) {
+func (w *WalletBE) SetCurrentAccount(a *accounts.LocalAccount) {
 	w.currentAccount = a
 }
 
@@ -52,7 +55,7 @@ func (w *WalletBE) StoreAccounts() error {
 	return accounts.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
-func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
+func (w *WalletBE) Transfer(recipient go_sm_types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
 	tx := SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount

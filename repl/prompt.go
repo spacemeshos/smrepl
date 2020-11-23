@@ -2,11 +2,9 @@ package repl
 
 import (
 	"fmt"
+	"github.com/c-bata/go-prompt"
 	"os"
 	"strings"
-	"syscall"
-
-	"github.com/c-bata/go-prompt"
 )
 
 var emptyComplete = func(prompt.Document) []prompt.Suggest { return []prompt.Suggest{} }
@@ -20,10 +18,12 @@ func runPrompt(executor func(string), completer func(prompt.Document) []prompt.S
 		prompt.OptionPrefixTextColor(prompt.LightGray),
 		prompt.OptionMaxSuggestion(length),
 		prompt.OptionShowCompletionAtStart(),
+
+		/*
 		prompt.OptionAddKeyBind(
 			prompt.KeyBind{prompt.ControlC, func(*prompt.Buffer){
 				_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-			}}),
+			}}),*/
 	)
 	firstTime()
 	p.Run()

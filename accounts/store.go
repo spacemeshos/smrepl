@@ -52,13 +52,13 @@ func LoadAccounts(path string) (*Store, error) {
 	return cfg, nil
 }
 
-func (s Store) CreateAccount(alias string) *Account {
+func (s Store) CreateAccount(alias string) *LocalAccount {
 	sPub, key, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		log.Error("cannot create account: %s", err)
 		return nil
 	}
-	acc := &Account{Name: alias, PubKey: sPub, PrivKey: key}
+	acc := &LocalAccount{Name: alias, PubKey: sPub, PrivKey: key}
 	s[alias] = AccountKeys{PubKey: hex.EncodeToString(sPub), PrivKey: hex.EncodeToString(key)}
 	return acc
 }

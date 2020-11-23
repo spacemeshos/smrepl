@@ -4,9 +4,9 @@ package main
 
 import (
 	"flag"
+	"github.com/spacemeshos/CLIWallet/accounts"
 	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/repl"
-	"github.com/spacemeshos/go-spacemesh/accounts"
 	"os"
 	"syscall"
 )
@@ -14,7 +14,7 @@ import (
 type mockClient struct {
 }
 
-func (m mockClient) LocalAccount() *accounts.Account {
+func (m mockClient) LocalAccount() *accounts.LocalAccount {
 	return nil
 }
 
@@ -29,15 +29,21 @@ func main() {
 	serverHostPort := client.DefaultNodeHostPort
 	datadir := Getwd()
 
+	grpcServerPort := uint(client.DefaultGRPCPort)
+	grpcServer := client.DefaultGRPCServer
+
 	flag.StringVar(&serverHostPort, "server", serverHostPort, "host:port of the Spacemesh node HTTP server")
 	flag.StringVar(&datadir, "datadir", datadir, "The directory to store the wallet data within")
+	flag.StringVar(&grpcServer, "grpc-server", grpcServer, "The api 2.0 grpc server")
+	flag.UintVar(&grpcServerPort, "grpc-port", grpcServerPort, "The api 2.0 grpc server port")
+
 	flag.Parse()
 
 	_, err := syscall.Open("/dev/tty", syscall.O_RDONLY, 0)
 	if err != nil {
 		return
 	}
-	be, err := client.NewWalletBE(serverHostPort, datadir)
+	be, err := client.NewWalletBE(serverHostPort, datadir, grpcServer, grpcServerPort)
 	if err != nil {
 		return
 	}

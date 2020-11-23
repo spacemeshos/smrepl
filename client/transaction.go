@@ -1,11 +1,11 @@
 package client
 
-import "github.com/spacemeshos/go-spacemesh/address"
+import types "github.com/spacemeshos/go-spacemesh/common/types"
 
 // TODO rename to SerializableTransaction once we remove the old SerializableTransaction
 type InnerSerializableSignedTransaction struct {
 	AccountNonce uint64
-	Recipient    address.Address
+	Recipient    types.Address
 	GasLimit     uint64
 	Price        uint64
 	Amount       uint64
