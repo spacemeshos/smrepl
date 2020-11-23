@@ -8,6 +8,7 @@ import (
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/common/types"
+	"google.golang.org/genproto/googleapis/rpc/status"
 	"os"
 	"strconv"
 	"strings"
@@ -52,7 +53,7 @@ type Client interface {
 	Smesh(datadir string, space uint, coinbase string) error
 	GetMeshTransactions(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
 	GetMeshActivations(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
-	SetCoinbase(coinbase string) error
+	SetCoinbase(coinbase []byte) (*status.Status, error)
 	DebugAllAccounts() ([]*apitypes.Account, error)
 
 	//Unlock(passphrase string) error
@@ -88,7 +89,7 @@ func (r *repl) initializeCommands() {
 		{"tx", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
-		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
+		{"set-coinbase", "Set current account as coinbase account in the node", r.setCoinbase},
 		{"all", "Display all mesh accounts (debug)", r.debugAllAccounts},
 		//{"smesh", "Start smeshing", r.smesh},
 		{"node", "Get current p2p node info", r.nodeInfo},
@@ -356,17 +357,22 @@ func (r *repl) quit() {
 	os.Exit(0)
 }
 
-func (r *repl) coinbase() {
+func (r *repl) setCoinbase() {
 	acc := r.client.CurrentAccount()
 	if acc == nil {
 		r.chooseAccount()
 		acc = r.client.CurrentAccount()
 	}
 
-	if err := r.client.SetCoinbase(localtypes.StringAddress(acc.Address())); err != nil {
+	status, err := r.client.SetCoinbase(acc.Address().Bytes())
+
+	if err != nil {
 		log.Error("failed to set coinbase: %v", err)
 		return
 	}
+
+	fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", status.Code))
+
 }
 
 func (r *repl) sign() {

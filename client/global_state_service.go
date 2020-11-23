@@ -6,6 +6,7 @@ import (
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 )
 
+// AccountInfo returns basic account data such as balance and nonce from the global state
 func (c *GRPCClient) AccountInfo(address []byte) (*localtypes.AccountState, error) {
 	gsc := c.globalStateClient()
 

@@ -16,6 +16,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20201006153459-a7d1128ccaa0
+	google.golang.org/genproto v0.0.0-20201007142714-5c0e72c5e71e
 	google.golang.org/grpc v1.32.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
