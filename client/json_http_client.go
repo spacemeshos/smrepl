@@ -13,8 +13,6 @@ import (
 )
 
 const DefaultNodeHostPort = "localhost:9090"
-const DefaultGRPCPort = 9092
-const DefaultGRPCServer = "localhost"
 
 type Requester interface {
 	Get(api, data string) []byte
@@ -82,16 +80,16 @@ func printBuffer(b []byte) string {
 	return st
 }
 
-func (m HTTPRequester) AccountInfo(address string) (*localtypes.AccountInfo, error) {
+func (m HTTPRequester) AccountInfo(address string) (*localtypes.AccountState, error) {
 	str := fmt.Sprintf(`{ "address": "0x%s"}`, address)
 	output, err := m.Get("/nonce", str, true)
 	if err != nil {
 		return nil, err
 	}
 
-	acc := localtypes.AccountInfo{}
+	acc := localtypes.AccountState{}
 	if val, ok := output["value"]; ok {
-		acc.Nonce = val.(string)
+		acc.Nonce = val.(uint64)
 	} else {
 		return nil, fmt.Errorf("cant get nonce %v", output)
 	}
@@ -102,7 +100,7 @@ func (m HTTPRequester) AccountInfo(address string) (*localtypes.AccountInfo, err
 	}
 
 	if val, ok := output["value"]; ok {
-		acc.Balance = val.(string)
+		acc.Balance = val.(uint64)
 	} else {
 		return nil, fmt.Errorf("cant get balance %v", output)
 	}

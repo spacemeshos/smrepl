@@ -19,8 +19,6 @@ type WalletBackend struct {
 	currentAccount   *localtypes.LocalAccount
 }
 
-
-
 func NewWalletBackend(serverHostPort, datadir string, grpcServer string, grpcPort uint) (*WalletBackend, error) {
 	accountsFilePath := path.Join(datadir, accountsFileName)
 	acc, err := localtypes.LoadAccounts(accountsFilePath)

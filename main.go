@@ -4,8 +4,8 @@ package main
 
 import (
 	"flag"
-	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/client"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/repl"
 	"os"
 	"syscall"

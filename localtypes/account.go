@@ -25,9 +25,9 @@ func AddressBytesDisplayString(bytes []byte) string {
 	return fmt.Sprintf("0x%s", hex.EncodeToString(bytes))
 }
 
-type AccountInfo struct {
-	Nonce   string
-	Balance string
+type AccountState struct {
+	Nonce   uint64
+	Balance uint64
 }
 
 func (s Store) GetAccount(name string) (*LocalAccount, error) {

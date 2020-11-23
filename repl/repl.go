@@ -3,8 +3,8 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/client"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/log"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
@@ -41,7 +41,7 @@ type Client interface {
 	CreateAccount(alias string) *localtypes.LocalAccount
 	CurrentAccount() *localtypes.LocalAccount
 	SetCurrentAccount(a *localtypes.LocalAccount)
-	AccountInfo(address string) (*localtypes.AccountInfo, error)
+	AccountInfo(address []byte) (*localtypes.AccountState, error)
 	NodeInfo() (*client.NodeInfo, error)
 	Sanity() error
 	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error)
@@ -52,7 +52,7 @@ type Client interface {
 	Smesh(datadir string, space uint, coinbase string) error
 	ListTxs(address string) ([]string, error)
 	SetCoinbase(coinbase string) error
-	DebugAllAccounts() ([]* pb.Account, error)
+	DebugAllAccounts() ([]*pb.Account, error)
 
 	//Unlock(passphrase string) error
 	//IsAccountUnLock(id string) bool
@@ -189,10 +189,10 @@ func (r *repl) accountInfo() {
 
 	address := types.BytesToAddress(acc.PubKey)
 
-	info, err := r.client.AccountInfo(hex.EncodeToString(address.Bytes()))
+	info, err := r.client.AccountInfo(address.Bytes())
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
-		info = &localtypes.AccountInfo{}
+		info = &localtypes.AccountState{}
 	}
 
 	fmt.Println(printPrefix, "Local alias: ", acc.Name)
@@ -248,7 +248,7 @@ func (r *repl) transferCoins() {
 	}
 
 	srcAddress := types.BytesToAddress(acc.PubKey)
-	info, err := r.client.AccountInfo(hex.EncodeToString(srcAddress.Bytes()))
+	info, err := r.client.AccountInfo(srcAddress.Bytes())
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
@@ -276,11 +276,10 @@ func (r *repl) transferCoins() {
 	fmt.Println(printPrefix, "Gas:   ", gas)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 
-	nonce, err := strconv.ParseUint(info.Nonce, 10, 64)
 	amount, err := strconv.ParseUint(amountStr, 10, 64)
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		id, err := r.client.Transfer(destAddress, nonce, amount, gas, 100, acc.PrivKey)
+		id, err := r.client.Transfer(destAddress, info.Nonce, amount, gas, 100, acc.PrivKey)
 		if err != nil {
 			log.Error(err.Error())
 			return
@@ -363,7 +362,7 @@ func (r *repl) sign() {
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }
 
-func(r *repl) textsign() {
+func (r *repl) textsign() {
 	acc := r.client.CurrentAccount()
 	if acc == nil {
 		r.chooseAccount()
