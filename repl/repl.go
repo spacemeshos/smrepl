@@ -89,7 +89,7 @@ func (r *repl) initializeCommands() {
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
-		{"allaccounts", "Dump all accounts (debug method", r.debugAllAccounts},
+		{"all", "Display all mesh accounts (debug)", r.debugAllAccounts},
 		//{"smesh", "Start smeshing", r.smesh},
 		{"quit", "Quit the CLI", r.quit},
 
@@ -225,12 +225,18 @@ func (r *repl) nodeInfo() {
 
 func (r *repl) debugAllAccounts() {
 
-	_, err := r.client.DebugAllAccounts()
+	accounts, err := r.client.DebugAllAccounts()
 	if err != nil {
 		log.Error("failed to get debug all accounts: %v", err)
 		return
 	}
 
+	for _, a := range accounts {
+		fmt.Println(printPrefix, "Address: ", localtypes.AddressBytesDisplayString(a.AccountId.Address))
+		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value)
+		fmt.Println(printPrefix, "Nonce:", a.StateCurrent.Counter)
+		fmt.Println(printPrefix, "-----")
+	}
 }
 
 func (r *repl) transferCoins() {

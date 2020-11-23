@@ -21,6 +21,10 @@ func StringAddress(addr types.Address) string {
 	return fmt.Sprintf("0x%s", hex.EncodeToString(addr.Bytes()))
 }
 
+func AddressBytesDisplayString(bytes []byte) string {
+	return fmt.Sprintf("0x%s", hex.EncodeToString(bytes))
+}
+
 type AccountInfo struct {
 	Nonce   string
 	Balance string
