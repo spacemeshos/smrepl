@@ -6,6 +6,7 @@ import (
 	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/log"
+	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/common/types"
 	"os"
@@ -51,6 +52,7 @@ type Client interface {
 	Smesh(datadir string, space uint, coinbase string) error
 	ListTxs(address string) ([]string, error)
 	SetCoinbase(coinbase string) error
+	DebugAllAccounts() ([]* pb.Account, error)
 
 	//Unlock(passphrase string) error
 	//IsAccountUnLock(id string) bool
@@ -87,6 +89,7 @@ func (r *repl) initializeCommands() {
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
+		{"allaccounts", "Dump all accounts (debug method", r.debugAllAccounts},
 		//{"smesh", "Start smeshing", r.smesh},
 		{"quit", "Quit the CLI", r.quit},
 
@@ -218,6 +221,16 @@ func (r *repl) nodeInfo() {
 	fmt.Println(printPrefix, "Smeshing status:", info.SmeshingStatus)
 	fmt.Println(printPrefix, "Smeshing coinbase:", info.SmeshingCoinbase)
 	fmt.Println(printPrefix, "Smeshing remaining bytes:", info.SmeshingRemainingBytes)
+}
+
+func (r *repl) debugAllAccounts() {
+
+	_, err := r.client.DebugAllAccounts()
+	if err != nil {
+		log.Error("failed to get debug all accounts: %v", err)
+		return
+	}
+
 }
 
 func (r *repl) transferCoins() {

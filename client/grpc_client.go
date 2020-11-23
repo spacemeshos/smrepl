@@ -1,7 +1,10 @@
 package client
 
 import (
+	"github.com/golang/protobuf/ptypes/empty"
+	// "github.com/golang/protobuf/ptypes/empty"
 	"github.com/spacemeshos/CLIWallet/localtypes"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	// "google.golang.org/grpc/codes"
 	// "google.golang.org/grpc/status"
@@ -24,7 +27,12 @@ func NewGRPCClient(server string, port uint) *GRPCClient {
 	}
 }
 
+
 func (c *GRPCClient) Connect() error {
+	if c.connection != nil {
+		_ = c.connection.Close()
+	}
+
 	addr := c.server + ":" + strconv.Itoa(int(c.port))
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
@@ -48,7 +56,7 @@ func (c *GRPCClient) nodeServiceClient() pb.NodeServiceClient {
 	return pb.NewNodeServiceClient(c.connection)
 }
 
-func (c *GRPCClient) debugService() pb.DebugServiceClient {
+func (c *GRPCClient) debugServiceClient() pb.DebugServiceClient {
 	return pb.NewDebugServiceClient(c.connection)
 }
 
@@ -87,5 +95,17 @@ func (c *GRPCClient) NodeURL() string {
 func (c *GRPCClient) Sanity() error {
 	return nil
 }
+
+func (c *GRPCClient) DebugAllAccounts()  ([]* pb.Account , error) {
+	dbgService := c.debugServiceClient()
+	resp, err := dbgService.Accounts(context.Background(), &empty.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.AccountWrapper, nil
+
+}
+
 
 
