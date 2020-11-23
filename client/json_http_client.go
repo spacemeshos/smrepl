@@ -1,5 +1,6 @@
 package client
 
+/*
 import (
 	"bytes"
 	"encoding/json"
@@ -246,4 +247,4 @@ func (m HTTPRequester) Sanity() error {
 	}
 
 	return nil
-}
+}*/

@@ -3,10 +3,9 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/log"
-	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
+	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	"github.com/spacemeshos/go-spacemesh/common/types"
 	"os"
@@ -42,17 +41,18 @@ type Client interface {
 	CurrentAccount() *localtypes.LocalAccount
 	SetCurrentAccount(a *localtypes.LocalAccount)
 	AccountInfo(address []byte) (*localtypes.AccountState, error)
-	NodeInfo() (*client.NodeInfo, error)
+	NodeStatus() (*apitypes.NodeStatus, error)
+	NodeInfo() (*localtypes.NodeInfo, error)
 	Sanity() error
-	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error)
+	Transfer(recipient types.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
 	ListAccounts() []string
 	GetAccount(name string) (*localtypes.LocalAccount, error)
 	StoreAccounts() error
 	ServerUrl() string
 	Smesh(datadir string, space uint, coinbase string) error
-	GetMeshTransactions(address []byte, offset uint32, maxResults uint32) ([]*pb.Transaction, uint32, error)
+	GetMeshTransactions(address []byte, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
 	SetCoinbase(coinbase string) error
-	DebugAllAccounts() ([]*pb.Account, error)
+	DebugAllAccounts() ([]*apitypes.Account, error)
 
 	//Unlock(passphrase string) error
 	//IsAccountUnLock(id string) bool
@@ -84,13 +84,14 @@ func (r *repl) initializeCommands() {
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.accountInfo},
 		{"txs", "List transactions (outgoing and incoming) for the current account since layer 0", r.getMeshTransactions},
-		{"net", "Display the node status", r.nodeInfo},
 		{"tx", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"textsign", "Sign a text message with the current account private key", r.textsign},
 		{"coinbase", "Set current account as coinbase account in the node", r.coinbase},
 		{"all", "Display all mesh accounts (debug)", r.debugAllAccounts},
 		//{"smesh", "Start smeshing", r.smesh},
+		{"node", "Get current p2p node info", r.nodeInfo},
+
 		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
@@ -137,7 +138,7 @@ func (r *repl) firstTime() {
 		r.quit()
 	}
 
-	fmt.Println("Welcome to Spacemesh. Connected to node at ", r.client.ServerUrl())
+	fmt.Println("Welcome to Spacemesh. Connected to node at", r.client.ServerUrl())
 }
 
 func (r *repl) chooseAccount() {
@@ -204,23 +205,35 @@ func (r *repl) accountInfo() {
 }
 
 func (r *repl) nodeInfo() {
+
 	info, err := r.client.NodeInfo()
 	if err != nil {
 		log.Error("failed to get node info: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, "Synced:", info.Synced)
-	fmt.Println(printPrefix, "Synced layer:", info.SyncedLayer)
-	fmt.Println(printPrefix, "Current layer:", info.CurrentLayer)
-	fmt.Println(printPrefix, "Verified layer:", info.VerifiedLayer)
-	fmt.Println(printPrefix, "Peers:", info.Peers)
-	fmt.Println(printPrefix, "Min peers:", info.MinPeers)
-	fmt.Println(printPrefix, "Max peers:", info.MaxPeers)
-	fmt.Println(printPrefix, "Smeshing data directory:", info.SmeshingDatadir)
-	fmt.Println(printPrefix, "Smeshing status:", info.SmeshingStatus)
-	fmt.Println(printPrefix, "Smeshing coinbase:", info.SmeshingCoinbase)
-	fmt.Println(printPrefix, "Smeshing remaining bytes:", info.SmeshingRemainingBytes)
+	fmt.Println(printPrefix, "Version:", info.Version)
+	fmt.Println(printPrefix, "Build:", info.Build)
+	fmt.Println(printPrefix, "API server:", r.client.ServerUrl())
+
+	status, err := r.client.NodeStatus()
+	if err != nil {
+		log.Error("failed to get node status: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, "Synced:", status.IsSynced)
+	fmt.Println(printPrefix, "Synced layer:", status.SyncedLayer.Number)
+	fmt.Println(printPrefix, "Current layer:", status.TopLayer.Number)
+	fmt.Println(printPrefix, "Verified layer:", status.VerifiedLayer.Number)
+	fmt.Println(printPrefix, "Peers:", status.ConnectedPeers)
+
+	/*
+		fmt.Println(printPrefix, "Smeshing data directory:", info.SmeshingDatadir)
+		fmt.Println(printPrefix, "Smeshing status:", info.SmeshingStatus)
+		fmt.Println(printPrefix, "Smeshing coinbase:", info.SmeshingCoinbase)
+		fmt.Println(printPrefix, "Smeshing remaining bytes:", info.SmeshingRemainingBytes)
+	*/
 }
 
 func (r *repl) debugAllAccounts() {
@@ -232,7 +245,7 @@ func (r *repl) debugAllAccounts() {
 	}
 
 	for _, a := range accounts {
-		fmt.Println(printPrefix, "Address: ", localtypes.AddressBytesDisplayString(a.AccountId.Address))
+		fmt.Println(printPrefix, "Address:", localtypes.AddressBytesDisplayString(a.AccountId.Address))
 		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value)
 		fmt.Println(printPrefix, "Nonce:", a.StateCurrent.Counter)
 		fmt.Println(printPrefix, "-----")
@@ -334,7 +347,7 @@ func (r *repl) getMeshTransactions() {
 }
 
 // helper method - prints tx info
-func printTransaction(transaction *pb.Transaction) {
+func printTransaction(transaction *apitypes.Transaction) {
 	// todo: implement me
 }
 

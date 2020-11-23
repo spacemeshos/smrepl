@@ -26,14 +26,11 @@ func (m mockClient) Transfer(from, to, amount, passphrase string) error {
 }
 
 func main() {
-	serverHostPort := client.DefaultNodeHostPort
 	datadir := Getwd()
 
 	grpcServerPort := uint(client.DefaultGRPCPort)
 	grpcServer := client.DefaultGRPCServer
 
-	flag.StringVar(&serverHostPort, "server", serverHostPort, "host:port of the Spacemesh node HTTP server")
-	flag.StringVar(&datadir, "datadir", datadir, "The directory to store the wallet data within")
 	flag.StringVar(&grpcServer, "grpc-server", grpcServer, "The api 2.0 grpc server")
 	flag.UintVar(&grpcServerPort, "grpc-port", grpcServerPort, "The api 2.0 grpc server port")
 
@@ -43,7 +40,7 @@ func main() {
 	if err != nil {
 		return
 	}
-	be, err := client.NewWalletBackend(serverHostPort, datadir, grpcServer, grpcServerPort)
+	be, err := client.NewWalletBackend(datadir, grpcServer, grpcServerPort)
 	if err != nil {
 		return
 	}
