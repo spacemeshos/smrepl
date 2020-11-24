@@ -105,11 +105,11 @@ func (r *repl) initializeCommands() {
 		{"global-state", "Display the most recent network global state", r.printGlobalState},
 
 		// smeshing operations
-		{"rewards-account", "Display current account as the node smesher's rewards account", r.printCoinbase},
+		{"print-rewards-account", "Display the currently set smesher's rewards account", r.printCoinbase},
 		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
-		{"smesher-id", "Display the smesher's current rewards account", r.printSmesherId},
+		{"smesher-id", "Display the smesher's current smesher id", r.printSmesherId},
 		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
-		{"smeshing-status", "Set current account as the node smesher's rewards account", r.printSmeshingStatus},
+		{"smeshing-status", "Display smeshing status", r.printSmeshingStatus},
 		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
 		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
 		{"smesher-rewards", "Display rewards for a smesher", r.printSmesherRewards},
