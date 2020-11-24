@@ -25,12 +25,7 @@ var transactionStateDisStringsMap = map[int32]string{
 // Print a transaction status
 func (r *repl) printTransactionStatus() {
 	txIdStr := inputNotBlank(txIdMsg)
-	txId, err := hex.DecodeString(txIdStr)
-	if err != nil {
-		log.Error("failed to parse transaction id: %v", err)
-		return
-	}
-
+	txId := util.FromHex(txIdStr)
 	txState, tx, err := r.client.TransactionState(txId, true)
 	if err != nil {
 		log.Error(err.Error())
@@ -38,7 +33,8 @@ func (r *repl) printTransactionStatus() {
 	}
 
 	if txState != nil {
-		fmt.Println(printPrefix, "State:", txState.State.Descriptor())
+		txStateDispString := transactionStateDisStringsMap[int32(txState.State.Number())]
+		fmt.Println(printPrefix, "State:", txStateDispString)
 	} else {
 		fmt.Println(printPrefix, "Unknown transaction state")
 	}
