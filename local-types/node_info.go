@@ -1,4 +1,4 @@
-package localtypes
+package local_types
 
 type NodeInfo struct {
 	Version string

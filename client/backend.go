@@ -3,7 +3,7 @@ package client
 import (
 	"bytes"
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"github.com/spacemeshos/CLIWallet/localtypes"
+	"github.com/spacemeshos/CLIWallet/local-types"
 	"github.com/spacemeshos/CLIWallet/log"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
@@ -15,17 +15,17 @@ const accountsFileName = "accounts.json"
 
 type WalletBackend struct {
 	*GRPCClient // Embedded interface
-	localtypes.Store
+	local_types.Store
 	accountsFilePath string
-	currentAccount   *localtypes.LocalAccount
+	currentAccount   *local_types.LocalAccount
 }
 
 func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*WalletBackend, error) {
 	accountsFilePath := path.Join(dataDir, accountsFileName)
-	acc, err := localtypes.LoadAccounts(accountsFilePath)
+	acc, err := local_types.LoadAccounts(accountsFilePath)
 	if err != nil {
 		log.Error("cannot load account from file %s: %s", accountsFilePath, err)
-		acc = &localtypes.Store{}
+		acc = &local_types.Store{}
 	}
 
 	grpcClient := NewGRPCClient(grpcServer, grpcPort)
@@ -38,11 +38,11 @@ func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*Wallet
 	return &WalletBackend{grpcClient, *acc, accountsFilePath, nil}, nil
 }
 
-func (w *WalletBackend) CurrentAccount() *localtypes.LocalAccount {
+func (w *WalletBackend) CurrentAccount() *local_types.LocalAccount {
 	return w.currentAccount
 }
 
-func (w *WalletBackend) SetCurrentAccount(a *localtypes.LocalAccount) {
+func (w *WalletBackend) SetCurrentAccount(a *local_types.LocalAccount) {
 	w.currentAccount = a
 }
 
@@ -55,12 +55,12 @@ func InterfaceToBytes(i interface{}) ([]byte, error) {
 }
 
 func (w *WalletBackend) StoreAccounts() error {
-	return localtypes.StoreAccounts(w.accountsFilePath, &w.Store)
+	return local_types.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
 // Transfer creates a sign coin transaction and submits it
 func (w *WalletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error) {
-	tx := localtypes.SerializableSignedTransaction{}
+	tx := local_types.SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
 	tx.Recipient = recipient

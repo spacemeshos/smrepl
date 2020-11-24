@@ -5,7 +5,7 @@ package main
 import (
 	"flag"
 	"github.com/spacemeshos/CLIWallet/client"
-	"github.com/spacemeshos/CLIWallet/localtypes"
+	"github.com/spacemeshos/CLIWallet/local-types"
 	"github.com/spacemeshos/CLIWallet/repl"
 	"os"
 	"syscall"
@@ -14,7 +14,7 @@ import (
 type mockClient struct {
 }
 
-func (m mockClient) LocalAccount() *localtypes.LocalAccount {
+func (m mockClient) LocalAccount() *local_types.LocalAccount {
 	return nil
 }
 

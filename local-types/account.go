@@ -1,4 +1,4 @@
-package localtypes
+package local_types
 
 import (
 	"encoding/hex"
@@ -15,14 +15,6 @@ type LocalAccount struct {
 
 func (a *LocalAccount) Address() gosmtypes.Address {
 	return gosmtypes.BytesToAddress(a.PubKey[:])
-}
-
-func StringAddress(addr gosmtypes.Address) string {
-	return fmt.Sprintf("0x%s", hex.EncodeToString(addr.Bytes()))
-}
-
-func AddressBytesDisplayString(bytes []byte) string {
-	return fmt.Sprintf("0x%s", hex.EncodeToString(bytes))
 }
 
 type AccountState struct {

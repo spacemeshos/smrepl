@@ -3,7 +3,7 @@ package client
 import (
 	"errors"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/spacemeshos/CLIWallet/localtypes"
+	"github.com/spacemeshos/CLIWallet/local-types"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"golang.org/x/net/context"
 )
@@ -30,9 +30,9 @@ func (c *GRPCClient) Sanity() error {
 }
 
 // NodeInfo returns static node info such as build, version and api server url
-func (c *GRPCClient) NodeInfo() (*localtypes.NodeInfo, error) {
+func (c *GRPCClient) NodeInfo() (*local_types.NodeInfo, error) {
 
-	info := &localtypes.NodeInfo{}
+	info := &local_types.NodeInfo{}
 
 	s := c.nodeServiceClient()
 	resp, err := s.Version(context.Background(), &empty.Empty{})
