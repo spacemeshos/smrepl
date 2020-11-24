@@ -212,28 +212,6 @@ func printTransaction(t *apitypes.Transaction) {
 
 }
 
-func (r *repl) setCoinbase() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
-	}
-
-	resp, err := r.client.SetCoinbase(acc.Address())
-
-	if err != nil {
-		log.Error("failed to set rewards address: %v", err)
-		return
-	}
-
-	if resp.Code == 0 {
-		fmt.Println(printPrefix, "Rewards address set to:", acc.Address().String())
-	} else {
-		// todo: what are possible non-zero status codes here?
-		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", resp.Code))
-	}
-}
-
 func (r *repl) sign() {
 	acc := r.client.CurrentAccount()
 	if acc == nil {

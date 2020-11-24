@@ -6,6 +6,7 @@ const (
 	txIdMsg                    = "Enter or paste transaction id: "
 	amountToTransferMsg        = "Enter amount to transfer in Smidge: "
 	confirmTransactionMsg      = "Confirm transaction (y/n): "
+	confirmDeleteDataMsg       = "Delete smeshing smeshing data files (y/n)"
 	createAccountMsg           = "Account alias (name): "
 	useDefaultGasMsg           = "Use default transaction fee of 1 Smidge? (y/n) "
 	enterGasPrice              = "Enter transaction fee (Smidge):"

@@ -49,7 +49,7 @@ func (r *repl) printGlobalState() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Hash: 0x", hex.EncodeToString(resp.RootHash))
+	fmt.Println(printPrefix, "Hash:", "0x"+hex.EncodeToString(resp.RootHash))
 	fmt.Println(printPrefix, "Layer:", resp.Layer.Number)
 
 }

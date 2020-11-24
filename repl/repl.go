@@ -64,7 +64,11 @@ type Client interface {
 	TransactionState(txId []byte, includeTx bool) (*apitypes.TransactionState, *apitypes.Transaction, error)
 
 	// Smesher service
-	Smesh(datadir string, space uint, coinbase string) error
+	GetSmesherId() ([]byte, error)
+	IsSmeshing() (bool, error)
+	StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error)
+	StopSmeshing(deleteFiles bool) (*status.Status, error)
+	GetCoinbase() (*gosmtypes.Address, error)
 	SetCoinbase(coinbase gosmtypes.Address) (*status.Status, error)
 
 	// debug service
@@ -108,7 +112,13 @@ func (r *repl) initializeCommands() {
 		{"state", "Display the current global state", r.printGlobalState},
 
 		// smeshing operations
-		{"rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
+		{"get-rewards-account", "Get current account as the node smesher's rewards account", r.printCoinbase},
+		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
+		{"get-smesher-id", "Get the node smesher's current rewards account", r.printSmesherId},
+		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
+		{"smeshing-status", "Set current account as the node smesher's rewards account", r.printSmeshingStatus},
+		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
+		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
 
 		//{"smesh", "Start smeshing", r.smesh},
 
