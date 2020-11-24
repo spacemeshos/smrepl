@@ -127,28 +127,3 @@ func (r *repl) textsign() {
 
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }
-
-/*
-func (r *repl) unlockAccount() {
-	passphrase := r.commandLineParams(1, r.input)
-	err := r.client.Unlock(passphrase)
-	if err != nil {
-		log.Debug(err.Error())
-		return
-	}
-
-	acctCmd := r.commands[3]
-	r.executor(fmt.Sprintf("%s %s", acctCmd.text, passphrase))
-}
-
-func (r *repl) lockAccount() {
-	passphrase := r.commandLineParams(2, r.input)
-	err := r.client.Lock(passphrase)
-	if err != nil {
-		log.Debug(err.Error())
-		return
-	}
-
-	acctCmd := r.commands[3]
-	r.executor(fmt.Sprintf("%s %s", acctCmd.text, passphrase))
-}*/

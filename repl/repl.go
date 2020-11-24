@@ -80,15 +80,6 @@ type Client interface {
 	AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error)
 	GlobalStateHash() (*apitypes.GlobalStateHash, error)
 	SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
-
-	//Unlock(passphrase string) error
-	//IsAccountUnLock(id string) bool
-	//Lock(passphrase string) error
-	//SetVariables(params, flags []string) error
-	//GetVariable(key string) string
-	//Restart(params, flags []string) error
-	//NeedRestartNode(params, flags []string) bool
-	//Setup(allocation string) error
 }
 
 func (r *repl) initializeCommands() {
@@ -97,7 +88,7 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.printAccountInfo},
-		{"rewards", "Print all rewards awarded to the current account", r.printAccountRewards},
+		{"rewards", "Display all rewards awarded to the current account", r.printAccountRewards},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"text-sign", "Sign a text message with the current account private key", r.textsign},
 
@@ -106,7 +97,7 @@ func (r *repl) initializeCommands() {
 		// transactions
 		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"tx-status", "Display a transaction status", r.printTransactionStatus},
-		{"txs", "Print all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+		{"txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
 
 		// printing status and state of things
 		{"node", "Display node status", r.nodeInfo},
@@ -114,14 +105,14 @@ func (r *repl) initializeCommands() {
 		{"global-state", "Display the most recent network global state", r.printGlobalState},
 
 		// smeshing operations
-		{"get-rewards-account", "Get current account as the node smesher's rewards account", r.printCoinbase},
+		{"rewards-account", "Display current account as the node smesher's rewards account", r.printCoinbase},
 		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
-		{"get-smesher-id", "Get the node smesher's current rewards account", r.printSmesherId},
+		{"smesher-id", "Display the smesher's current rewards account", r.printSmesherId},
 		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
 		{"smeshing-status", "Set current account as the node smesher's rewards account", r.printSmeshingStatus},
 		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
 		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
-		{"smesher-rewards", "Print rewards for a smesher", r.printSmesherRewards},
+		{"smesher-rewards", "Display rewards for a smesher", r.printSmesherRewards},
 
 		// debug commands
 		{"dbg-all-accounts", "Display all mesh accounts", r.printAllAccounts},

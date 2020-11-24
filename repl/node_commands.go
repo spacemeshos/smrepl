@@ -30,10 +30,4 @@ func (r *repl) nodeInfo() {
 	fmt.Println(printPrefix, "Verified layer:", status.VerifiedLayer.Number)
 	fmt.Println(printPrefix, "Peers:", status.ConnectedPeers)
 
-	/*
-		fmt.Println(printPrefix, "Smeshing data directory:", info.SmeshingDatadir)
-		fmt.Println(printPrefix, "Smeshing status:", info.SmeshingStatus)
-		fmt.Println(printPrefix, "Smeshing coinbase:", info.SmeshingCoinbase)
-		fmt.Println(printPrefix, "Smeshing remaining bytes:", info.SmeshingRemainingBytes)
-	*/
 }
