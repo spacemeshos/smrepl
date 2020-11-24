@@ -1,5 +1,3 @@
-//go-spacemesh is a golang implementation of the Spacemesh node.
-//See - https://spacemesh.io
 package main
 
 import (
@@ -26,7 +24,7 @@ func (m mockClient) Transfer(from, to, amount, passphrase string) error {
 }
 
 func main() {
-	datadir := Getwd()
+	datadir := getwd()
 
 	grpcServerPort := uint(client.DefaultGRPCPort)
 	grpcServer := client.DefaultGRPCServer
@@ -47,7 +45,7 @@ func main() {
 	repl.Start(be)
 }
 
-func Getwd() string {
+func getwd() string {
 	pwd, err := os.Getwd()
 	if err != nil {
 		panic(err)
