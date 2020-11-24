@@ -78,7 +78,8 @@ func (r *repl) canSubmitTransactions() bool {
 		return false
 	}
 
-	return status.IsSynced && status.TopLayer.Number > minVerifiedLayer
+	// for now, we allow to submit txs if the node is synced
+	return status.IsSynced //&& status.TopLayer.Number > minVerifiedLayer
 
 }
 

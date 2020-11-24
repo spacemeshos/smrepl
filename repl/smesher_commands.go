@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/spacemeshos/go-spacemesh/common/util"
+
 	"github.com/spacemeshos/CLIWallet/log"
 )
 
@@ -16,6 +18,26 @@ import (
 		{"is-smeshing", "Set current account as the node smesher's rewards account", r.isSmeshing},
 */
 
+// printSmesherRewards prints all rewards awarded to a smesher identified by an id
+func (r *repl) printSmesherRewards() {
+
+	smesherIdStr := inputNotBlank(smesherIdMsg)
+	smesherId := util.FromHex(smesherIdStr)
+
+	// todo: request offset and total from user
+	rewards, total, err := r.client.SmesherRewards(smesherId, 0, 10000)
+	if err != nil {
+		log.Error("failed to list transactions: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
+	for _, r := range rewards {
+		printReward(r)
+		fmt.Println(printPrefix, "-----")
+	}
+}
+
 func (r *repl) startSmeshing() {
 	addr := r.client.CurrentAccount()
 	if addr == nil {
@@ -23,16 +45,16 @@ func (r *repl) startSmeshing() {
 		addr = r.client.CurrentAccount()
 	}
 
-	datadir := inputNotBlank(smeshingDatadirMsg)
+	dataDir := inputNotBlank(smeshingDatadirMsg)
 
-	spaceStr := inputNotBlank(smeshingSpaceAllocationMsg)
-	dataSize, err := strconv.ParseUint(spaceStr, 10, 64)
+	spaceGBStr := inputNotBlank(smeshingSpaceAllocationMsg)
+	dataSizeGB, err := strconv.ParseUint(spaceGBStr, 10, 64)
 	if err != nil {
 		log.Error("failed to parse: %v", err)
 		return
 	}
 
-	resp, err := r.client.StartSmeshing(addr.Address(), datadir, dataSize)
+	resp, err := r.client.StartSmeshing(addr.Address(), dataDir, uint64(dataSizeGB<<20))
 
 	if err != nil {
 		log.Error("failed to start smeshing: %v", err)

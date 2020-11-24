@@ -79,6 +79,7 @@ type Client interface {
 	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
 	AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error)
 	GlobalStateHash() (*apitypes.GlobalStateHash, error)
+	SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
 
 	//Unlock(passphrase string) error
 	//IsAccountUnLock(id string) bool
@@ -119,6 +120,7 @@ func (r *repl) initializeCommands() {
 		{"smeshing-status", "Set current account as the node smesher's rewards account", r.printSmeshingStatus},
 		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
 		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
+		{"smesher-rewards", "Print rewards for a smesher", r.printSmesherRewards},
 
 		//{"smesh", "Start smeshing", r.smesh},
 

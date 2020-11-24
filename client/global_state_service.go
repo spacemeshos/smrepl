@@ -35,6 +35,23 @@ func (c *gRPCClient) AccountState(address gosmtypes.Address) (*common.AccountSta
 	}, nil
 }
 
+// SmesherRewards returns rewards for a smesher identified by a smesher id
+func (c *gRPCClient) SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
+	gsc := c.globalStateClient()
+
+	resp, err := gsc.SmesherDataQuery(context.Background(), &apitypes.SmesherDataQueryRequest{
+		SmesherId:  &apitypes.SmesherId{Id: smesherId},
+		MaxResults: maxResults,
+		Offset:     offset,
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return resp.Rewards, resp.TotalResults, nil
+}
+
 func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
 	gsc := c.globalStateClient()
 
@@ -63,7 +80,6 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 	}
 
 	return rewards, resp.TotalResults, nil
-
 }
 
 func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error) {

@@ -4,6 +4,7 @@ const (
 	initialTransferMsg         = "Transfer coins from local account to another account."
 	destAddressMsg             = "Enter or paste destination address: "
 	txIdMsg                    = "Enter or paste transaction id: "
+	smesherIdMsg               = "Enter or paste a Smesher id: "
 	amountToTransferMsg        = "Enter amount to transfer in Smidge: "
 	confirmTransactionMsg      = "Confirm transaction (y/n): "
 	confirmDeleteDataMsg       = "Delete smeshing smeshing data files (y/n)"
