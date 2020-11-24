@@ -97,6 +97,9 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.printAccountInfo},
+		{"rewards", "Print all rewards awarded to the current account", r.printAccountRewards},
+		{"sign", "Sign a hex message with the current account private key", r.sign},
+		{"text-sign", "Sign a text message with the current account private key", r.textsign},
 
 		// activations where this account is coinbase
 
@@ -104,16 +107,11 @@ func (r *repl) initializeCommands() {
 		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"tx-status", "Display a transaction status", r.printTransactionStatus},
 		{"txs", "Print all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
-		{"rewards", "Print all rewards awarded to the current account", r.printAccountRewards},
-
-		{"sign", "Sign a hex message with the current account private key", r.sign},
-		{"text-sign", "Sign a text message with the current account private key", r.textsign},
 
 		// printing status and state of things
-		{"accounts", "Display all mesh accounts (debug)", r.printAllAccounts},
 		{"node", "Display node status", r.nodeInfo},
-		{"state", "Display the current global state", r.printGlobalState},
-		{"net", "Display the current global state", r.printMeshInfo},
+		{"net", "Display network information", r.printMeshInfo},
+		{"global-state", "Display the most recent network global state", r.printGlobalState},
 
 		// smeshing operations
 		{"get-rewards-account", "Get current account as the node smesher's rewards account", r.printCoinbase},
@@ -124,6 +122,9 @@ func (r *repl) initializeCommands() {
 		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
 		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
 		{"smesher-rewards", "Print rewards for a smesher", r.printSmesherRewards},
+
+		// debug commands
+		{"dbg-all-accounts", "Display all mesh accounts", r.printAllAccounts},
 
 		{"quit", "Quit the CLI", r.quit},
 	}
