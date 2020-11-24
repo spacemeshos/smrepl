@@ -1,7 +1,7 @@
 package repl
 
 import (
-	"github.com/spacemeshos/CLIWallet/local-types"
+	"github.com/spacemeshos/CLIWallet/common"
 	// types "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
@@ -15,8 +15,8 @@ func (Mock) CreateAccount(generatePassphrase bool, accountInfo string) error {
 }
 
 // CurrentAccount returns local accountInfo.
-func (Mock) LocalAccount() local_types.LocalAccount {
-	return local_types.LocalAccount{}
+func (Mock) LocalAccount() common.LocalAccount {
+	return common.LocalAccount{}
 }
 
 // Unlock unlock local accountInfo or the accountInfo by passphrase.

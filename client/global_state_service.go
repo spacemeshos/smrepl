@@ -2,13 +2,13 @@ package client
 
 import (
 	"context"
-	"github.com/spacemeshos/CLIWallet/local-types"
+	"github.com/spacemeshos/CLIWallet/common"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
 // AccountInfo returns basic account data such as balance and nonce from the global state
-func (c *GRPCClient) AccountInfo(address gosmtypes.Address) (*local_types.AccountState, error) {
+func (c *GRPCClient) AccountInfo(address gosmtypes.Address) (*common.AccountState, error) {
 	gsc := c.globalStateClient()
 
 	resp, err := gsc.Account(context.Background(), &apitypes.AccountRequest{
@@ -17,7 +17,7 @@ func (c *GRPCClient) AccountInfo(address gosmtypes.Address) (*local_types.Accoun
 		return nil, err
 	}
 
-	return &local_types.AccountState{
+	return &common.AccountState{
 		Balance: resp.AccountWrapper.StateCurrent.Balance.Value,
 		Nonce:   resp.AccountWrapper.StateCurrent.Counter,
 	}, nil

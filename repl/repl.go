@@ -3,7 +3,7 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/spacemeshos/CLIWallet/local-types"
+	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
@@ -38,16 +38,16 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
-	CreateAccount(alias string) *local_types.LocalAccount
-	CurrentAccount() *local_types.LocalAccount
-	SetCurrentAccount(a *local_types.LocalAccount)
-	AccountInfo(address gosmtypes.Address) (*local_types.AccountState, error)
+	CreateAccount(alias string) *common.LocalAccount
+	CurrentAccount() *common.LocalAccount
+	SetCurrentAccount(a *common.LocalAccount)
+	AccountInfo(address gosmtypes.Address) (*common.AccountState, error)
 	NodeStatus() (*apitypes.NodeStatus, error)
-	NodeInfo() (*local_types.NodeInfo, error)
+	NodeInfo() (*common.NodeInfo, error)
 	Sanity() error
 	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
 	ListAccounts() []string
-	GetAccount(name string) (*local_types.LocalAccount, error)
+	GetAccount(name string) (*common.LocalAccount, error)
 	StoreAccounts() error
 	ServerUrl() string
 	Smesh(datadir string, space uint, coinbase string) error
@@ -194,7 +194,7 @@ func (r *repl) accountInfo() {
 	info, err := r.client.AccountInfo(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
-		info = &local_types.AccountState{}
+		info = &common.AccountState{}
 	}
 
 	fmt.Println(printPrefix, "Local alias: ", acc.Name)

@@ -1,4 +1,4 @@
-package local_types
+package common
 
 import types "github.com/spacemeshos/go-spacemesh/common/types"
 
