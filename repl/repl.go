@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	prefix           = "$ "
-	printPrefix      = ">"
-	minVerifiedLayer = 575
+	prefix      = "$ "
+	printPrefix = ">"
 )
 
 // TestMode variable used for check if unit test is running
@@ -97,6 +96,8 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.accountInfo},
+
+		// activations where this account is coinbase
 
 		// transactions
 		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
