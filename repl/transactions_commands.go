@@ -22,6 +22,34 @@ var transactionStateDisStringsMap = map[int32]string{
 	6: "Processed",
 }
 
+// Print a transaction status
+func (r *repl) printTransactionStatus() {
+	txIdStr := inputNotBlank(txIdMsg)
+	txId, err := hex.DecodeString(txIdStr)
+	if err != nil {
+		log.Error("failed to parse transaction id: %v", err)
+		return
+	}
+
+	txState, tx, err := r.client.TransactionState(txId, true)
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	if txState != nil {
+		fmt.Println(printPrefix, "State:", txState.State.Descriptor())
+	} else {
+		fmt.Println(printPrefix, "Unknown transaction state")
+	}
+
+	if tx != nil {
+		printTransaction(tx)
+	} else {
+		fmt.Println(printPrefix, "Unknown transaction")
+	}
+}
+
 // canSubmitTransactions returns true if the node is accepting transactions.
 // todo: this should move to a method in the transactions service.
 func (r *repl) canSubmitTransactions() bool {
@@ -51,7 +79,7 @@ func (r *repl) submitCoinTransaction() {
 	}
 
 	srcAddress := gosmtypes.BytesToAddress(acc.PubKey)
-	info, err := r.client.AccountState(srcAddress)
+	acctState, err := r.client.AccountState(srcAddress)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
@@ -77,13 +105,13 @@ func (r *repl) submitCoinTransaction() {
 	fmt.Println(printPrefix, "To:    ", destAddress.String())
 	fmt.Println(printPrefix, "Amount:", amountStr, coinUnitName)
 	fmt.Println(printPrefix, "Fee:   ", gas, coinUnitName)
-	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
+	fmt.Println(printPrefix, "Nonce: ", acctState.StateProjected.Counter)
 
 	amount, _ := strconv.ParseUint(amountStr, 10, 64)
 	// todo: handle error here!
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		txState, err := r.client.Transfer(destAddress, info.Nonce, amount, gas, 100, acc.PrivKey)
+		txState, err := r.client.Transfer(destAddress, acctState.StateProjected.Counter, amount, gas, 100, acc.PrivKey)
 		if err != nil {
 			log.Error(err.Error())
 			return
@@ -107,7 +135,7 @@ func (r *repl) printAccountTransactions() {
 	// todo: request offset and total from user
 	txs, total, err := r.client.GetMeshTransactions(acc.Address(), 0, 1000)
 	if err != nil {
-		log.Error("failed to list transactions: %v", err)
+		log.Error("failed to print transactions: %v", err)
 		return
 	}
 

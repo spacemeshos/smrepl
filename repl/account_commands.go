@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
@@ -56,13 +55,16 @@ func (r *repl) accountInfo() {
 	state, err := r.client.AccountState(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
-		state = &common.AccountState{}
+		return
 	}
 
 	fmt.Println(printPrefix, "Local alias:", acc.Name)
 	fmt.Println(printPrefix, "Address:", address.String())
-	fmt.Println(printPrefix, "Balance:", state.Balance, coinUnitName)
-	fmt.Println(printPrefix, "Nonce:", state.Nonce)
+	fmt.Println(printPrefix, "Balance:", state.StateCurrent.Balance.Value, coinUnitName)
+	fmt.Println(printPrefix, "Nonce:", state.StateCurrent.Counter)
+	fmt.Println(printPrefix, "Projected Balance:", state.StateProjected.Balance.Value, coinUnitName)
+	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
+
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
 	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
 }

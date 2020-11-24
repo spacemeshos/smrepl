@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 
-	"github.com/spacemeshos/CLIWallet/common"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
@@ -20,7 +19,7 @@ func (c *gRPCClient) GlobalStateHash() (*apitypes.GlobalStateHash, error) {
 }
 
 // AccountInfo returns basic account data such as balance and nonce from the global state
-func (c *gRPCClient) AccountState(address gosmtypes.Address) (*common.AccountState, error) {
+func (c *gRPCClient) AccountState(address gosmtypes.Address) (*apitypes.Account, error) {
 	gsc := c.globalStateClient()
 
 	resp, err := gsc.Account(context.Background(), &apitypes.AccountRequest{
@@ -29,10 +28,7 @@ func (c *gRPCClient) AccountState(address gosmtypes.Address) (*common.AccountSta
 		return nil, err
 	}
 
-	return &common.AccountState{
-		Balance: resp.AccountWrapper.StateCurrent.Balance.Value,
-		Nonce:   resp.AccountWrapper.StateCurrent.Counter,
-	}, nil
+	return resp.AccountWrapper, nil
 }
 
 // SmesherRewards returns rewards for a smesher identified by a smesher id

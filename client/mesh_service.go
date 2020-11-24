@@ -40,6 +40,8 @@ func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 	}
 	// hack alert: for now, we return the number of filtered results and not the results returned from the api
 	// because they include duplicated transactions in case where a transaction is on more than 1 mesh block
+
+	// todo: think about default sorting
 	return txs, uint32(len(txs)), nil
 }
 

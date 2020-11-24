@@ -74,7 +74,7 @@ type Client interface {
 	DebugAllAccounts() ([]*apitypes.Account, error)
 
 	// global state service
-	AccountState(address gosmtypes.Address) (*common.AccountState, error)
+	AccountState(address gosmtypes.Address) (*apitypes.Account, error)
 	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
 	AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error)
 	GlobalStateHash() (*apitypes.GlobalStateHash, error)

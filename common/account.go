@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/hex"
 	"fmt"
+
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
@@ -18,8 +19,10 @@ func (a *LocalAccount) Address() gosmtypes.Address {
 }
 
 type AccountState struct {
-	Nonce   uint64
-	Balance uint64
+	Nonce            uint64
+	Balance          uint64
+	ProjectedNonce   uint64
+	ProjectedBalance uint64
 }
 
 func (s Store) GetAccount(name string) (*LocalAccount, error) {
