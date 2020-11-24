@@ -6,7 +6,7 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
-func (c *GRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error) {
+func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error) {
 	ms := c.meshServiceClient()
 
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
@@ -36,7 +36,7 @@ func (c *GRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 	return txs, resp.TotalResults, nil
 }
 
-func (c *GRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error) {
+func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error) {
 	ms := c.meshServiceClient()
 
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{

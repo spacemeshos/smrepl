@@ -13,14 +13,14 @@ import (
 
 const accountsFileName = "accounts.json"
 
-type WalletBackend struct {
-	*GRPCClient // Embedded interface
+type walletBackend struct {
+	*gRPCClient // Embedded interface
 	common.Store
 	accountsFilePath string
 	currentAccount   *common.LocalAccount
 }
 
-func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*WalletBackend, error) {
+func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*walletBackend, error) {
 	accountsFilePath := path.Join(dataDir, accountsFileName)
 	acc, err := common.LoadAccounts(accountsFilePath)
 	if err != nil {
@@ -28,25 +28,25 @@ func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*Wallet
 		acc = &common.Store{}
 	}
 
-	grpcClient := NewGRPCClient(grpcServer, grpcPort)
+	grpcClient := newGRPCClient(grpcServer, grpcPort)
 	err = grpcClient.Connect()
 	if err != nil {
 		// failed to connect to grpc server
 		return nil, err
 	}
 
-	return &WalletBackend{grpcClient, *acc, accountsFilePath, nil}, nil
+	return &walletBackend{grpcClient, *acc, accountsFilePath, nil}, nil
 }
 
-func (w *WalletBackend) CurrentAccount() *common.LocalAccount {
+func (w *walletBackend) CurrentAccount() *common.LocalAccount {
 	return w.currentAccount
 }
 
-func (w *WalletBackend) SetCurrentAccount(a *common.LocalAccount) {
+func (w *walletBackend) SetCurrentAccount(a *common.LocalAccount) {
 	w.currentAccount = a
 }
 
-func InterfaceToBytes(i interface{}) ([]byte, error) {
+func interfaceToBytes(i interface{}) ([]byte, error) {
 	var w bytes.Buffer
 	if _, err := xdr.Marshal(&w, &i); err != nil {
 		return nil, err
@@ -54,12 +54,12 @@ func InterfaceToBytes(i interface{}) ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func (w *WalletBackend) StoreAccounts() error {
+func (w *walletBackend) StoreAccounts() error {
 	return common.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
 // Transfer creates a sign coin transaction and submits it
-func (w *WalletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error) {
+func (w *walletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error) {
 	tx := common.SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
@@ -67,9 +67,9 @@ func (w *WalletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gas
 	tx.GasLimit = gasLimit
 	tx.Price = gasPrice
 
-	buf, _ := InterfaceToBytes(&tx.InnerSerializableSignedTransaction)
+	buf, _ := interfaceToBytes(&tx.InnerSerializableSignedTransaction)
 	copy(tx.Signature[:], ed25519.Sign2(key, buf))
-	b, err := InterfaceToBytes(&tx)
+	b, err := interfaceToBytes(&tx)
 	if err != nil {
 		return nil, err
 	}

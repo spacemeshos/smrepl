@@ -6,7 +6,7 @@ import (
 )
 
 // SubmitCoinTransaction submits a signed binary transaction to the node.
-func (c *GRPCClient) SubmitCoinTransaction(tx []byte) (*pb.TransactionState, error) {
+func (c *gRPCClient) SubmitCoinTransaction(tx []byte) (*pb.TransactionState, error) {
 
 	s := c.transactionServiceClient()
 	resp, err := s.SubmitTransaction(context.Background(), &pb.SubmitTransactionRequest{Transaction: tx})

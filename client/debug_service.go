@@ -6,7 +6,7 @@ import (
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 )
 
-func (c *GRPCClient) DebugAllAccounts() ([]*apitypes.Account, error) {
+func (c *gRPCClient) DebugAllAccounts() ([]*apitypes.Account, error) {
 	dbgService := c.debugServiceClient()
 	resp, err := dbgService.Accounts(context.Background(), &empty.Empty{})
 	if err != nil {

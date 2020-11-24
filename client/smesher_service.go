@@ -7,12 +7,12 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
-func (c *GRPCClient) Smesh(datadir string, space uint, coinbase string) error {
+func (c *gRPCClient) Smesh(datadir string, space uint, coinbase string) error {
 	return nil
 }
 
 // SetCoinbase sets the smesher's coinbase address
-func (c *GRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, error) {
+func (c *gRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, error) {
 	s := c.smeshServiceClient()
 
 	resp, err := s.SetCoinbase(context.Background(), &apitypes.SetCoinbaseRequest{Id: &apitypes.AccountId{Address: address.Bytes()}})

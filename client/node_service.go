@@ -10,7 +10,7 @@ import (
 
 // Sanity is a basic api sanity test. It verifies that the client can connect to
 // the node service and get a response from it to an echo request.s
-func (c *GRPCClient) Sanity() error {
+func (c *gRPCClient) Sanity() error {
 	service := c.nodeServiceClient()
 
 	const msg = "hello spacemesh"
@@ -30,7 +30,7 @@ func (c *GRPCClient) Sanity() error {
 }
 
 // NodeInfo returns static node info such as build, version and api server url
-func (c *GRPCClient) NodeInfo() (*common.NodeInfo, error) {
+func (c *gRPCClient) NodeInfo() (*common.NodeInfo, error) {
 
 	info := &common.NodeInfo{}
 
@@ -51,7 +51,7 @@ func (c *GRPCClient) NodeInfo() (*common.NodeInfo, error) {
 }
 
 // NodeStatus returns dynamic node status such as sync status and number of connected peers
-func (c *GRPCClient) NodeStatus() (*apitypes.NodeStatus, error) {
+func (c *gRPCClient) NodeStatus() (*apitypes.NodeStatus, error) {
 
 	s := c.nodeServiceClient()
 	resp, err := s.Status(context.Background(), &apitypes.StatusRequest{})

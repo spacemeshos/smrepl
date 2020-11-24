@@ -8,7 +8,7 @@ import (
 )
 
 // AccountInfo returns basic account data such as balance and nonce from the global state
-func (c *GRPCClient) AccountInfo(address gosmtypes.Address) (*common.AccountState, error) {
+func (c *gRPCClient) AccountInfo(address gosmtypes.Address) (*common.AccountState, error) {
 	gsc := c.globalStateClient()
 
 	resp, err := gsc.Account(context.Background(), &apitypes.AccountRequest{

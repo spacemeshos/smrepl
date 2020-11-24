@@ -10,21 +10,21 @@ import (
 const DefaultGRPCPort = 9092
 const DefaultGRPCServer = "localhost"
 
-type GRPCClient struct {
+type gRPCClient struct {
 	connection *grpc.ClientConn
 	server     string
 	port       uint
 }
 
-func NewGRPCClient(server string, port uint) *GRPCClient {
-	return &GRPCClient{
+func newGRPCClient(server string, port uint) *gRPCClient {
+	return &gRPCClient{
 		nil,
 		server,
 		port,
 	}
 }
 
-func (c *GRPCClient) Connect() error {
+func (c *gRPCClient) Connect() error {
 	if c.connection != nil {
 		_ = c.connection.Close()
 	}
@@ -38,40 +38,40 @@ func (c *GRPCClient) Connect() error {
 	return nil
 }
 
-func (c *GRPCClient) Close() error {
+func (c *gRPCClient) Close() error {
 	if c.connection != nil {
 		return c.connection.Close()
 	}
 	return nil
 }
 
-func (c *GRPCClient) ServerUrl() string {
+func (c *gRPCClient) ServerUrl() string {
 	return c.server + ":" + strconv.Itoa(int(c.port)) + " (GRPC API 2.0)"
 }
 
 //// services clients
 
-func (c *GRPCClient) nodeServiceClient() apitypes.NodeServiceClient {
+func (c *gRPCClient) nodeServiceClient() apitypes.NodeServiceClient {
 	return apitypes.NewNodeServiceClient(c.connection)
 }
 
-func (c *GRPCClient) debugServiceClient() apitypes.DebugServiceClient {
+func (c *gRPCClient) debugServiceClient() apitypes.DebugServiceClient {
 	return apitypes.NewDebugServiceClient(c.connection)
 }
 
-func (c *GRPCClient) meshServiceClient() apitypes.MeshServiceClient {
+func (c *gRPCClient) meshServiceClient() apitypes.MeshServiceClient {
 	return apitypes.NewMeshServiceClient(c.connection)
 }
 
-func (c *GRPCClient) globalStateClient() apitypes.GlobalStateServiceClient {
+func (c *gRPCClient) globalStateClient() apitypes.GlobalStateServiceClient {
 	return apitypes.NewGlobalStateServiceClient(c.connection)
 }
 
-func (c *GRPCClient) transactionServiceClient() apitypes.TransactionServiceClient {
+func (c *gRPCClient) transactionServiceClient() apitypes.TransactionServiceClient {
 	return apitypes.NewTransactionServiceClient(c.connection)
 }
 
-func (c *GRPCClient) smeshServiceClient() apitypes.SmesherServiceClient {
+func (c *gRPCClient) smeshServiceClient() apitypes.SmesherServiceClient {
 	return apitypes.NewSmesherServiceClient(c.connection)
 }
 
