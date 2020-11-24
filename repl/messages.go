@@ -3,6 +3,7 @@ package repl
 const (
 	initialTransferMsg         = "Transfer coins from local account to another account."
 	destAddressMsg             = "Enter or paste destination address: "
+	txIdMsg                    = "Enter or paste transaction id: "
 	amountToTransferMsg        = "Enter amount to transfer in Smidge: "
 	confirmTransactionMsg      = "Confirm transaction (y/n): "
 	createAccountMsg           = "Account alias (name): "

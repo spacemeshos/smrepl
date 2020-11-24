@@ -3,22 +3,24 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"google.golang.org/genproto/googleapis/rpc/status"
-	"os"
-	"strconv"
-	"strings"
 
 	"github.com/c-bata/go-prompt"
 )
 
 const (
-	prefix      = "$ "
-	printPrefix = ">"
+	prefix           = "$ "
+	printPrefix      = ">"
+	minVerifiedLayer = 575
 )
 
 // TestMode variable used for check if unit test is running
@@ -38,23 +40,43 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
+
+	// Local account management methods
 	CreateAccount(alias string) *common.LocalAccount
 	CurrentAccount() *common.LocalAccount
 	SetCurrentAccount(a *common.LocalAccount)
-	AccountInfo(address gosmtypes.Address) (*common.AccountState, error)
-	NodeStatus() (*apitypes.NodeStatus, error)
-	NodeInfo() (*common.NodeInfo, error)
-	Sanity() error
-	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
 	ListAccounts() []string
 	GetAccount(name string) (*common.LocalAccount, error)
 	StoreAccounts() error
+
+	// Local config
 	ServerUrl() string
-	Smesh(datadir string, space uint, coinbase string) error
+
+	// Node service
+	NodeStatus() (*apitypes.NodeStatus, error)
+	NodeInfo() (*common.NodeInfo, error)
+	Sanity() error
+
+	// Mesh service
 	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
 	GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
+
+	// Transaction service
+	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
+	TransactionState(txId []byte, includeTx bool) (*apitypes.TransactionState, *apitypes.Transaction, error)
+
+	// Smesher service
+	Smesh(datadir string, space uint, coinbase string) error
 	SetCoinbase(coinbase gosmtypes.Address) (*status.Status, error)
+
+	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)
+
+	// global state service
+	AccountState(address gosmtypes.Address) (*common.AccountState, error)
+	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
+	AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error)
+	GlobalStateHash() (*apitypes.GlobalStateHash, error)
 
 	//Unlock(passphrase string) error
 	//IsAccountUnLock(id string) bool
@@ -85,14 +107,21 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.accountInfo},
-		{"all-txs", "List all transactions (outgoing and incoming) for the current account", r.getMeshTransactions},
-		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
-		{"textsign", "Sign a text message with the current account private key", r.textsign},
-		{"rewards", "Set current account as rewards account in the node", r.setCoinbase},
+		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
+		{"tx-status", "Display a transaction status", r.printTransactionStatus},
+		{"rewards-account", "Set current account as rewards account in the node", r.setCoinbase},
+		{"text-sign", "Sign a text message with the current account private key", r.textsign},
+		{"txs", "Print all outgoing and incoming transactions for the current account that are on the mesh", r.getMeshTransactions},
+
+		// printing status and state
+		{"accounts", "Display all mesh accounts (debug)", r.printAllAccounts},
+		{"node", "Display node status", r.nodeInfo},
+		{"global-state", "Display the current global state", r.printGlobalState},
+
+		// smeshing related
 		//{"smesh", "Start smeshing", r.smesh},
-		{"node", "Get current p2p node info", r.nodeInfo},
-		{"all", "Display all mesh accounts (debug)", r.debugAllAccounts},
+
 		{"quit", "Quit the CLI", r.quit},
 
 		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
@@ -132,7 +161,7 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 }
 
 func (r *repl) firstTime() {
-	fmt.Println(printPrefix, splash)
+	fmt.Print(printPrefix, splash)
 
 	if err := r.client.Sanity(); err != nil {
 		log.Error("Failed to connect to node at %v: %v", r.client.ServerUrl(), err)
@@ -191,18 +220,32 @@ func (r *repl) accountInfo() {
 
 	address := gosmtypes.BytesToAddress(acc.PubKey)
 
-	info, err := r.client.AccountInfo(address)
+	state, err := r.client.AccountState(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
-		info = &common.AccountState{}
+		state = &common.AccountState{}
 	}
 
-	fmt.Println(printPrefix, "Local alias: ", acc.Name)
-	fmt.Println(printPrefix, "Address: ", address.String())
-	fmt.Println(printPrefix, "Balance: ", info.Balance, coinUnitName)
-	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
+	fmt.Println(printPrefix, "Local alias:", acc.Name)
+	fmt.Println(printPrefix, "Address:", address.String())
+	fmt.Println(printPrefix, "Balance:", state.Balance, coinUnitName)
+	fmt.Println(printPrefix, "Nonce:", state.Nonce)
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
 	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
+}
+
+// canSubmitTransactions returns true if the node is accepting transactions.
+// todo: this should move to a method in the transactions service.
+func (r *repl) canSubmitTransactions() bool {
+
+	status, err := r.client.NodeStatus()
+	if err != nil {
+		log.Error("failed to get node status: %v", err)
+		return false
+	}
+
+	return status.IsSynced && status.TopLayer.Number > minVerifiedLayer
+
 }
 
 func (r *repl) nodeInfo() {
@@ -237,7 +280,21 @@ func (r *repl) nodeInfo() {
 	*/
 }
 
-func (r *repl) debugAllAccounts() {
+// Outputs the current global state
+func (r *repl) printGlobalState() {
+
+	resp, err := r.client.GlobalStateHash()
+	if err != nil {
+		log.Error("failed to get global state: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, "Hash:", hex.EncodeToString(resp.RootHash))
+	fmt.Println(printPrefix, "Layer:", resp.Layer.Number)
+
+}
+
+func (r *repl) printAllAccounts() {
 
 	accounts, err := r.client.DebugAllAccounts()
 	if err != nil {
@@ -254,6 +311,11 @@ func (r *repl) debugAllAccounts() {
 }
 
 func (r *repl) submitCoinTransaction() {
+
+	if !r.canSubmitTransactions() {
+		fmt.Println(printPrefix, "Can't submit a new transaction. Please try again when node is synced and current layer is", minVerifiedLayer)
+		return
+	}
 	fmt.Println(printPrefix, initialTransferMsg)
 	acc := r.client.CurrentAccount()
 	if acc == nil {
@@ -262,7 +324,7 @@ func (r *repl) submitCoinTransaction() {
 	}
 
 	srcAddress := gosmtypes.BytesToAddress(acc.PubKey)
-	info, err := r.client.AccountInfo(srcAddress)
+	info, err := r.client.AccountState(srcAddress)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
@@ -290,7 +352,8 @@ func (r *repl) submitCoinTransaction() {
 	fmt.Println(printPrefix, "Fee:   ", gas, coinUnitName)
 	fmt.Println(printPrefix, "Nonce: ", info.Nonce)
 
-	amount, err := strconv.ParseUint(amountStr, 10, 64)
+	amount, _ := strconv.ParseUint(amountStr, 10, 64)
+	// todo: handle error here!
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
 		txState, err := r.client.Transfer(destAddress, info.Nonce, amount, gas, 100, acc.PrivKey)
@@ -303,6 +366,34 @@ func (r *repl) submitCoinTransaction() {
 		fmt.Println(printPrefix, fmt.Sprintf("Transaction id: 0x%v", hex.EncodeToString(txState.Id.Id)))
 		fmt.Println(printPrefix, fmt.Sprintf("Transaction state: 0x%v", txState.State.String()))
 	}
+}
+
+func (r *repl) printTransactionStatus() {
+	txIdStr := inputNotBlank(txIdMsg)
+	txId, err := hex.DecodeString(txIdStr)
+	if err != nil {
+		log.Error("failed to parse transaction id: %v", err)
+		return
+	}
+
+	txState, tx, err := r.client.TransactionState(txId, true)
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	if txState != nil {
+		fmt.Println(printPrefix, "State:", txState.State.Descriptor())
+	} else {
+		fmt.Println(printPrefix, "Unknown transaction state")
+	}
+
+	if tx != nil {
+		printTransaction(tx)
+	} else {
+		fmt.Println(printPrefix, "Unknown transaction")
+	}
+
 }
 
 func (r *repl) smesh() {
@@ -335,7 +426,7 @@ func (r *repl) getMeshTransactions() {
 	}
 
 	// todo: request offset and total from user
-	txs, total, err := r.client.GetMeshTransactions(acc.Address(), 0, 100)
+	txs, total, err := r.client.GetMeshTransactions(acc.Address(), 0, 1000)
 	if err != nil {
 		log.Error("failed to list transactions: %v", err)
 		return
@@ -344,12 +435,33 @@ func (r *repl) getMeshTransactions() {
 	fmt.Println(printPrefix, fmt.Sprintf("Total mesh transactions: %d", total))
 	for _, tx := range txs {
 		printTransaction(tx)
+		fmt.Println(printPrefix, "-----")
 	}
 }
 
 // helper method - prints tx info
-func printTransaction(transaction *apitypes.Transaction) {
-	// todo: implement me
+func printTransaction(t *apitypes.Transaction) {
+
+	fmt.Println(printPrefix, "Transaction summary:")
+	fmt.Println(printPrefix, "From:", gosmtypes.BytesToAddress(t.Sender.Address).String())
+	fmt.Println(printPrefix, "Amount:", t.Amount.Value, coinUnitName)
+	fmt.Println(printPrefix, "Nonce:", t.Counter)
+
+	ct := t.GetCoinTransfer()
+	if ct != nil {
+		fmt.Println(printPrefix, "To (coin account):", gosmtypes.BytesToAddress(ct.Receiver.Address).String())
+		fmt.Println(printPrefix, "Fee:", t.GasOffered.GasProvided, coinUnitName)
+		return
+	}
+
+	sct := t.GetSmartContract()
+	if sct == nil {
+		log.Error("expected a smart contract transaction type")
+		return
+	}
+
+	// todo: printout smart contract transaction data here
+
 }
 
 func (r *repl) quit() {
@@ -363,18 +475,18 @@ func (r *repl) setCoinbase() {
 		acc = r.client.CurrentAccount()
 	}
 
-	status, err := r.client.SetCoinbase(acc.Address())
+	resp, err := r.client.SetCoinbase(acc.Address())
 
 	if err != nil {
 		log.Error("failed to set rewards address: %v", err)
 		return
 	}
 
-	if status.Code == 0 {
+	if resp.Code == 0 {
 		fmt.Println(printPrefix, "Rewards address set to:", acc.Address().String())
 	} else {
 		// todo: what are possible non-zero status codes here?
-		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", status.Code))
+		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", resp.Code))
 	}
 }
 

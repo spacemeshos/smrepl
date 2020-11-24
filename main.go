@@ -24,7 +24,7 @@ func (m mockClient) Transfer(from, to, amount, passphrase string) error {
 }
 
 func main() {
-	datadir := getwd()
+	dataDir := getwd()
 
 	grpcServerPort := uint(client.DefaultGRPCPort)
 	grpcServer := client.DefaultGRPCServer
@@ -38,7 +38,7 @@ func main() {
 	if err != nil {
 		return
 	}
-	be, err := client.NewWalletBackend(datadir, grpcServer, grpcServerPort)
+	be, err := client.NewWalletBackend(dataDir, grpcServer, grpcServerPort)
 	if err != nil {
 		return
 	}
