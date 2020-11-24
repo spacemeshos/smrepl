@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 
+	"github.com/spacemeshos/CLIWallet/common"
+
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
@@ -76,33 +78,52 @@ func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32
 	return activations, resp.TotalResults, nil
 }
 
-type NetInfo struct {
-	GenesisTime   uint64
-	CurrentLayer  uint32
-	CurrentEpoch  uint32
-	NetId         uint32
-	LayerPerEpoch uint32
-	LayerDuration uint32
-	MaxTxsPerSec  uint32
-}
+func (c *gRPCClient) GetMeshInfo() (*common.NetInfo, error) {
 
-func (c *gRPCClient) GetNetInfo() (*NetInfo, error) {
-
-	netInfo := &NetInfo{}
+	netInfo := &common.NetInfo{}
 	ms := c.meshServiceClient()
 
 	res, err := ms.GenesisTime(context.Background(), &apitypes.GenesisTimeRequest{})
 	if err != nil {
 		return nil, err
 	}
-
 	netInfo.GenesisTime = res.Unixtime.Value
 
-	/*
-		res, err := ms.GenesisTime(context.Background(), &apitypes.GenesisTimeRequest{})
-		if err != nil {
-			return nil, err
-		}*/
+	currLayer, err := ms.CurrentLayer(context.Background(), &apitypes.CurrentLayerRequest{})
+	if err != nil {
+		return nil, err
+	}
+	netInfo.CurrentLayer = currLayer.Layernum.Number
+
+	epochNum, err := ms.CurrentEpoch(context.Background(), &apitypes.CurrentEpochRequest{})
+	if err != nil {
+		return nil, err
+	}
+	netInfo.CurrentEpoch = epochNum.Epochnum.Value
+
+	netId, err := ms.NetID(context.Background(), &apitypes.NetIDRequest{})
+	if err != nil {
+		return nil, err
+	}
+	netInfo.NetId = netId.Netid.Value
+
+	layersPerEpoch, err := ms.EpochNumLayers(context.Background(), &apitypes.EpochNumLayersRequest{})
+	if err != nil {
+		return nil, err
+	}
+	netInfo.LayerPerEpoch = layersPerEpoch.Numlayers.Value
+
+	layerDuration, err := ms.LayerDuration(context.Background(), &apitypes.LayerDurationRequest{})
+	if err != nil {
+		return nil, err
+	}
+	netInfo.LayerDuration = layerDuration.Duration.Value
+
+	maxTxsPerSec, err := ms.MaxTransactionsPerSecond(context.Background(), &apitypes.MaxTransactionsPerSecondRequest{})
+	if err != nil {
+		return nil, err
+	}
+	netInfo.MaxTxsPerSec = maxTxsPerSec.Maxtxpersecond.Value
 
 	return netInfo, nil
 }

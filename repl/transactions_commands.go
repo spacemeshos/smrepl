@@ -15,10 +15,10 @@ import (
 var transactionStateDisStringsMap = map[int32]string{
 	0: "Unspecified state",
 	1: "Rejected",
-	2: "Insufficient Funds",
+	2: "Insufficient funds",
 	3: "Conflicting",
 	4: "Submitted to the network",
-	5: "On the mesh",
+	5: "On the mesh but not yet processed",
 	6: "Processed",
 }
 
@@ -58,7 +58,6 @@ func (r *repl) canSubmitTransactions() bool {
 
 	// for now, we allow to submit txs if the node is synced
 	return status.IsSynced //&& status.TopLayer.Number > minVerifiedLayer
-
 }
 
 func (r *repl) submitCoinTransaction() {
@@ -96,7 +95,7 @@ func (r *repl) submitCoinTransaction() {
 		}
 	}
 
-	fmt.Println(printPrefix, "Transaction summary:")
+	fmt.Println(printPrefix, "New transaction summary:")
 	fmt.Println(printPrefix, "From:  ", srcAddress.String())
 	fmt.Println(printPrefix, "To:    ", destAddress.String())
 	fmt.Println(printPrefix, "Amount:", amountStr, coinUnitName)
@@ -165,5 +164,4 @@ func printTransaction(t *apitypes.Transaction) {
 	}
 
 	// todo: printout smart contract transaction data here
-
 }

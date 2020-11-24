@@ -5,18 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/spacemeshos/go-spacemesh/common/util"
-
 	"github.com/spacemeshos/CLIWallet/log"
+	"github.com/spacemeshos/go-spacemesh/common/util"
 )
-
-/*
-{"get-rewards-account", "Get current account as the node smesher's rewards account", r.getCoinbase},
-		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
-		{"get-smesher-id", "Get the node smesher's current rewards account", r.getSmesherId},
-		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
-		{"is-smeshing", "Set current account as the node smesher's rewards account", r.isSmeshing},
-*/
 
 // printSmesherRewards prints all rewards awarded to a smesher identified by an id
 func (r *repl) printSmesherRewards() {

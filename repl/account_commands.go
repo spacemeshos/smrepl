@@ -43,7 +43,8 @@ func (r *repl) createAccount() {
 	r.client.SetCurrentAccount(ac)
 }
 
-func (r *repl) accountInfo() {
+// print account info from global state
+func (r *repl) printAccountInfo() {
 	acc := r.client.CurrentAccount()
 	if acc == nil {
 		r.chooseAccount()

@@ -57,6 +57,7 @@ type Client interface {
 	// Mesh service
 	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
 	GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
+	GetMeshInfo() (*common.NetInfo, error)
 
 	// Transaction service
 	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
@@ -95,7 +96,7 @@ func (r *repl) initializeCommands() {
 		// account commands
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
-		{"info", "Display the current account info", r.accountInfo},
+		{"info", "Display the current account info", r.printAccountInfo},
 
 		// activations where this account is coinbase
 
@@ -112,6 +113,7 @@ func (r *repl) initializeCommands() {
 		{"accounts", "Display all mesh accounts (debug)", r.printAllAccounts},
 		{"node", "Display node status", r.nodeInfo},
 		{"state", "Display the current global state", r.printGlobalState},
+		{"net", "Display the current global state", r.printMeshInfo},
 
 		// smeshing operations
 		{"get-rewards-account", "Get current account as the node smesher's rewards account", r.printCoinbase},
@@ -123,16 +125,7 @@ func (r *repl) initializeCommands() {
 		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
 		{"smesher-rewards", "Print rewards for a smesher", r.printSmesherRewards},
 
-		//{"smesh", "Start smeshing", r.smesh},
-
 		{"quit", "Quit the CLI", r.quit},
-
-		//{"unlock accountInfo", "Unlock accountInfo.", r.unlockAccount},
-		//{"lock accountInfo", "Lock LocalAccount.", r.lockAccount},
-		//{"setup", "Setup POST.", r.setup},
-		//{"restart node", "Restart node.", r.restartNode},
-		//{"set", "change CLI flag or param. E.g. set param a=5 flag c=5 or E.g. set param a=5", r.setCLIFlagOrParam},
-		//{"echo", "Echo runtime variable.", r.echoVariable},
 	}
 }
 
