@@ -29,6 +29,36 @@ func (c *gRPCClient) IsSmeshing() (bool, error) {
 	}
 }
 
+// GetPostStatus returns the current node proof of space status
+func (c *gRPCClient) GetPostStatus() (*apitypes.PostStatus, error) {
+	s := c.getSmesherServiceClient()
+	if resp, err := s.PostStatus(context.Background(), &empty.Empty{}); err != nil {
+		return nil, err
+	} else {
+		return resp.Status, nil
+	}
+}
+
+// GetPostComputeProviders returns the proof of space generators available on the system
+func (c *gRPCClient) GetPostComputeProviders() ([]*apitypes.PostComputeProvider, error) {
+	s := c.getSmesherServiceClient()
+	if resp, err := s.PostComputeProviders(context.Background(), &empty.Empty{}); err != nil {
+		return nil, err
+	} else {
+		return resp.PostComputeProvider, nil
+	}
+}
+
+// GetPostComputeProviders returns the proof of space generators available on the system
+func (c *gRPCClient) CreatePostData(data *apitypes.PostData) (*status.Status, error) {
+	s := c.getSmesherServiceClient()
+	if resp, err := s.CreatePostData(context.Background(), &apitypes.CreatePostDataRequest{Data: data}); err != nil {
+		return nil, err
+	} else {
+		return resp.Status, nil
+	}
+}
+
 // StartSmeshing instructs the node to start smeshing using user's provider params
 func (c *gRPCClient) StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error) {
 	s := c.getSmesherServiceClient()

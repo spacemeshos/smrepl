@@ -106,5 +106,3 @@ func (c *gRPCClient) getSmesherServiceClient() apitypes.SmesherServiceClient {
 	}
 	return c.smesherServiceClient
 }
-
-//// Current CLI Wallet commands
