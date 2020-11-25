@@ -81,7 +81,19 @@ func (r *repl) stopSmeshing() {
 
 }
 
+func (r *repl) printPostStatus() {
+
+}
+
+func (r *repl) printPostProviders() {
+
+}
+
 func (r *repl) printSmeshingStatus() {
+
+}
+
+func (r *repl) printIsSmeshing() {
 	isSmeshing, err := r.client.IsSmeshing()
 
 	if err != nil {
@@ -90,7 +102,7 @@ func (r *repl) printSmeshingStatus() {
 	}
 
 	if isSmeshing {
-		fmt.Println(printPrefix, "Smeshing is currently on")
+		fmt.Println(printPrefix, "Smeshing is on")
 	} else {
 		fmt.Println(printPrefix, "Smeshing is off")
 	}
