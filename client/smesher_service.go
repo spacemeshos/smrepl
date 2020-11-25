@@ -11,7 +11,7 @@ import (
 
 // GetSmesherId returns the current smesher id configured in the node
 func (c *gRPCClient) GetSmesherId() ([]byte, error) {
-	s := c.smeshServiceClient()
+	s := c.getSmesherServiceClient()
 	if resp, err := s.SmesherID(context.Background(), &empty.Empty{}); err != nil {
 		return nil, err
 	} else {
@@ -21,7 +21,7 @@ func (c *gRPCClient) GetSmesherId() ([]byte, error) {
 
 // IsSmeshing returns true iff the node is currently setup to smesh
 func (c *gRPCClient) IsSmeshing() (bool, error) {
-	s := c.smeshServiceClient()
+	s := c.getSmesherServiceClient()
 	if resp, err := s.IsSmeshing(context.Background(), &empty.Empty{}); err != nil {
 		return false, err
 	} else {
@@ -31,7 +31,7 @@ func (c *gRPCClient) IsSmeshing() (bool, error) {
 
 // StartSmeshing instructs the node to start smeshing using user's provider params
 func (c *gRPCClient) StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error) {
-	s := c.smeshServiceClient()
+	s := c.getSmesherServiceClient()
 
 	resp, err := s.StartSmeshing(context.Background(), &apitypes.StartSmeshingRequest{
 		Coinbase:       &apitypes.AccountId{Address: address.Bytes()},
@@ -48,7 +48,7 @@ func (c *gRPCClient) StartSmeshing(address gosmtypes.Address, dataDir string, da
 
 // StopSmeshing instructs the node to stop smeshing and optionally delete smeshing data file(s)
 func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
-	s := c.smeshServiceClient()
+	s := c.getSmesherServiceClient()
 
 	resp, err := s.StopSmeshing(context.Background(), &apitypes.StopSmeshingRequest{DeleteFiles: deleteFiles})
 
@@ -61,7 +61,7 @@ func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
 
 // SetCoinbase sets the smesher's coinbase address
 func (c *gRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, error) {
-	s := c.smeshServiceClient()
+	s := c.getSmesherServiceClient()
 
 	resp, err := s.SetCoinbase(context.Background(), &apitypes.SetCoinbaseRequest{Id: &apitypes.AccountId{Address: address.Bytes()}})
 
@@ -75,7 +75,7 @@ func (c *gRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, err
 
 // GetCoinbase get the smesher's current rewards address
 func (c *gRPCClient) GetCoinbase() (*gosmtypes.Address, error) {
-	s := c.smeshServiceClient()
+	s := c.getSmesherServiceClient()
 
 	resp, err := s.Coinbase(context.Background(), &empty.Empty{})
 

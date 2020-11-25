@@ -11,7 +11,7 @@ import (
 
 // GetMeshTransactions returns the transactions on the mesh to or from an address.
 func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error) {
-	ms := c.meshServiceClient()
+	ms := c.getMeshServiceClient()
 
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
 		Filter: &apitypes.AccountMeshDataFilter{
@@ -49,7 +49,7 @@ func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 
 // GetMeshActivations returns activations where the address is the coinbase
 func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error) {
-	ms := c.meshServiceClient()
+	ms := c.getMeshServiceClient()
 
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
 		Filter: &apitypes.AccountMeshDataFilter{
@@ -81,7 +81,7 @@ func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32
 func (c *gRPCClient) GetMeshInfo() (*common.NetInfo, error) {
 
 	netInfo := &common.NetInfo{}
-	ms := c.meshServiceClient()
+	ms := c.getMeshServiceClient()
 
 	res, err := ms.GenesisTime(context.Background(), &apitypes.GenesisTimeRequest{})
 	if err != nil {

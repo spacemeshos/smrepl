@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/spacemeshos/CLIWallet/common"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
@@ -11,7 +12,7 @@ import (
 // Sanity is a basic api sanity test. It verifies that the client can connect to
 // the node service and get a response from it to an echo request.s
 func (c *gRPCClient) Sanity() error {
-	service := c.nodeServiceClient()
+	service := c.getNodeServiceClient()
 
 	const msg = "hello spacemesh"
 
@@ -34,7 +35,7 @@ func (c *gRPCClient) NodeInfo() (*common.NodeInfo, error) {
 
 	info := &common.NodeInfo{}
 
-	s := c.nodeServiceClient()
+	s := c.getNodeServiceClient()
 	resp, err := s.Version(context.Background(), &empty.Empty{})
 	if err != nil {
 		return nil, err
@@ -53,7 +54,7 @@ func (c *gRPCClient) NodeInfo() (*common.NodeInfo, error) {
 // NodeStatus returns dynamic node status such as sync status and number of connected peers
 func (c *gRPCClient) NodeStatus() (*apitypes.NodeStatus, error) {
 
-	s := c.nodeServiceClient()
+	s := c.getNodeServiceClient()
 	resp, err := s.Status(context.Background(), &apitypes.StatusRequest{})
 	if err != nil {
 		return nil, err

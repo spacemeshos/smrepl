@@ -9,7 +9,7 @@ import (
 
 func (c *gRPCClient) GlobalStateHash() (*apitypes.GlobalStateHash, error) {
 
-	gsc := c.globalStateClient()
+	gsc := c.getGlobalStateServiceClient()
 
 	if resp, err := gsc.GlobalStateHash(context.Background(), &apitypes.GlobalStateHashRequest{}); err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func (c *gRPCClient) GlobalStateHash() (*apitypes.GlobalStateHash, error) {
 
 // AccountInfo returns basic account data such as balance and nonce from the global state
 func (c *gRPCClient) AccountState(address gosmtypes.Address) (*apitypes.Account, error) {
-	gsc := c.globalStateClient()
+	gsc := c.getGlobalStateServiceClient()
 
 	resp, err := gsc.Account(context.Background(), &apitypes.AccountRequest{
 		AccountId: &apitypes.AccountId{Address: address.Bytes()}})
@@ -33,7 +33,7 @@ func (c *gRPCClient) AccountState(address gosmtypes.Address) (*apitypes.Account,
 
 // SmesherRewards returns rewards for a smesher identified by a smesher id
 func (c *gRPCClient) SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
-	gsc := c.globalStateClient()
+	gsc := c.getGlobalStateServiceClient()
 
 	resp, err := gsc.SmesherDataQuery(context.Background(), &apitypes.SmesherDataQueryRequest{
 		SmesherId:  &apitypes.SmesherId{Id: smesherId},
@@ -49,7 +49,7 @@ func (c *gRPCClient) SmesherRewards(smesherId []byte, offset uint32, maxResults 
 }
 
 func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
-	gsc := c.globalStateClient()
+	gsc := c.getGlobalStateServiceClient()
 
 	resp, err := gsc.AccountDataQuery(context.Background(), &apitypes.AccountDataQueryRequest{
 		Filter: &apitypes.AccountDataFilter{
@@ -79,7 +79,7 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 }
 
 func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error) {
-	gsc := c.globalStateClient()
+	gsc := c.getGlobalStateServiceClient()
 
 	resp, err := gsc.AccountDataQuery(context.Background(), &apitypes.AccountDataQueryRequest{
 		Filter: &apitypes.AccountDataFilter{

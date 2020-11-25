@@ -1,8 +1,9 @@
 package client
 
 import (
-	"google.golang.org/grpc"
 	"strconv"
+
+	"google.golang.org/grpc"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 )
@@ -11,9 +12,15 @@ const DefaultGRPCPort = 9092
 const DefaultGRPCServer = "localhost"
 
 type gRPCClient struct {
-	connection *grpc.ClientConn
-	server     string
-	port       uint
+	connection               *grpc.ClientConn
+	server                   string
+	port                     uint
+	nodeServiceClient        apitypes.NodeServiceClient
+	debugServiceClient       apitypes.DebugServiceClient
+	meshServiceClient        apitypes.MeshServiceClient
+	globalStateServiceClient apitypes.GlobalStateServiceClient
+	transactionServiceClient apitypes.TransactionServiceClient
+	smesherServiceClient     apitypes.SmesherServiceClient
 }
 
 func newGRPCClient(server string, port uint) *gRPCClient {
@@ -21,6 +28,12 @@ func newGRPCClient(server string, port uint) *gRPCClient {
 		nil,
 		server,
 		port,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
 	}
 }
 
@@ -51,28 +64,47 @@ func (c *gRPCClient) ServerUrl() string {
 
 //// services clients
 
-func (c *gRPCClient) nodeServiceClient() apitypes.NodeServiceClient {
-	return apitypes.NewNodeServiceClient(c.connection)
+func (c *gRPCClient) getNodeServiceClient() apitypes.NodeServiceClient {
+	if c.nodeServiceClient == nil {
+		c.nodeServiceClient = apitypes.NewNodeServiceClient(c.connection)
+	}
+	return c.nodeServiceClient
 }
 
-func (c *gRPCClient) debugServiceClient() apitypes.DebugServiceClient {
-	return apitypes.NewDebugServiceClient(c.connection)
+func (c *gRPCClient) getDebugServiceClient() apitypes.DebugServiceClient {
+	if c.debugServiceClient == nil {
+		c.debugServiceClient = apitypes.NewDebugServiceClient(c.connection)
+	}
+	return c.debugServiceClient
 }
 
-func (c *gRPCClient) meshServiceClient() apitypes.MeshServiceClient {
-	return apitypes.NewMeshServiceClient(c.connection)
+func (c *gRPCClient) getMeshServiceClient() apitypes.MeshServiceClient {
+	if c.meshServiceClient == nil {
+		c.meshServiceClient = apitypes.NewMeshServiceClient(c.connection)
+	}
+	return c.meshServiceClient
 }
 
-func (c *gRPCClient) globalStateClient() apitypes.GlobalStateServiceClient {
-	return apitypes.NewGlobalStateServiceClient(c.connection)
+func (c *gRPCClient) getGlobalStateServiceClient() apitypes.GlobalStateServiceClient {
+	if c.globalStateServiceClient == nil {
+		c.globalStateServiceClient = apitypes.NewGlobalStateServiceClient(c.connection)
+	}
+	return c.globalStateServiceClient
+
 }
 
-func (c *gRPCClient) transactionServiceClient() apitypes.TransactionServiceClient {
-	return apitypes.NewTransactionServiceClient(c.connection)
+func (c *gRPCClient) getTransactionServiceClient() apitypes.TransactionServiceClient {
+	if c.transactionServiceClient == nil {
+		c.transactionServiceClient = apitypes.NewTransactionServiceClient(c.connection)
+	}
+	return c.transactionServiceClient
 }
 
-func (c *gRPCClient) smeshServiceClient() apitypes.SmesherServiceClient {
-	return apitypes.NewSmesherServiceClient(c.connection)
+func (c *gRPCClient) getSmesherServiceClient() apitypes.SmesherServiceClient {
+	if c.smesherServiceClient == nil {
+		c.smesherServiceClient = apitypes.NewSmesherServiceClient(c.connection)
+	}
+	return c.smesherServiceClient
 }
 
 //// Current CLI Wallet commands
