@@ -108,7 +108,6 @@ func (r *repl) initializeCommands() {
 		{"print-rewards-account", "Display the currently set smesher's rewards account", r.printCoinbase},
 		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
 		{"smesher-id", "Display the smesher's current smesher id", r.printSmesherId},
-		{"set-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
 		{"smeshing-status", "Display smeshing status", r.printSmeshingStatus},
 		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
 		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
