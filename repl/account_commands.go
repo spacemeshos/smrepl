@@ -71,15 +71,9 @@ func (r *repl) printAccountInfo() {
 }
 
 // printAccountRewards prints all rewards awarded to an account
-func (r *repl) printAccountRewards() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
-	}
-
+func (r *repl) printRewards(address gosmtypes.Address) {
 	// todo: request offset and total from user
-	rewards, total, err := r.client.AccountRewards(acc.Address(), 0, 10000)
+	rewards, total, err := r.client.AccountRewards(address, 0, 10000)
 	if err != nil {
 		log.Error("failed to list transactions: %v", err)
 		return
@@ -92,8 +86,32 @@ func (r *repl) printAccountRewards() {
 	}
 }
 
-func printReward(r *apitypes.Reward) {
+// printAccountRewards prints all rewards awarded to an account
+func (r *repl) printLocalAccountRewards() {
+	acc := r.client.CurrentAccount()
+	if acc == nil {
+		r.chooseAccount()
+		acc = r.client.CurrentAccount()
+	}
+	r.printRewards(acc.Address())
+}
 
+// printAccountRewards prints all rewards awarded to an account
+func (r *repl) printAnyAccountRewards() {
+	addrStr := inputNotBlank(enterAddressMsg)
+	addr := gosmtypes.HexToAddress(addrStr)
+
+	r.printRewards(addr)
+}
+
+func printReward(r *apitypes.Reward) {
+	fmt.Println(printPrefix, "Rewarded on layer:", r.Layer.Number)
+	//fmt.Println(printPrefix, "Rewarded for layer:", r.LayerComputed.Number)
+	fmt.Println(printPrefix, "Layer reward", r.LayerReward.Value, coinUnitName)
+	fmt.Println(printPrefix, "Transaction fees", r.Total.Value-r.LayerReward.Value, coinUnitName)
+	fmt.Println(printPrefix, "Total reward", r.Total.Value, coinUnitName)
+	//fmt.Println(printPrefix, "Smesher id", "0x"+hex.EncodeToString(r.Smesher.Id))
+	fmt.Println(printPrefix, "Rewards account:", gosmtypes.BytesToAddress(r.Coinbase.Address).String())
 }
 
 func (r *repl) sign() {

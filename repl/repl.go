@@ -88,9 +88,11 @@ func (r *repl) initializeCommands() {
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.printAccountInfo},
-		{"rewards", "Display all rewards awarded to the current account", r.printAccountRewards},
+		{"rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
 		{"sign", "Sign a hex message with the current account private key", r.sign},
 		{"text-sign", "Sign a text message with the current account private key", r.textsign},
+
+		{"any-rewards", "Display all rewards for any account", r.printAnyAccountRewards},
 
 		// activations where this account is coinbase
 
