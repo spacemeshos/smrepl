@@ -65,7 +65,7 @@ func (r *repl) printAccountInfo() {
 	fmt.Println(printPrefix, "Nonce:", state.StateCurrent.Counter)
 	fmt.Println(printPrefix, "Projected Balance:", state.StateProjected.Balance.Value, coinUnitName)
 	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
-
+	fmt.Println(printPrefix, "Projected account state includes all pending transactions that haven't been added to the mesh yet.")
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
 	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
 }
