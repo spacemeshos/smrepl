@@ -10,7 +10,7 @@ import (
 )
 
 // Sanity is a basic api sanity test. It verifies that the client can connect to
-// the node service and get a response from it to an echo request.s
+// the node service and get a response from it to an echo request.
 func (c *gRPCClient) Sanity() error {
 	service := c.getNodeServiceClient()
 
