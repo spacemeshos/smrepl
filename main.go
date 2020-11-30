@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
+	"os"
+	"syscall"
+
 	"github.com/spacemeshos/CLIWallet/client"
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/repl"
-	"os"
-	"syscall"
 )
 
 type mockClient struct {
@@ -29,8 +30,8 @@ func main() {
 	grpcServerPort := uint(client.DefaultGRPCPort)
 	grpcServer := client.DefaultGRPCServer
 
-	flag.StringVar(&grpcServer, "grpc-server", grpcServer, "The api 2.0 grpc server")
-	flag.UintVar(&grpcServerPort, "grpc-port", grpcServerPort, "The api 2.0 grpc server port")
+	flag.StringVar(&grpcServer, "grpc-server", grpcServer, "The Spacemesh api grpc server")
+	flag.UintVar(&grpcServerPort, "grpc-port", grpcServerPort, "The Spacemesh api grpc server port")
 
 	flag.Parse()
 
