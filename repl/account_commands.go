@@ -59,11 +59,21 @@ func (r *repl) printAccountInfo() {
 		return
 	}
 
+	currBalance := uint64(0)
+	if state.StateCurrent.Balance != nil {
+		currBalance = state.StateCurrent.Balance.Value
+	}
+
+	projectedBalance := uint64(0)
+	if state.StateProjected.Balance != nil {
+		projectedBalance = state.StateProjected.Balance.Value
+	}
+
 	fmt.Println(printPrefix, "Local alias:", acc.Name)
 	fmt.Println(printPrefix, "Address:", address.String())
-	fmt.Println(printPrefix, "Balance:", state.StateCurrent.Balance.Value, coinUnitName)
+	fmt.Println(printPrefix, "Balance:", currBalance, coinUnitName)
 	fmt.Println(printPrefix, "Nonce:", state.StateCurrent.Counter)
-	fmt.Println(printPrefix, "Projected Balance:", state.StateProjected.Balance.Value, coinUnitName)
+	fmt.Println(printPrefix, "Projected Balance:", projectedBalance, coinUnitName)
 	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
 	fmt.Println(printPrefix, "Projected account state includes all pending transactions that haven't been added to the mesh yet.")
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))

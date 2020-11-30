@@ -16,8 +16,15 @@ func (r *repl) printAllAccounts() {
 	}
 
 	for _, a := range accounts {
+
 		fmt.Println(printPrefix, "Address:", gosmtypes.BytesToAddress(a.AccountId.Address).String())
-		fmt.Println(printPrefix, "Balance:", a.StateCurrent.Balance.Value, coinUnitName)
+
+		balance := uint64(0)
+		if a.StateCurrent.Balance != nil {
+			balance = a.StateCurrent.Balance.Value
+		}
+
+		fmt.Println(printPrefix, "Balance:", balance, coinUnitName)
 		fmt.Println(printPrefix, "Nonce:", a.StateCurrent.Counter)
 		fmt.Println(printPrefix, "-----")
 	}
