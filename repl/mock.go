@@ -2,7 +2,6 @@ package repl
 
 import (
 	"github.com/spacemeshos/CLIWallet/common"
-	// types "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
 // Mock struct created temporarily while node
