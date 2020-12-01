@@ -1,16 +1,16 @@
-# Spacemesh CLIWallet
+# Spacemesh Terminal Wallet
 
 ## Overview
 A basic reference console Spacemesh Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh).
 
-The CLIWallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
+The wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
 
 ## Functionality
 The wallet is a Spacemesh API client and implements basic wallet features. You can create a new coin account, execute transactions, check account balance and view transactions./
 
-> WARNING: CLIWallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/CLIWallet/issues/16).
+> WARNING: Terminal wallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/terminal-wallet/issues/16).
 
-The CLI wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
+The wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
 
 ## Building
 
@@ -48,7 +48,7 @@ make dockerbuild-go
 
 1. Follow the instructions in the readme to build and run [go-spacemesh](https://github.com/spacemeshos/go-spacemesh) from source code.
 
-2. Build the CLI Wallet from this repository and run it:
+2. Build the wallet from this repository and run it:
 
 ```bash
 ./cli_wallet
