@@ -2,45 +2,51 @@ package client
 
 import (
 	"bytes"
-	"fmt"
 	xdr "github.com/davecgh/go-xdr/xdr2"
-	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
+	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
-	"github.com/spacemeshos/go-spacemesh/address"
+	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"path"
 )
 
 const accountsFileName = "accounts.json"
 
-type WalletBE struct {
-	*HTTPRequester
-	accounts.Store
+type walletBackend struct {
+	*gRPCClient // Embedded interface
+	common.Store
 	accountsFilePath string
-	currentAccount   *accounts.Account
+	currentAccount   *common.LocalAccount
 }
 
-func NewWalletBE(serverHostPort, datadir string) (*WalletBE, error) {
-	accountsFilePath := path.Join(datadir, accountsFileName)
-	acc, err := accounts.LoadAccounts(accountsFilePath)
+func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*walletBackend, error) {
+	accountsFilePath := path.Join(dataDir, accountsFileName)
+	acc, err := common.LoadAccounts(accountsFilePath)
 	if err != nil {
 		log.Error("cannot load account from file %s: %s", accountsFilePath, err)
-		acc = &accounts.Store{}
+		acc = &common.Store{}
 	}
 
-	url := fmt.Sprintf("http://%s/v1", serverHostPort)
-	return &WalletBE{NewHTTPRequester(url), *acc, accountsFilePath, nil}, nil
+	grpcClient := newGRPCClient(grpcServer, grpcPort)
+	err = grpcClient.Connect()
+	if err != nil {
+		// failed to connect to grpc server
+		return nil, err
+	}
+
+	return &walletBackend{grpcClient, *acc, accountsFilePath, nil}, nil
 }
 
-func (w *WalletBE) CurrentAccount() *accounts.Account {
+func (w *walletBackend) CurrentAccount() *common.LocalAccount {
 	return w.currentAccount
 }
 
-func (w *WalletBE) SetCurrentAccount(a *accounts.Account) {
+func (w *walletBackend) SetCurrentAccount(a *common.LocalAccount) {
 	w.currentAccount = a
 }
 
-func InterfaceToBytes(i interface{}) ([]byte, error) {
+func interfaceToBytes(i interface{}) ([]byte, error) {
 	var w bytes.Buffer
 	if _, err := xdr.Marshal(&w, &i); err != nil {
 		return nil, err
@@ -48,23 +54,24 @@ func InterfaceToBytes(i interface{}) ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func (w *WalletBE) StoreAccounts() error {
-	return accounts.StoreAccounts(w.accountsFilePath, &w.Store)
+func (w *walletBackend) StoreAccounts() error {
+	return common.StoreAccounts(w.accountsFilePath, &w.Store)
 }
 
-func (w *WalletBE) Transfer(recipient address.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (string, error) {
-	tx := SerializableSignedTransaction{}
+// Transfer creates a sign coin transaction and submits it
+func (w *walletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error) {
+	tx := common.SerializableSignedTransaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
 	tx.Recipient = recipient
 	tx.GasLimit = gasLimit
 	tx.Price = gasPrice
 
-	buf, _ := InterfaceToBytes(&tx.InnerSerializableSignedTransaction)
+	buf, _ := interfaceToBytes(&tx.InnerSerializableSignedTransaction)
 	copy(tx.Signature[:], ed25519.Sign2(key, buf))
-	b, err := InterfaceToBytes(&tx)
+	b, err := interfaceToBytes(&tx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return w.HTTPRequester.Send(b)
+	return w.SubmitCoinTransaction(b)
 }

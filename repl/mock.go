@@ -1,6 +1,8 @@
 package repl
 
-import "github.com/spacemeshos/go-spacemesh/accounts"
+import (
+	"github.com/spacemeshos/CLIWallet/common"
+)
 
 // Mock struct created temporarily while node
 // doesn't implement the methods.
@@ -12,13 +14,8 @@ func (Mock) CreateAccount(generatePassphrase bool, accountInfo string) error {
 }
 
 // CurrentAccount returns local accountInfo.
-func (Mock) LocalAccount() *accounts.Account {
-	acct, err := accounts.NewAccount("")
-	if err != nil {
-		panic(err)
-	}
-
-	return acct
+func (Mock) LocalAccount() common.LocalAccount {
+	return common.LocalAccount{}
 }
 
 // Unlock unlock local accountInfo or the accountInfo by passphrase.

@@ -37,6 +37,11 @@ build-mac:
 clean:
 	rm -f $(WINDOWS) $(LINUX) $(DARWIN)
 
+lint:
+	go vet ./...
+	go fmt ./...
+.PHONY: lint
+
 dockerpush: dockerbuild-go
 	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
 	docker tag $(DOCKER_IMAGE_REPO):$(BRANCH) spacemeshos/$(DOCKER_IMAGE_REPO):$(BRANCH)

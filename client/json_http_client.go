@@ -1,11 +1,12 @@
 package client
 
+/*
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spacemeshos/CLIWallet/accounts"
+	"github.com/spacemeshos/CLIWallet/localtypes"
 	"github.com/spacemeshos/CLIWallet/log"
 	"io/ioutil"
 	"net/http"
@@ -80,16 +81,16 @@ func printBuffer(b []byte) string {
 	return st
 }
 
-func (m HTTPRequester) AccountInfo(address string) (*accounts.AccountInfo, error) {
+func (m HTTPRequester) AccountInfo(address string) (*localtypes.AccountState, error) {
 	str := fmt.Sprintf(`{ "address": "0x%s"}`, address)
 	output, err := m.Get("/nonce", str, true)
 	if err != nil {
 		return nil, err
 	}
 
-	acc := accounts.AccountInfo{}
+	acc := localtypes.AccountState{}
 	if val, ok := output["value"]; ok {
-		acc.Nonce = val.(string)
+		acc.Nonce = val.(uint64)
 	} else {
 		return nil, fmt.Errorf("cant get nonce %v", output)
 	}
@@ -100,7 +101,7 @@ func (m HTTPRequester) AccountInfo(address string) (*accounts.AccountInfo, error
 	}
 
 	if val, ok := output["value"]; ok {
-		acc.Balance = val.(string)
+		acc.Balance = val.(uint64)
 	} else {
 		return nil, fmt.Errorf("cant get balance %v", output)
 	}
@@ -187,7 +188,7 @@ func (m HTTPRequester) NodeInfo() (*NodeInfo, error) {
 	return info, nil
 }
 
-func (m HTTPRequester) Send(b []byte) (string, error) {
+func (m HTTPRequester) SubmitNewTransaction(b []byte) (string, error) {
 	str := fmt.Sprintf(`{ "tx": %s}`, printBuffer(b))
 	res, err := m.Get("/submittransaction", str, true)
 	if err != nil {
@@ -211,7 +212,7 @@ func (m HTTPRequester) Smesh(datadir string, space uint, coinbase string) error 
 	return nil
 }
 
-func (m HTTPRequester) ListTxs(address string) ([]string, error) {
+func (m HTTPRequester) ListTxs(address []byte) ([]string, error) {
 	str := fmt.Sprintf(`{ "account": { "address": "%s"} }`, address)
 	res, err := m.Get("/accounttxs", str, true)
 	if err != nil {
@@ -246,4 +247,4 @@ func (m HTTPRequester) Sanity() error {
 	}
 
 	return nil
-}
+}*/

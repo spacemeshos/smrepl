@@ -1,3 +1,7 @@
 CLIWallet
 .idea/
 accounts.json
+*accounts.json
+.DS_Store
+cli_wallet*
+wallet
