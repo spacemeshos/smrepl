@@ -1,12 +1,12 @@
-# Spacemesh CLI Wallet
+# Spacemesh Terminal Wallet
 
 ## Overview
-A basic reference Spacemesh CLI Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh).
+A basic reference Spacemesh console wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh).
 
-The CLI Wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
+The terminal wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
 
 ## Functionality
-The CLI wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
+The terminal wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
 
 ## Building
 
@@ -44,7 +44,7 @@ make dockerbuild-go
 
 1. Follow the instructions in the readme to build and run [go-spacemesh](https://github.com/spacemeshos/go-spacemesh) from source code.
 
-2. Build the CLI Wallet from this repository and run it:
+2. Build the wallet from this repository and run it:
 
 ```bash
 ./cli_wallet
