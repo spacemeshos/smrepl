@@ -55,7 +55,7 @@ make dockerbuild-go
 ```
 
 By default, the wallet will attempt to connect to a locally running Spacemesh full node using the default node's grpc api port.
-You can configure the ports in go-sm and use CLIWallet `--grpc-server` and `--grpc-port` flags to override the defaults.
+You can configure the ports in go-sm and use the wallet's `--grpc-server` and `--grpc-port` flags to override the defaults.
 To use the full wallet features, enable all GRPC services in your node's config file. e.g:
 
 ```json
@@ -64,8 +64,8 @@ To use the full wallet features, enable all GRPC services in your node's config 
     },
 ```
 
-You can also use a full node managed by Smapp. Just start smapp to start a managed node and connect to it by running the CLIWallet from the command line.
-You should be able to connect to the managed node without having to override the default CLIWallet settings.
+You can also use a full node managed by Smapp. Just start smapp to start a managed node and connect to it by running the wallet from the command line.
+You should be able to connect to the managed node without having to override the default wallet settings.
 
 ## Using with a Local testnet
 Please follow the instructions in our [local testnet guide](https://testnet.spacemesh.io/#/local)
