@@ -1,16 +1,16 @@
-# Spacemesh Terminal Wallet
+# Spacemesh CLI Wallet
 
 ## Overview
-A basic reference console Spacemesh Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh).
+A basic reference Spacemesh Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh). The wallet is designed to run from the command line.
 
 The wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
 
 ## Functionality
-The wallet is a Spacemesh API client and implements basic wallet features. You can create a new coin account, execute transactions, check account balance and view transactions./
+The wallet is a Spacemesh API client and implements basic wallet features via a REPL interface. You can create a new coin account, execute transactions, check account balance and view transactions.
 
-> WARNING: Terminal wallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/terminal-wallet/issues/16).
+> WARNING: This wallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/terminal-wallet/issues/16).
 
-The wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
+See below on how to use with any network.
 
 ## Building
 
