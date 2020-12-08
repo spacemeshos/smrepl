@@ -25,8 +25,15 @@ func NewWalletBackend(dataDir string, grpcServer string, secureConnection bool) 
 	accountsFilePath := path.Join(dataDir, accountsFileName)
 	acc, err := common.LoadAccounts(accountsFilePath)
 	if err != nil {
-		log.Error("cannot load account from file %s: %s", accountsFilePath, err)
+		log.Error("failed to load accounts from account file: %s", err)
+		return nil, err
+	}
+
+	if acc == nil {
+		// accounts file doesn't exist
 		acc = &common.Store{}
+	} else {
+		println("Accounts loaded from %s", accountsFilePath)
 	}
 
 	grpcClient := newGRPCClient(grpcServer, secureConnection)

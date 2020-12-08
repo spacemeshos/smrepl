@@ -55,7 +55,7 @@ Use the `-grpc-server` and `-secure` flags connect to a remote Spacemesh api ser
 > Note that communications with the server will be secure using https/tls but the wallet doesn't currently verify the server identity.
 
 
-## Using with a local full node
+## Using with a local Spacemesh full node
 
 1. Join a Spacemesh network by running [go-spacemesh](https://github.com/spacemeshos/go-spacemesh/releases) or [Smapp](https://github.com/spacemeshos/smapp/releases) on your computer.
 1. Build the wallet from this repository and run it. For example on OS X:
@@ -71,12 +71,9 @@ When you run your full node directly in terminal, you can configure which api se
 
 ```json
 "api": {
-    "grpc": "node, mesh, globalstate,transaction, smesher"
+    "grpc": "node, mesh, globalstate, transaction, smesher"
 },
 ```
- 
-
-
 
 
 

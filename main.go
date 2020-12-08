@@ -42,7 +42,6 @@ func main() {
 	}
 	be, err := client.NewWalletBackend(dataDir, grpcServer, secureConnection)
 	if err != nil {
-		println(err)
 		os.Exit(1)
 	}
 	repl.Start(be)

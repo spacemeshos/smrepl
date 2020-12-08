@@ -35,11 +35,12 @@ func (r *repl) createAccount() {
 	ac := r.client.CreateAccount(alias)
 	err := r.client.StoreAccounts()
 	if err != nil {
-		log.Error("failed to create account: %v", err)
+		log.Error("Failed to create a new account: %v", err)
 		return
 	}
 
-	fmt.Printf("%s Created account alias: `%s`, address: %s \n", printPrefix, ac.Name, ac.Address().String())
+	fmt.Printf("%s Created account: %s, address: %s \n", printPrefix, ac.Name, ac.Address().String())
+
 	r.client.SetCurrentAccount(ac)
 }
 
