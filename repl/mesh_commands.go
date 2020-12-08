@@ -11,7 +11,7 @@ func (r *repl) printMeshInfo() {
 
 	info, err := r.client.GetMeshInfo()
 	if err != nil {
-		log.Error("failed to get node info: %v", err)
+		log.Error("failed to get mesh info: %v", err)
 		return
 	}
 

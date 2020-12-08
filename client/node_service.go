@@ -9,9 +9,10 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Sanity is a basic api sanity test. It verifies that the client can connect to
+// Echo is a basic api sanity test. It verifies that the client can connect to
 // the node service and get a response from it to an echo request.
-func (c *gRPCClient) Sanity() error {
+// todo: change this to api health-check service as node service might not be available
+func (c *gRPCClient) Echo() error {
 	service := c.getNodeServiceClient()
 
 	const msg = "hello spacemesh"

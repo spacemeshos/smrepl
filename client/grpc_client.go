@@ -98,9 +98,9 @@ func (c *gRPCClient) Close() error {
 func (c *gRPCClient) ServerInfo() string {
 	s := c.server + " (GRPC API 2.0)"
 	if c.secureConnection {
-		s += " Secure Connection."
+		s += ". Secure Connection."
 	} else {
-		s += " Insecure Connection. >> Use only with a local server <<"
+		s += ". >> Insecure Connection. Use only with a local trusted server <<"
 	}
 
 	return s
