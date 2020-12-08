@@ -1,16 +1,16 @@
-# Spacemesh CLIWallet
+# Spacemesh CLI Wallet
 
 ## Overview
-A basic reference console Spacemesh Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh).
+A basic reference Spacemesh Wallet designed to work together with a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh). The wallet is designed to run from the command line.
 
-The CLIWallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
+The wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp - the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and includes a wallet.
 
 ## Functionality
-The wallet is a Spacemesh API client and implements basic wallet features. You can create a new coin account, execute transactions, check account balance and view transactions./
+The wallet is a Spacemesh API client and implements basic wallet features via a REPL interface. You can create a new coin account, execute transactions, check account balance and view transactions.
 
-> WARNING: CLIWallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/CLIWallet/issues/16).
+> WARNING: This wallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/terminal-wallet/issues/16).
 
-The CLI wallet implements this [mini spec](https://github.com/spacemeshos/product/blob/master/cli_wallet_spec.md). See below on how to use with any network.
+See below on how to use with any network.
 
 ## Building
 
@@ -60,13 +60,12 @@ Use the `-grpc-server` and `-secure` flags connect to a remote Spacemesh api ser
 1. Join a Spacemesh network by running [go-spacemesh](https://github.com/spacemeshos/go-spacemesh/releases) or [Smapp](https://github.com/spacemeshos/smapp/releases) on your computer.
 1. Build the wallet from this repository and run it. For example on OS X:
 
+
 ```bash
 make build-mac
 ./cli_wallet_darwin_amd64
 ```
-
 By default, the wallet attempts to connect to the api server provided by your locally running Spacemesh full node using the default node's grpc api port (localhost:9092).
-
 When you run your full node directly in terminal, you can configure which api services will be available to your wallet by your node by changing entries int he api section of your node's config file:
 
 ```json
@@ -74,6 +73,3 @@ When you run your full node directly in terminal, you can configure which api se
     "grpc": "node, mesh, globalstate, transaction, smesher"
 },
 ```
-
-
-
