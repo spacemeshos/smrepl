@@ -47,7 +47,7 @@ type Client interface {
 	StoreAccounts() error
 
 	// Local config
-	ServerUrl() string
+	ServerInfo() string
 
 	// Node service
 	NodeStatus() (*apitypes.NodeStatus, error)
@@ -181,11 +181,11 @@ func (r *repl) firstTime() {
 	fmt.Print(printPrefix, splash)
 
 	if err := r.client.Sanity(); err != nil {
-		log.Error("Failed to connect to node at %v: %v", r.client.ServerUrl(), err)
+		log.Error("Failed to connect to node at %v: %v", r.client.ServerInfo(), err)
 		r.quit()
 	}
 
-	fmt.Println("Welcome to Spacemesh. Connected to node at", r.client.ServerUrl())
+	fmt.Println("Welcome to Spacemesh. Connected to node at", r.client.ServerInfo())
 }
 
 func (r *repl) quit() {

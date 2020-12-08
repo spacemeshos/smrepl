@@ -2,13 +2,14 @@ package client
 
 import (
 	"bytes"
+	"path"
+
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
-	"path"
 )
 
 const accountsFileName = "accounts.json"
@@ -20,7 +21,7 @@ type walletBackend struct {
 	currentAccount   *common.LocalAccount
 }
 
-func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*walletBackend, error) {
+func NewWalletBackend(dataDir string, grpcServer string, secureConnection bool) (*walletBackend, error) {
 	accountsFilePath := path.Join(dataDir, accountsFileName)
 	acc, err := common.LoadAccounts(accountsFilePath)
 	if err != nil {
@@ -28,10 +29,11 @@ func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*wallet
 		acc = &common.Store{}
 	}
 
-	grpcClient := newGRPCClient(grpcServer, grpcPort)
+	grpcClient := newGRPCClient(grpcServer, secureConnection)
 	err = grpcClient.Connect()
 	if err != nil {
 		// failed to connect to grpc server
+		log.Error("failed to connect to the grpc server: %s", err)
 		return nil, err
 	}
 
