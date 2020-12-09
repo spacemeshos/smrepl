@@ -2,13 +2,14 @@ package client
 
 import (
 	"bytes"
+	"path"
+
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
-	"path"
 )
 
 const accountsFileName = "accounts.json"
@@ -20,18 +21,26 @@ type walletBackend struct {
 	currentAccount   *common.LocalAccount
 }
 
-func NewWalletBackend(dataDir string, grpcServer string, grpcPort uint) (*walletBackend, error) {
+func NewWalletBackend(dataDir string, grpcServer string, secureConnection bool) (*walletBackend, error) {
 	accountsFilePath := path.Join(dataDir, accountsFileName)
 	acc, err := common.LoadAccounts(accountsFilePath)
 	if err != nil {
-		log.Error("cannot load account from file %s: %s", accountsFilePath, err)
-		acc = &common.Store{}
+		log.Error("failed to load accounts from account file: %s", err)
+		return nil, err
 	}
 
-	grpcClient := newGRPCClient(grpcServer, grpcPort)
+	if acc == nil {
+		// accounts file doesn't exist
+		acc = &common.Store{}
+	} else {
+		println("Accounts loaded from %s", accountsFilePath)
+	}
+
+	grpcClient := newGRPCClient(grpcServer, secureConnection)
 	err = grpcClient.Connect()
 	if err != nil {
 		// failed to connect to grpc server
+		log.Error("failed to connect to the grpc server: %s", err)
 		return nil, err
 	}
 

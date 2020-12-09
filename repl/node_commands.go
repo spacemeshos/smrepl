@@ -16,7 +16,7 @@ func (r *repl) nodeInfo() {
 
 	fmt.Println(printPrefix, "Version:", info.Version)
 	fmt.Println(printPrefix, "Build:", info.Build)
-	fmt.Println(printPrefix, "API server:", r.client.ServerUrl())
+	fmt.Println(printPrefix, "API server:", r.client.ServerInfo())
 
 	status, err := r.client.NodeStatus()
 	if err != nil {

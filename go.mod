@@ -5,9 +5,9 @@ require (
 	github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/davecgh/go-xdr v0.0.0-20161123171359-e6a2ba005892
+	github.com/fullstorydev/grpcurl v1.7.0
 	github.com/golang/protobuf v1.4.2
-	github.com/google/uuid v1.1.0
-	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/mattn/go-tty v0.0.0-20190424173100-523744f04859 // indirect
 	github.com/pkg/term v0.0.0-20190109203006-aa71e9d9e942 // indirect
 	github.com/spacemeshos/api/release/go v0.0.0-20201103002846-7d0dfed55cc1
@@ -23,4 +23,4 @@ require (
 
 )
 
-go 1.14
+go 1.15

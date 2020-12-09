@@ -47,12 +47,12 @@ type Client interface {
 	StoreAccounts() error
 
 	// Local config
-	ServerUrl() string
+	ServerInfo() string
 
 	// Node service
 	NodeStatus() (*apitypes.NodeStatus, error)
 	NodeInfo() (*common.NodeInfo, error)
-	Sanity() error
+	Echo() error
 
 	// Mesh service
 	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
@@ -180,12 +180,15 @@ func (r *repl) commandLineParams(idx int, input string) string {
 func (r *repl) firstTime() {
 	fmt.Print(printPrefix, splash)
 
-	if err := r.client.Sanity(); err != nil {
-		log.Error("Failed to connect to node at %v: %v", r.client.ServerUrl(), err)
+	// TODO: change this is to use the health service when it is ready
+	_, err := r.client.GetMeshInfo()
+	if err != nil {
+		log.Error("Failed to connect to mesh service at %v: %v", r.client.ServerInfo(), err)
 		r.quit()
 	}
 
-	fmt.Println("Welcome to Spacemesh. Connected to node at", r.client.ServerUrl())
+	fmt.Println("Welcome to Spacemesh. Connected to api server at", r.client.ServerInfo())
+	r.printMeshInfo()
 }
 
 func (r *repl) quit() {

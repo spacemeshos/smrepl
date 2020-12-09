@@ -5,9 +5,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"os"
+
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
-	"os"
 )
 
 type AccountKeys struct {
@@ -33,12 +34,12 @@ func StoreAccounts(path string, store *Store) error {
 func LoadAccounts(path string) (*Store, error) {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		log.Warning("genesis config not lodad since file does not exist. file=%v", path)
-		return nil, err
+		println("Accounts not loaded from file since it does not exist at: ", path)
+		return nil, nil
 	}
 	r, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("error opening file: %v", err)
+		return nil, fmt.Errorf("error opening accounts file: %v", err)
 	}
 	defer r.Close()
 
@@ -46,7 +47,7 @@ func LoadAccounts(path string) (*Store, error) {
 	cfg := &Store{}
 	err = dec.Decode(cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid accounts file content: %v", err)
 	}
 
 	return cfg, nil
