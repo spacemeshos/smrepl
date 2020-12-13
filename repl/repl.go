@@ -39,9 +39,9 @@ type repl struct {
 type Client interface {
 
 	// Local account management methods
-	CreateAccount(alias string) *common.LocalAccount
-	CurrentAccount() *common.LocalAccount
-	SetCurrentAccount(a *common.LocalAccount)
+	CreateAccount(alias string) (*common.LocalAccount, error)
+	CurrentAccount() (*common.LocalAccount, error)
+	SetCurrentAccount(a *common.LocalAccount) error
 	ListAccounts() []string
 	GetAccount(name string) (*common.LocalAccount, error)
 	StoreAccounts() error

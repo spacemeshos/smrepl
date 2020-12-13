@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
@@ -32,10 +33,14 @@ func (r *repl) createAccount() {
 	fmt.Println(printPrefix, "Create a new account")
 	alias := inputNotBlank(createAccountMsg)
 
-	ac := r.client.CreateAccount(alias)
-	err := r.client.StoreAccounts()
+	ac, err := r.client.CreateAccount(alias)
 	if err != nil {
 		log.Error("Failed to create a new account: %v", err)
+		return
+	}
+	err = r.client.StoreAccounts()
+	if err != nil {
+		log.Error("Failed to save the new account: %v", err)
 		return
 	}
 
@@ -46,10 +51,10 @@ func (r *repl) createAccount() {
 
 // print account info from global state
 func (r *repl) printAccountInfo() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	address := gosmtypes.BytesToAddress(acc.PubKey)
@@ -99,10 +104,10 @@ func (r *repl) printRewards(address gosmtypes.Address) {
 
 // printAccountRewards prints all rewards awarded to an account
 func (r *repl) printLocalAccountRewards() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 	r.printRewards(acc.Address())
 }
@@ -125,11 +130,20 @@ func printReward(r *apitypes.Reward) {
 	fmt.Println(printPrefix, "Rewards account:", gosmtypes.BytesToAddress(r.Coinbase.Address).String())
 }
 
-func (r *repl) sign() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
+func (r *repl) getCurrent() (acc *common.LocalAccount, err error) {
+	acc, err = r.client.CurrentAccount()
+	if err != nil {
 		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+		acc, err = r.client.CurrentAccount()
+	}
+	return
+}
+
+func (r *repl) sign() {
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	msgStr := inputNotBlank(msgSignMsg)
@@ -145,10 +159,10 @@ func (r *repl) sign() {
 }
 
 func (r *repl) textsign() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	msg := inputNotBlank(msgTextSignMsg)

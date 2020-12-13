@@ -30,10 +30,10 @@ func (r *repl) printSmesherRewards() {
 }
 
 func (r *repl) startSmeshing() {
-	addr := r.client.CurrentAccount()
-	if addr == nil {
-		r.chooseAccount()
-		addr = r.client.CurrentAccount()
+	addr, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	dataDir := inputNotBlank(smeshingDatadirMsg)
@@ -125,10 +125,10 @@ func (r *repl) printSmesherId() {
 }
 
 func (r *repl) setCoinbase() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	resp, err := r.client.SetCoinbase(acc.Address())

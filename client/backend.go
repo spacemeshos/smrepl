@@ -2,57 +2,117 @@ package client
 
 import (
 	"bytes"
-	"path"
+	"errors"
+	"fmt"
+	"strings"
+	"syscall"
 
+	smWallet "github.com/DaveAppleton/smWallet"
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 const accountsFileName = "accounts.json"
 
 type walletBackend struct {
 	*gRPCClient // Embedded interface
-	common.Store
-	accountsFilePath string
-	currentAccount   *common.LocalAccount
+	//common.Store
+	//accountsFilePath string
+	wallet *smWallet.Wallet
+	//currentAccount   *common.LocalAccount
 }
 
-func NewWalletBackend(dataDir string, grpcServer string, secureConnection bool) (*walletBackend, error) {
-	accountsFilePath := path.Join(dataDir, accountsFileName)
-	acc, err := common.LoadAccounts(accountsFilePath)
+func getPassword() (string, error) {
+	fmt.Print("Enter password: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin)) // no history
 	if err != nil {
-		log.Error("failed to load accounts from account file: %s", err)
+		return "", err
+	}
+	return strings.TrimSpace(string(bytePassword)), nil
+
+}
+
+// OpenWalletBackend = open an existing wallet
+func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) (wbx *walletBackend, err error) {
+	var wbe walletBackend
+	wbx = nil
+	if wbe.wallet, err = smWallet.LoadWallet(wallet); err != nil {
+		return
+	}
+	password, err := getPassword()
+	if err != nil {
+		return
+	}
+	if err = wbe.wallet.Unlock(password); err != nil {
+		return
+	}
+	ne, err := wbe.wallet.GetNumberOfAccounts()
+	if err != nil {
 		return nil, err
 	}
-
-	if acc == nil {
-		// accounts file doesn't exist
-		acc = &common.Store{}
-	} else {
-		println("Accounts loaded from %s", accountsFilePath)
-	}
-
-	grpcClient := newGRPCClient(grpcServer, secureConnection)
-	err = grpcClient.Connect()
-	if err != nil {
+	fmt.Println(wbe.wallet.Meta.DisplayName, "successfully opened with ", ne, "accounts")
+	wbe.gRPCClient = newGRPCClient(grpcServer, secureConnection)
+	if err = wbe.gRPCClient.Connect(); err != nil {
 		// failed to connect to grpc server
 		log.Error("failed to connect to the grpc server: %s", err)
-		return nil, err
+		return
+	}
+	return &wbe, nil
+}
+
+// NewWalletBackend set up a wallet -
+func NewWalletBackend(walletName string, grpcServer string, secureConnection bool) (wbx *walletBackend, err error) {
+	var wbe walletBackend
+	wbx = nil
+	password, err := getPassword()
+	if err != nil {
+		return
+	}
+	if wbe.wallet, err = smWallet.NewWallet(walletName, password); err != nil {
+		return
 	}
 
-	return &walletBackend{grpcClient, *acc, accountsFilePath, nil}, nil
+	fmt.Println(wbe.wallet.Meta.DisplayName, "successfully created")
+	wbe.gRPCClient = newGRPCClient(grpcServer, secureConnection)
+	if err = wbe.gRPCClient.Connect(); err != nil {
+		// failed to connect to grpc server
+		log.Error("failed to connect to the grpc server: %s", err)
+		return
+	}
+	return &wbe, nil
 }
 
-func (w *walletBackend) CurrentAccount() *common.LocalAccount {
-	return w.currentAccount
+func (w *walletBackend) CurrentAccount() (*common.LocalAccount, error) {
+
+	ca, err := w.wallet.CurrentAccount()
+	if err != nil {
+		return nil, err
+	}
+	pk, err := ca.PrivateKey()
+	if err != nil {
+		return nil, err
+	}
+	return &common.LocalAccount{Name: ca.DisplayName, PrivKey: pk, PubKey: smWallet.PublicKey(pk)}, nil
 }
 
-func (w *walletBackend) SetCurrentAccount(a *common.LocalAccount) {
-	w.currentAccount = a
+func (w *walletBackend) CreateAccount(displayName string) (la *common.LocalAccount, err error) {
+	pos, err := w.wallet.GenerateNewPair(displayName)
+	if err != nil {
+		return nil, err
+	}
+	if err = w.wallet.SetCurrent(pos); err != nil {
+		return
+	}
+	return w.CurrentAccount()
+}
+
+func (w *walletBackend) SetCurrentAccount(accountNumber int) error {
+	return w.wallet.SetCurrent(accountNumber)
 }
 
 func interfaceToBytes(i interface{}) ([]byte, error) {
@@ -64,7 +124,7 @@ func interfaceToBytes(i interface{}) ([]byte, error) {
 }
 
 func (w *walletBackend) StoreAccounts() error {
-	return common.StoreAccounts(w.accountsFilePath, &w.Store)
+	return w.wallet.SaveWallet()
 }
 
 // Transfer creates a sign coin transaction and submits it
@@ -83,4 +143,30 @@ func (w *walletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gas
 		return nil, err
 	}
 	return w.SubmitCoinTransaction(b)
+}
+
+func (w *walletBackend) GetAccount(accountName string) (*common.LocalAccount, error) {
+	numberOfAccounts, err := w.wallet.GetNumberOfAccounts()
+	if err != nil {
+		log.Error("failed to retrieve number of accounts", err)
+		return nil, err
+	}
+	for j := 0; j < numberOfAccounts; j++ {
+		dn, err := w.wallet.GetAccountDisplayName(j)
+		if err != nil {
+			log.Error("failed to retrieve display names", err)
+			return nil, err
+		}
+		if dn == accountName {
+			pk, err := w.wallet.GetPrivateKey(j)
+			if err != nil {
+				log.Error("failed to retrieve private key", err)
+				return nil, err
+			}
+			return &common.LocalAccount{Name: accountName, PrivKey: pk, PubKey: smWallet.PublicKey(pk)}, nil
+		}
+	}
+	err = errors.New("failed to find :" + accountName)
+	log.Error(err.Error())
+	return nil, err
 }
