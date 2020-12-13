@@ -12,21 +12,35 @@ import (
 )
 
 func (r *repl) chooseAccount() {
-	accs := r.client.ListAccounts()
+	accs, err := r.client.ListAccounts()
+	if err != nil {
+		log.Error("failure to choose account", err)
+		return
+	}
 	if len(accs) == 0 {
 		r.createAccount()
 		return
 	}
 
 	fmt.Println(printPrefix, "Choose an account to load:")
-	accName := multipleChoice(accs)
-	account, err := r.client.GetAccount(accName)
+	accNumber := multipleChoice(accs)
+	if accNumber == 0 {
+		fmt.Println("none selected")
+		return
+	}
+	accNumber = accNumber - 1
+	err = r.client.SetCurrentAccount(accNumber)
+	if err != nil {
+		log.Error("failure to set current account", err)
+		return
+	}
+
+	account, err := r.client.CurrentAccount()
 	if err != nil {
 		panic("wtf")
 	}
 	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, account.Address().String())
 
-	r.client.SetCurrentAccount(account)
 }
 
 func (r *repl) createAccount() {
@@ -46,7 +60,18 @@ func (r *repl) createAccount() {
 
 	fmt.Printf("%s Created account: %s, address: %s \n", printPrefix, ac.Name, ac.Address().String())
 
-	r.client.SetCurrentAccount(ac)
+}
+
+const onesmh = 1000000000000
+
+func coinAmount(val uint64) string {
+	if val >= 1000000000000 {
+		return fmt.Sprintf("%d.%012d SMH", val/onesmh, val%onesmh)
+	} else if val >= 10000000000 {
+		return fmt.Sprintf("0.%012d SMH", val%onesmh)
+	} else {
+		return fmt.Sprint(val, " Smidge")
+	}
 }
 
 // print account info from global state
@@ -77,9 +102,9 @@ func (r *repl) printAccountInfo() {
 
 	fmt.Println(printPrefix, "Local alias:", acc.Name)
 	fmt.Println(printPrefix, "Address:", address.String())
-	fmt.Println(printPrefix, "Balance:", currBalance, coinUnitName)
+	fmt.Println(printPrefix, "Balance:", coinAmount(currBalance)) // currBalance, coinUnitName)
 	fmt.Println(printPrefix, "Nonce:", state.StateCurrent.Counter)
-	fmt.Println(printPrefix, "Projected Balance:", projectedBalance, coinUnitName)
+	fmt.Println(printPrefix, "Projected Balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
 	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
 	fmt.Println(printPrefix, "Projected account state includes all pending transactions that haven't been added to the mesh yet.")
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))

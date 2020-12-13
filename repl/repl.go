@@ -41,8 +41,8 @@ type Client interface {
 	// Local account management methods
 	CreateAccount(alias string) (*common.LocalAccount, error)
 	CurrentAccount() (*common.LocalAccount, error)
-	SetCurrentAccount(a *common.LocalAccount) error
-	ListAccounts() []string
+	SetCurrentAccount(accountNumber int) error
+	ListAccounts() ([]string, error)
 	GetAccount(name string) (*common.LocalAccount, error)
 	StoreAccounts() error
 
@@ -85,6 +85,7 @@ type Client interface {
 func (r *repl) initializeCommands() {
 	r.commands = []command{
 		// account commands
+		//{"open", "Open a wallet", r.openWallet},
 		{"new", "Create a new account (key pair) and set as current", r.createAccount},
 		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 		{"info", "Display the current account info", r.printAccountInfo},
