@@ -30,13 +30,17 @@ type command struct {
 }
 
 type repl struct {
-	commands []command
-	client   Client
-	input    string
+	commands   []command
+	client     Client
+	clientOpen bool
+	input      string
 }
 
 // Client interface to REPL clients.
 type Client interface {
+	IsOpen() bool
+	OpenWallet() bool
+	NewWallet() bool
 
 	// Local account management methods
 	CreateAccount(alias string) (*common.LocalAccount, error)
@@ -83,24 +87,36 @@ type Client interface {
 }
 
 func (r *repl) initializeCommands() {
-	r.commands = []command{
-		// account commands
-		//{"open", "Open a wallet", r.openWallet},
-		{"new", "Create a new account (key pair) and set as current", r.createAccount},
-		{"set", "Set one of the previously created accounts as current", r.chooseAccount},
-		{"info", "Display the current account info", r.printAccountInfo},
-		{"rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
-		{"sign", "Sign a hex message with the current account private key", r.sign},
-		{"text-sign", "Sign a text message with the current account private key", r.textsign},
-
-		{"any-rewards", "Display all rewards for any account", r.printAnyAccountRewards},
-
-		// activations where this account is coinbase
-
+	// transaction sstatus is duplicated to keep order when open
+	// account commands
+	accountCommands := []command{
+		{"open", "Open a wallet", r.openWallet},
+		{"create", "Create a wallet", r.createWallet},
 		// transactions
-		{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
+
 		{"tx-status", "Display a transaction status", r.printTransactionStatus},
-		{"txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+	}
+	if r.clientOpen {
+		accountCommands = []command{
+			// accounts
+			{"new", "Create a new account (key pair) and set as current", r.createAccount},
+			{"set", "Set one of the previously created accounts as current", r.chooseAccount},
+			{"info", "Display the current account info", r.printAccountInfo},
+			{"rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
+			{"sign", "Sign a hex message with the current account private key", r.sign},
+			{"text-sign", "Sign a text message with the current account private key", r.textsign},
+
+			{"any-rewards", "Display all rewards for any account", r.printAnyAccountRewards},
+			{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
+			// transactions
+
+			{"tx-status", "Display a transaction status", r.printTransactionStatus},
+			{"txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+		}
+	}
+
+	// activations where this account is coinbase
+	otherCommands := []command{
 
 		// printing status and state of things
 		{"node", "Display node status", r.nodeInfo},
@@ -128,12 +144,14 @@ func (r *repl) initializeCommands() {
 
 		{"quit", "Quit the CLI", r.quit},
 	}
+	r.commands = append(accountCommands, otherCommands...)
 }
 
 // Start starts REPL.
 func Start(c Client) {
 	if !TestMode {
 		r := &repl{client: c}
+		r.clientOpen = c.IsOpen()
 		r.initializeCommands()
 
 		runPrompt(r.executor, r.completer, r.firstTime, uint16(len(r.commands)))

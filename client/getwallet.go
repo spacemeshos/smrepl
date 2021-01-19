@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	prompt "github.com/c-bata/go-prompt"
 )
 
-func WalkMatchX(root, pattern string, dirz bool) ([]string, error) {
+func walkMatchX(root, pattern string, dirz bool) ([]string, error) {
 	var matches []string
 	if strings.HasSuffix(root, "/") {
 		root = root[:len(root)-1]
@@ -42,12 +42,12 @@ func WalkMatchX(root, pattern string, dirz bool) ([]string, error) {
 	return matches, nil
 }
 
-func WalkMatch(root, pattern string) ([]string, error) {
-	return WalkMatchX(root, pattern, false)
+func walkMatch(root, pattern string) ([]string, error) {
+	return walkMatchX(root, pattern, false)
 }
 
-func WalkMatchDir(root string) ([]string, error) {
-	return WalkMatchX(root, "", true)
+func walkMatchDir(root string) ([]string, error) {
+	return walkMatchX(root, "", true)
 }
 
 var thisDir string
@@ -58,7 +58,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: parent, Description: "Parent Directory"},
 	}
-	jasonz, err := WalkMatch(thisDir, "*.json")
+	jasonz, err := walkMatch(thisDir, "*.json")
 	if err == nil {
 		for _, fn := range jasonz {
 			s = append(s, prompt.Suggest{Text: fn, Description: "JSON file"})
@@ -66,7 +66,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 	} else {
 		log.Fatal("json walk", err)
 	}
-	filez, err := WalkMatchDir(thisDir)
+	filez, err := walkMatchDir(thisDir)
 	if err == nil {
 		for _, fn := range filez {
 			if fn != thisDir {
@@ -80,13 +80,8 @@ func completer(d prompt.Document) []prompt.Suggest {
 
 }
 
-func getWallet() string {
-	var err error
-	thisDir, err = os.Getwd()
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
+func (w *WalletBackend) getWallet() string {
+	thisDir = w.workingDirectory
 	for {
 		log.Println("with ", thisDir)
 		t := prompt.Input(">", completer)

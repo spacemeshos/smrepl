@@ -1,9 +1,11 @@
 package client
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"syscall"
 
@@ -21,24 +23,79 @@ const accountsFileName = "accounts.json"
 
 // WalletBackend wallet holder
 type WalletBackend struct {
-	*gRPCClient // Embedded interface
-	//common.Store
-	//accountsFilePath string
-	wallet *smWallet.Wallet
+	*gRPCClient      // Embedded interface
+	workingDirectory string
+	wallet           *smWallet.Wallet
+	open             bool
 	//currentAccount   *common.LocalAccount
 }
 
-func getPassword() (string, error) {
-	fmt.Print("Enter password: ")
+func (w *WalletBackend) IsOpen() bool {
+	return w.wallet != nil
+}
+
+func getString(prompt string) (string, error) {
+	fmt.Print(prompt)
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin)) // no history
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(bytePassword)), nil
-
 }
 
-// OpenWalletBackend = open an existing wallet
+func getClearString(prompt string) string {
+	fmt.Print(prompt)
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+
+	// convert CRLF to LF
+	text = strings.Replace(text, "\n", "", -1)
+	return strings.TrimSpace(string(text))
+}
+
+func getPassword() (string, error) {
+	return getString("Enter password: ")
+}
+
+// OpenConnection opens a connection but not the wallet
+func OpenConnection(grpcServer string, secureConnection bool, wd string) (wbx *WalletBackend, err error) {
+	wbe := WalletBackend{workingDirectory: wd}
+	wbe.gRPCClient = newGRPCClient(grpcServer, secureConnection)
+	if err = wbe.gRPCClient.Connect(); err != nil {
+		// failed to connect to grpc server
+		log.Error("failed to connect to the grpc server: %s", err)
+		return
+	}
+	return &wbe, nil
+}
+
+// OpenWallet - happy?
+func (w *WalletBackend) OpenWallet() bool {
+	walletToOpen := w.getWallet()
+	wallet, err := smWallet.LoadWallet(walletToOpen)
+	if err != nil {
+		// error message
+		return false
+	}
+	w.wallet = wallet
+	password, err := getPassword()
+	if err != nil {
+		return false
+	}
+	fmt.Println("loading...")
+	if err = w.wallet.Unlock(password); err != nil {
+		return false
+	}
+	ne, err := w.wallet.GetNumberOfAccounts()
+	if err != nil {
+		return false
+	}
+	fmt.Println(w.wallet.Meta.DisplayName, "successfully opened with ", ne, "accounts")
+	w.open = true
+	return true
+}
+
+// OpenWalletBackend  open an existing wallet
 func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) (wbx *WalletBackend, err error) {
 	var wbe WalletBackend
 	wbx = nil
@@ -64,7 +121,40 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 		log.Error("failed to connect to the grpc server: %s", err)
 		return
 	}
+	wbe.open = true
 	return &wbe, nil
+}
+
+func (w *WalletBackend) NewWallet() bool {
+	walletName := getClearString("Wallet Display Name : ")
+	fmt.Println()
+	password, err := getPassword()
+	fmt.Println()
+	if err != nil {
+		return false
+	}
+	password2, err := getString("Repeat password : ")
+	fmt.Println()
+	if err != nil {
+		return false
+	}
+	if password != password2 {
+		fmt.Println("passwords do not match")
+		return false
+	}
+	w.wallet, err = smWallet.NewWallet(walletName, password)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	err = w.wallet.SaveWalletAs("newWallet")
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	fmt.Println("Wallet created")
+	w.open = true
+	return true
 }
 
 // NewWalletBackend set up a wallet -
@@ -91,6 +181,7 @@ func NewWalletBackend(walletName string, grpcServer string, secureConnection boo
 		log.Error("failed to connect to the grpc server: %s", err)
 		return
 	}
+	wbe.open = true
 	return &wbe, nil
 }
 

@@ -11,6 +11,16 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
+func (r *repl) openWallet() {
+
+	r.clientOpen = r.client.OpenWallet()
+	r.initializeCommands()
+}
+func (r *repl) createWallet() {
+	r.clientOpen = r.client.NewWallet()
+	r.initializeCommands()
+}
+
 func (r *repl) chooseAccount() {
 	accs, err := r.client.ListAccounts()
 	if err != nil {
