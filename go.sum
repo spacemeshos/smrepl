@@ -57,6 +57,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DaveAppleton/smWallet v0.0.0-20201213013804-ba242cd0e876 h1:3NxpWp/pnZ6xwVY4Pgjpn7qgMs+YBZpjMZrJR9LEdQA=
 github.com/DaveAppleton/smWallet v0.0.0-20201213013804-ba242cd0e876/go.mod h1:KF8QMDxguzDOMQRZ82qVCD0B1BVohoGgFC6NRQgvE1M=
+github.com/DaveAppleton/smWallet v0.0.0-20210119191537-c1f58b9407bf h1:I/v8OgHibLt+5K6ecrZZQnJH492s6SkwWywlW0KisTI=
+github.com/DaveAppleton/smWallet v0.0.0-20210119191537-c1f58b9407bf/go.mod h1:dnWl+xsGzV/AGD+6YooSnh21U4hgQNbJJz+vHC9kZN0=
 github.com/GoogleCloudPlatform/cloudsql-proxy v0.0.0-20191009163259-e802c2cb94ae/go.mod h1:mjwGPas4yKduTyubHvD1Atl9r1rUq8DfVy+gkVvZ+oo=
 github.com/Masterminds/semver/v3 v3.0.3/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/semver/v3 v3.1.0/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=

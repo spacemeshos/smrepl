@@ -38,6 +38,7 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
+	WalletInfo()
 	IsOpen() bool
 	OpenWallet() bool
 	NewWallet() bool
@@ -99,6 +100,7 @@ func (r *repl) initializeCommands() {
 	if r.clientOpen {
 		accountCommands = []command{
 			// accounts
+			{"wallet", "Display wallet info", r.walletInfo},
 			{"new", "Create a new account (key pair) and set as current", r.createAccount},
 			{"set", "Set one of the previously created accounts as current", r.chooseAccount},
 			{"info", "Display the current account info", r.printAccountInfo},

@@ -11,13 +11,19 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
+func (r *repl) walletInfo() {
+	r.client.WalletInfo()
+}
+
 func (r *repl) openWallet() {
 
 	r.clientOpen = r.client.OpenWallet()
+	r.client.WalletInfo()
 	r.initializeCommands()
 }
 func (r *repl) createWallet() {
 	r.clientOpen = r.client.NewWallet()
+	r.client.WalletInfo()
 	r.initializeCommands()
 }
 

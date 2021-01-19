@@ -25,13 +25,20 @@ const accountsFileName = "accounts.json"
 type WalletBackend struct {
 	*gRPCClient      // Embedded interface
 	workingDirectory string
-	wallet           *smWallet.Wallet
-	open             bool
+
+	wallet *smWallet.Wallet
+	open   bool
 	//currentAccount   *common.LocalAccount
 }
 
 func (w *WalletBackend) IsOpen() bool {
 	return w.wallet != nil
+}
+
+func (w *WalletBackend) WalletInfo() {
+	fmt.Println("Wallet Name ", w.wallet.Meta.DisplayName)
+	fmt.Println("Created ", w.wallet.Meta.Created)
+	fmt.Println("Wallet Path ", w.wallet.WalletPath())
 }
 
 func getString(prompt string) (string, error) {
@@ -147,7 +154,7 @@ func (w *WalletBackend) NewWallet() bool {
 		fmt.Println(err)
 		return false
 	}
-	err = w.wallet.SaveWalletAs("newWallet")
+	err = w.wallet.SaveWalletAs(w.workingDirectory + "/newWallet")
 	if err != nil {
 		fmt.Println(err)
 		return false
