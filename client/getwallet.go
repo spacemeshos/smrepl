@@ -83,14 +83,14 @@ func completer(d prompt.Document) []prompt.Suggest {
 func (w *WalletBackend) getWallet() string {
 	thisDir = w.workingDirectory
 	for {
-		log.Println("with ", thisDir)
+
 		t := prompt.Input(">", completer)
 		fi, err := os.Lstat(t)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		log.Println(t)
+
 		if fi.IsDir() {
 			thisDir = t
 			continue

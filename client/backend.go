@@ -78,6 +78,7 @@ func OpenConnection(grpcServer string, secureConnection bool, wd string) (wbx *W
 
 // OpenWallet - happy?
 func (w *WalletBackend) OpenWallet() bool {
+	fmt.Println("TAB to select wallet")
 	walletToOpen := w.getWallet()
 	wallet, err := smWallet.LoadWallet(walletToOpen)
 	if err != nil {
@@ -91,6 +92,7 @@ func (w *WalletBackend) OpenWallet() bool {
 	}
 	fmt.Println("loading...")
 	if err = w.wallet.Unlock(password); err != nil {
+		fmt.Println(err)
 		return false
 	}
 	ne, err := w.wallet.GetNumberOfAccounts()

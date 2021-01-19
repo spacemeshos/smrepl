@@ -18,11 +18,20 @@ func (r *repl) walletInfo() {
 func (r *repl) openWallet() {
 
 	r.clientOpen = r.client.OpenWallet()
+	if !r.clientOpen {
+		fmt.Println("Wallet NOT opened")
+		return
+	}
 	r.client.WalletInfo()
 	r.initializeCommands()
 }
+
 func (r *repl) createWallet() {
 	r.clientOpen = r.client.NewWallet()
+	if !r.clientOpen {
+		fmt.Println("Wallet NOT created")
+		return
+	}
 	r.client.WalletInfo()
 	r.initializeCommands()
 }
