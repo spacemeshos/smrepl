@@ -44,6 +44,13 @@ make dockerbuild-go
 ```
 ---
 
+## Wallet Directives
+
+Use `-wallet_directory` to override the default of current working directory when opening and creating wallets.
+
+Use `-wallet` to specify a wallet to pre-open when starting cli-wallet. cli-wallet will look in current directory unless `-wallet_directory` has been specified. 
+
+
 ## Using a public Spacemesh API server
 You can use your wallet without running a full node by connecting it to a public Spacemesh api service for a Spacemesh network.
 Use the `-grpc-server` and `-secure` flags connect to a remote Spacemesh api server. For example:
