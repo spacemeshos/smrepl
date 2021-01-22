@@ -2,7 +2,11 @@ module github.com/spacemeshos/CLIWallet
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20200131002437-cf55d5288a48 // indirect
-	github.com/DaveAppleton/smWallet v0.0.0-20210119191537-c1f58b9407bf
+	github.com/DaveAppleton/smWallet v0.0.0-20210122160458-de92efba384b
+	//github.com/DaveAppleton/smWallet v0.0.0-20210121221212-7df91819dccc
+	// github.com/DaveAppleton/smWallet v0.0.0-20210121204952-3914213f77ec
+	// github.com/DaveAppleton/smWallet v0.0.0-20210121203316-27cfb5a1195b
+	// github.com/DaveAppleton/smWallet v0.0.0-20210119191537-c1f58b9407bf
 	//	github.com/DaveAppleton/smWallet v0.0.0-20201213013804-ba242cd0e876
 	github.com/btcsuite/btcd v0.0.0-20190629003639-c26ffa870fd8
 	github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d
