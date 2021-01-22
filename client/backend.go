@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	smWallet "github.com/DaveAppleton/smWallet"
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
+	smWallet "github.com/spacemeshos/CLIWallet/smWallet"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
