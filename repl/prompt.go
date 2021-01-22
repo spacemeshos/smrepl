@@ -3,6 +3,7 @@ package repl
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/c-bata/go-prompt"
@@ -49,32 +50,30 @@ func yesOrNoQuestion(msg string) string {
 	return input
 }
 
-func multipleChoice(names []string) string {
+func multipleChoice(names []string) int {
 	var input string
-	accounts := make(map[string]struct{})
-	for _, name := range names {
-		accounts[name] = struct{}{}
-	}
-	if len(accounts) == 0 {
-		return ""
+	if len(names) == 0 {
+		return 0
 	}
 	for {
-		for ac := range accounts {
-			fmt.Println(printPrefix, ac)
+		for n, ac := range names {
+			fmt.Println(n+1, printPrefix, ac)
 		}
 		input = prompt.Input(prefix,
 			emptyComplete,
 			prompt.OptionPrefixTextColor(prompt.LightGray))
 
-		if _, ok := accounts[input]; ok {
-			return input
+		if num, err := strconv.Atoi(input); err == nil {
+			if num > 0 && num <= len(names) {
+				return num
+			}
 		}
 
 		s := strings.TrimSpace(input)
 		if s == "quit" || s == "exit" {
 			fmt.Println("Bye!")
 			os.Exit(0)
-			return ""
+			return 0
 		}
 
 		fmt.Println(printPrefix, "invalid command.")

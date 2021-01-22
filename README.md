@@ -8,7 +8,7 @@ The wallet is designed for developers who want to hack on the Spacemesh platform
 ## Functionality
 The wallet is a Spacemesh API client and implements basic wallet features via a REPL interface. You can create a new coin account, execute transactions, check account balance and view transactions.
 
-> WARNING: This wallet is currently insecure as it saves private keys in cleartext on your local store. It is not yet a production-quality wallet. We plan to update the project to store private data securely in future releases. See [this issue](https://github.com/spacemeshos/terminal-wallet/issues/16).
+The wallet has been upgraded to use Spacemesh standard wallets (encrypted)
 
 See below on how to use with any network.
 
@@ -43,6 +43,13 @@ make build-linux
 make dockerbuild-go
 ```
 ---
+
+## Wallet Directives
+
+Use `-wallet_directory` to override the default of current working directory when opening and creating wallets.
+
+Use `-wallet` to specify a wallet to pre-open when starting cli-wallet. cli-wallet will look in current directory unless `-wallet_directory` has been specified. 
+
 
 ## Using a public Spacemesh API server
 You can use your wallet without running a full node by connecting it to a public Spacemesh api service for a Spacemesh network.

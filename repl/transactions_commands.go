@@ -67,10 +67,10 @@ func (r *repl) submitCoinTransaction() {
 		return
 	}
 	fmt.Println(printPrefix, initialTransferMsg)
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	srcAddress := gosmtypes.BytesToAddress(acc.PubKey)
@@ -121,10 +121,10 @@ func (r *repl) submitCoinTransaction() {
 }
 
 func (r *repl) printAccountTransactions() {
-	acc := r.client.CurrentAccount()
-	if acc == nil {
-		r.chooseAccount()
-		acc = r.client.CurrentAccount()
+	acc, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get account", err)
+		return
 	}
 
 	// todo: request offset and total from user
