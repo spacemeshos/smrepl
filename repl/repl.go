@@ -42,6 +42,7 @@ type Client interface {
 	IsOpen() bool
 	OpenWallet() bool
 	NewWallet() bool
+	CloseWallet()
 
 	// Local account management methods
 	CreateAccount(alias string) (*common.LocalAccount, error)
@@ -91,8 +92,8 @@ func (r *repl) initializeCommands() {
 	// transaction sstatus is duplicated to keep order when open
 	// account commands
 	accountCommands := []command{
-		{"open", "Open a wallet", r.openWallet},
-		{"create", "Create a wallet", r.createWallet},
+		{"open-wallet", "Open a wallet", r.openWallet},
+		{"create-wallet", "Create a wallet", r.createWallet},
 		// transactions
 
 		{"tx-status", "Display a transaction status", r.printTransactionStatus},
@@ -100,6 +101,7 @@ func (r *repl) initializeCommands() {
 	if r.clientOpen {
 		accountCommands = []command{
 			// accounts
+			{"close-wallet", "Close current wallet", r.closeWallet},
 			{"wallet", "Display wallet info", r.walletInfo},
 			{"new", "Create a new account (key pair) and set as current", r.createAccount},
 			{"set", "Set one of the previously created accounts as current", r.chooseAccount},

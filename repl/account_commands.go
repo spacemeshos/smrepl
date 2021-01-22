@@ -36,6 +36,12 @@ func (r *repl) createWallet() {
 	r.initializeCommands()
 }
 
+func (r *repl) closeWallet() {
+	r.client.CloseWallet()
+	r.clientOpen = false
+	r.initializeCommands()
+}
+
 func (r *repl) chooseAccount() {
 	accs, err := r.client.ListAccounts()
 	if err != nil {

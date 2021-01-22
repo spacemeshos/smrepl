@@ -61,10 +61,6 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	//else {
-	// 	fmt.Println("creating wallet")
-	// 	be, err = client.NewWalletBackend(dataDir, grpcServer, secureConnection)
-	// }
 
 	repl.Start(be)
 }

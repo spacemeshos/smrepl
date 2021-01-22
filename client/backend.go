@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"syscall"
+	"time"
 
 	smWallet "github.com/DaveAppleton/smWallet"
 	xdr "github.com/davecgh/go-xdr/xdr2"
@@ -35,10 +36,18 @@ func (w *WalletBackend) IsOpen() bool {
 	return w.wallet != nil
 }
 
+func friendlyTime(nastyString string) string {
+	t, err := time.Parse("2006-01-02T15-04-05.000Z", nastyString)
+	if err != nil {
+		return nastyString
+	}
+	return t.Format("Jan 02 2006 03:04 PM")
+}
+
 func (w *WalletBackend) WalletInfo() {
-	fmt.Println("Wallet Name ", w.wallet.Meta.DisplayName)
-	fmt.Println("Created ", w.wallet.Meta.Created)
-	fmt.Println("Wallet Path ", w.wallet.WalletPath())
+	fmt.Println("Wallet Name:", w.wallet.Meta.DisplayName)
+	fmt.Println("Created:", friendlyTime(w.wallet.Meta.Created))
+	fmt.Println("Wallet Path:", w.wallet.WalletPath())
 }
 
 func getString(prompt string) (string, error) {
@@ -61,7 +70,7 @@ func getClearString(prompt string) string {
 }
 
 func getPassword() (string, error) {
-	return getString("Enter password: ")
+	return getString("Enter wallet file password: ")
 }
 
 // OpenConnection opens a connection but not the wallet
@@ -76,9 +85,16 @@ func OpenConnection(grpcServer string, secureConnection bool, wd string) (wbx *W
 	return &wbe, nil
 }
 
+func accounts(num int) string {
+	if num == 1 {
+		return "1 account"
+	}
+	return fmt.Sprintf("%d accounts", num)
+}
+
 // OpenWallet - happy?
 func (w *WalletBackend) OpenWallet() bool {
-	fmt.Println("TAB to select wallet")
+	fmt.Println("Press on TAB to select wallet file")
 	walletToOpen := w.getWallet()
 	wallet, err := smWallet.LoadWallet(walletToOpen)
 	if err != nil {
@@ -90,7 +106,7 @@ func (w *WalletBackend) OpenWallet() bool {
 	if err != nil {
 		return false
 	}
-	fmt.Println("loading...")
+	fmt.Println("\nloading...")
 	if err = w.wallet.Unlock(password); err != nil {
 		fmt.Println(err)
 		return false
@@ -99,7 +115,7 @@ func (w *WalletBackend) OpenWallet() bool {
 	if err != nil {
 		return false
 	}
-	fmt.Println(w.wallet.Meta.DisplayName, "successfully opened with ", ne, "accounts")
+	fmt.Println(w.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
 	w.open = true
 	return true
 }
@@ -115,7 +131,7 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 	if err != nil {
 		return
 	}
-	fmt.Println("loading...")
+	fmt.Println("\nloading...")
 	if err = wbe.wallet.Unlock(password); err != nil {
 		return
 	}
@@ -123,7 +139,7 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(wbe.wallet.Meta.DisplayName, "successfully opened with ", ne, "accounts")
+	fmt.Println(wbe.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
 	wbe.gRPCClient = newGRPCClient(grpcServer, secureConnection)
 	if err = wbe.gRPCClient.Connect(); err != nil {
 		// failed to connect to grpc server
@@ -156,7 +172,7 @@ func (w *WalletBackend) NewWallet() bool {
 		fmt.Println(err)
 		return false
 	}
-	err = w.wallet.SaveWalletAs(w.workingDirectory + "/newWallet")
+	err = w.wallet.SaveWalletAs(w.workingDirectory + "/my_wallet")
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -192,6 +208,10 @@ func NewWalletBackend(walletName string, grpcServer string, secureConnection boo
 	}
 	wbe.open = true
 	return &wbe, nil
+}
+
+func (w *WalletBackend) CloseWallet() {
+	w.wallet = nil
 }
 
 // CurrentAccount - get the latest account into cli-wallet format
