@@ -105,7 +105,7 @@ func coinAmount(val uint64) string {
 	}
 }
 
-// print account info from global state
+// printAccountInfo prints current account data from global state
 func (r *repl) printAccountInfo() {
 	acc, err := r.getCurrent()
 	if err != nil {
@@ -142,23 +142,7 @@ func (r *repl) printAccountInfo() {
 	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
 }
 
-// printAccountRewards prints all rewards awarded to an account
-func (r *repl) printRewards(address gosmtypes.Address) {
-	// todo: request offset and total from user
-	rewards, total, err := r.client.AccountRewards(address, 0, 10000)
-	if err != nil {
-		log.Error("failed to list transactions: %v", err)
-		return
-	}
-
-	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
-	for _, r := range rewards {
-		printReward(r)
-		fmt.Println(printPrefix, "-----")
-	}
-}
-
-// printAccountRewards prints all rewards awarded to an account
+// printAccountRewards prints all rewards awarded to the current account
 func (r *repl) printLocalAccountRewards() {
 	acc, err := r.getCurrent()
 	if err != nil {
@@ -166,14 +150,6 @@ func (r *repl) printLocalAccountRewards() {
 		return
 	}
 	r.printRewards(acc.Address())
-}
-
-// printAccountRewards prints all rewards awarded to an account
-func (r *repl) printAnyAccountRewards() {
-	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
-
-	r.printRewards(addr)
 }
 
 func printReward(r *apitypes.Reward) {
@@ -214,7 +190,7 @@ func (r *repl) sign() {
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }
 
-func (r *repl) textsign() {
+func (r *repl) signText() {
 	acc, err := r.getCurrent()
 	if err != nil {
 		log.Error("failed to get account", err)

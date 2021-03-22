@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/go-spacemesh/common/util"
 )
@@ -16,9 +18,9 @@ func (r *repl) printSmesherRewards() {
 	smesherId := util.FromHex(smesherIdStr)
 
 	// todo: request offset and total from user
-	rewards, total, err := r.client.SmesherRewards(smesherId, 0, 10000)
+	rewards, total, err := r.client.SmesherRewards(smesherId, 0, 0)
 	if err != nil {
-		log.Error("failed to list transactions: %v", err)
+		log.Error("failed to get rewards: %v", err)
 		return
 	}
 
@@ -82,18 +84,14 @@ func (r *repl) stopSmeshing() {
 }
 
 func (r *repl) printPostStatus() {
-
+	fmt.Println(printPrefix, "Not yet implemented :-(")
 }
 
 func (r *repl) printPostProviders() {
-
+	fmt.Println(printPrefix, "Not yet implemented :-(")
 }
 
 func (r *repl) printSmeshingStatus() {
-
-}
-
-func (r *repl) printIsSmeshing() {
 	isSmeshing, err := r.client.IsSmeshing()
 
 	if err != nil {
@@ -102,17 +100,38 @@ func (r *repl) printIsSmeshing() {
 	}
 
 	if isSmeshing {
-		fmt.Println(printPrefix, "Smeshing is on")
+		fmt.Println(printPrefix, "Smeshing is enabled")
 	} else {
-		fmt.Println(printPrefix, "Smeshing is off")
+		fmt.Println(printPrefix, "Smeshing is disabled")
 	}
 }
 
-func (r *repl) printCoinbase() {
-	if resp, err := r.client.GetCoinbase(); err != nil {
+func (r *repl) printRewardsAddress() {
+	if resp, err := r.client.GetRewardsAddress(); err != nil {
 		log.Error("failed to get rewards address: %v", err)
 	} else {
 		fmt.Println(printPrefix, "Rewards address is:", resp.String())
+	}
+}
+
+// setRewardsAddress sets the smesher's reward address to a user provider address
+func (r *repl) setRewardsAddress() {
+
+	addrStr := inputNotBlank(enterAddressMsg)
+	addr := gosmtypes.HexToAddress(addrStr)
+
+	resp, err := r.client.SetRewardsAddress(addr)
+
+	if err != nil {
+		log.Error("failed to set rewards address: %v", err)
+		return
+	}
+
+	if resp.Code == 0 {
+		fmt.Println(printPrefix, "Rewards address set to:", addr.String())
+	} else {
+		// todo: what are possible non-zero status codes here?
+		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", resp.Code))
 	}
 }
 
@@ -124,24 +143,26 @@ func (r *repl) printSmesherId() {
 	}
 }
 
-func (r *repl) setCoinbase() {
-	acc, err := r.getCurrent()
-	if err != nil {
-		log.Error("failed to get account", err)
-		return
-	}
+// printSmesherRewards prints all rewards awarded to a smesher identified by an id
+func (r *repl) printCurrentSmesherRewards() {
 
-	resp, err := r.client.SetCoinbase(acc.Address())
-
-	if err != nil {
-		log.Error("failed to set rewards address: %v", err)
-		return
-	}
-
-	if resp.Code == 0 {
-		fmt.Println(printPrefix, "Rewards address set to:", acc.Address().String())
+	if smesherId, err := r.client.GetSmesherId(); err != nil {
+		log.Error("failed to get smesher id: %v", err)
 	} else {
-		// todo: what are possible non-zero status codes here?
-		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", resp.Code))
+
+		fmt.Println(printPrefix, "Smesher id:", "0x"+hex.EncodeToString(smesherId))
+
+		// todo: request offset and total from user
+		rewards, total, err := r.client.SmesherRewards(smesherId, 0, 10000)
+		if err != nil {
+			log.Error("failed to get rewards: %v", err)
+			return
+		}
+
+		fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
+		for _, r := range rewards {
+			printReward(r)
+			fmt.Println(printPrefix, "-----")
+		}
 	}
 }

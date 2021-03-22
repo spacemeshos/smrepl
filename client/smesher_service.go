@@ -90,7 +90,7 @@ func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
 }
 
 // SetCoinbase sets the smesher's coinbase address
-func (c *gRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, error) {
+func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Status, error) {
 	s := c.getSmesherServiceClient()
 
 	resp, err := s.SetCoinbase(context.Background(), &apitypes.SetCoinbaseRequest{Id: &apitypes.AccountId{Address: address.Bytes()}})
@@ -104,7 +104,7 @@ func (c *gRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, err
 }
 
 // GetCoinbase get the smesher's current rewards address
-func (c *gRPCClient) GetCoinbase() (*gosmtypes.Address, error) {
+func (c *gRPCClient) GetRewardsAddress() (*gosmtypes.Address, error) {
 	s := c.getSmesherServiceClient()
 
 	resp, err := s.Coinbase(context.Background(), &empty.Empty{})

@@ -2,10 +2,10 @@ package repl
 
 const (
 	initialTransferMsg         = "Transfer coins from local account to another account."
-	destAddressMsg             = "Enter or paste destination address: "
-	enterAddressMsg            = "Enter or paste an address: "
-	txIdMsg                    = "Enter or paste transaction id: "
-	smesherIdMsg               = "Enter or paste a Smesher id: "
+	destAddressMsg             = "Enter destination address: "
+	enterAddressMsg            = "Enter an address: "
+	txIdMsg                    = "Enter transaction id: "
+	smesherIdMsg               = "Enter Smesher id: "
 	amountToTransferMsg        = "Enter amount to transfer in Smidge: "
 	confirmTransactionMsg      = "Confirm transaction (y/n): "
 	confirmDeleteDataMsg       = "Delete smeshing smeshing data files (y/n)"

@@ -74,8 +74,8 @@ type Client interface {
 	IsSmeshing() (bool, error)
 	StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
-	GetCoinbase() (*gosmtypes.Address, error)
-	SetCoinbase(coinbase gosmtypes.Address) (*status.Status, error)
+	GetRewardsAddress() (*gosmtypes.Address, error)
+	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
 
 	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)
@@ -89,62 +89,56 @@ type Client interface {
 }
 
 func (r *repl) initializeCommands() {
-	// transaction sstatus is duplicated to keep order when open
-	// account commands
 	accountCommands := []command{
-		{"open-wallet", "Open a wallet", r.openWallet},
-		{"create-wallet", "Create a wallet", r.createWallet},
-		// transactions
-
-		{"tx-status", "Display a transaction status", r.printTransactionStatus},
+		// wallets
+		{"wallet-open", "Open a wallet", r.openWallet},
+		{"wallet-create", "Create a wallet", r.createWallet},
 	}
 	if r.clientOpen {
 		accountCommands = []command{
-			// accounts
-			{"close-wallet", "Close current wallet", r.closeWallet},
-			{"wallet", "Display wallet info", r.walletInfo},
-			{"new", "Create a new account (key pair) and set as current", r.createAccount},
-			{"set", "Set one of the previously created accounts as current", r.chooseAccount},
-			{"info", "Display the current account info", r.printAccountInfo},
-			{"rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
-			{"sign", "Sign a hex message with the current account private key", r.sign},
-			{"text-sign", "Sign a text message with the current account private key", r.textsign},
+			// local wallet account commands
+			{"wallet-info", "Display wallet info", r.walletInfo},
+			{"wallet-close", "Close current wallet", r.closeWallet},
 
-			{"any-rewards", "Display all rewards for any account", r.printAnyAccountRewards},
-			{"send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
-			// transactions
-
-			{"tx-status", "Display a transaction status", r.printTransactionStatus},
-			{"txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+			{"account-new", "Create a new account (key pair) and set as current", r.createAccount},
+			{"account-set", "Set one of the previously created accounts as current", r.chooseAccount},
+			{"account-info", "Display the current account info", r.printAccountInfo},
+			{"account-rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
+			{"account-sign", "Sign a hex message with the current account private key", r.sign},
+			{"account-text-sign", "Sign a text message with the current account private key", r.signText},
+			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+			{"account-send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		}
 	}
 
-	// activations where this account is coinbase
 	otherCommands := []command{
 
-		// printing status and state of things
-		{"node", "Display node status", r.nodeInfo},
-		{"net", "Display network information", r.printMeshInfo},
-		{"global-state", "Display the most recent network global state", r.printGlobalState},
+		// Misc entities status
+		{"node-status", "Display node status", r.nodeInfo},
+		{"ne-statust", "Display network information", r.printMeshInfo},
+		{"tx-status", "Display a transaction status", r.printTransactionStatus},
 
-		// smeshing - rewards ops
-		{"print-rewards-account", "Display the currently set smesher's rewards account", r.printCoinbase},
-		{"update-rewards-account", "Set current account as the node smesher's rewards account", r.setCoinbase},
-		{"smesher-rewards", "Display rewards for a smesher", r.printSmesherRewards},
+		// global state
+		{"state-account", "Display an account balance and nonce", r.printAccountState},
+		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
+		{"state-smesher-rewards", "Display rewards for a smesher", r.printSmesherRewards},
+		{"state-global", "Display the most recent network global state", r.printGlobalState},
 
 		// smeshing - smesher ops
-		{"smesher-id", "Display the smesher's current smesher id", r.printSmesherId},
-		{"start-smeshing", "Start smeshing using the current account as the rewards account", r.startSmeshing},
-		{"stop-smeshing", "Stop smeshing", r.stopSmeshing},
+		{"smesher-id", "Display current smesher id", r.printSmesherId},
+		{"smesher-rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
+		{"smesher-set-rewards-address", "Set the smesher rewards address to an account", r.setRewardsAddress},
 
-		{"is-smeshing", "Display the proof of space status", r.printIsSmeshing},
-		{"smeshing-status", "Display smeshing status", r.printSmeshingStatus},
+		{"smesher-rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
+		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
+		{"smesher-status", "Display smesher status", r.printSmeshingStatus},
+		{"smesher-post-status", "Display the proof of space status", r.printPostStatus},
+		{"smesher-post-providers", "Display the available proof of space providers", r.printPostProviders},
 
-		{"post-status", "Display the proof of space status", r.printPostStatus},
-		{"post-providers", "Display the available proof of space providers", r.printPostProviders},
+		{"smesher-start", "Start smeshing using the current account as the rewards account", r.startSmeshing},
 
 		// debug commands
-		{"dbg-all-accounts", "Display all mesh accounts", r.printAllAccounts},
+		{"dbg-all-accounts", "Display all global state accounts", r.printAllAccounts},
 
 		{"quit", "Quit the CLI", r.quit},
 	}

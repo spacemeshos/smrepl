@@ -7,10 +7,9 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
+// GlobalStateHash returns the current global state hash
 func (c *gRPCClient) GlobalStateHash() (*apitypes.GlobalStateHash, error) {
-
 	gsc := c.getGlobalStateServiceClient()
-
 	if resp, err := gsc.GlobalStateHash(context.Background(), &apitypes.GlobalStateHashRequest{}); err != nil {
 		return nil, err
 	} else {
@@ -48,6 +47,7 @@ func (c *gRPCClient) SmesherRewards(smesherId []byte, offset uint32, maxResults 
 	return resp.Rewards, resp.TotalResults, nil
 }
 
+// AccountRewards returns rewards for an account
 func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
 	gsc := c.getGlobalStateServiceClient()
 
@@ -57,8 +57,8 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 			AccountDataFlags: uint32(apitypes.AccountDataFlag_ACCOUNT_DATA_FLAG_REWARD),
 		},
 
-		MaxResults: 0,
-		Offset:     0,
+		MaxResults: maxResults,
+		Offset:     offset,
 	})
 
 	if err != nil {
@@ -69,7 +69,6 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 
 	for _, data := range resp.AccountItem {
 		r := data.GetReward()
-		// todo: add warning, each result should be a reward
 		if r != nil {
 			rewards = append(rewards, r)
 		}
@@ -78,6 +77,7 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 	return rewards, resp.TotalResults, nil
 }
 
+// AccountTransactionsReceipts returns transaction receipts for an account
 func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error) {
 	gsc := c.getGlobalStateServiceClient()
 
@@ -87,8 +87,8 @@ func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offs
 			AccountDataFlags: uint32(apitypes.AccountDataFlag_ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT),
 		},
 
-		MaxResults: 0,
-		Offset:     0,
+		MaxResults: maxResults,
+		Offset:     offset,
 	})
 
 	if err != nil {
