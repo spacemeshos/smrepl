@@ -15,6 +15,7 @@ func (r *repl) walletInfo() {
 	r.client.WalletInfo()
 }
 
+// openWallet opens a wallet from locally stored wallet data file
 func (r *repl) openWallet() {
 
 	r.clientOpen = r.client.OpenWallet()
@@ -26,6 +27,7 @@ func (r *repl) openWallet() {
 	r.initializeCommands()
 }
 
+// createWallet creates a new wallet
 func (r *repl) createWallet() {
 	r.clientOpen = r.client.NewWallet()
 	if !r.clientOpen {
@@ -36,12 +38,14 @@ func (r *repl) createWallet() {
 	r.initializeCommands()
 }
 
+// closeWallet closes an open wallet
 func (r *repl) closeWallet() {
 	r.client.CloseWallet()
 	r.clientOpen = false
 	r.initializeCommands()
 }
 
+// chooseAccount sets the current account to one of the open wallet's accounts
 func (r *repl) chooseAccount() {
 	accs, err := r.client.ListAccounts()
 	if err != nil {
@@ -71,9 +75,9 @@ func (r *repl) chooseAccount() {
 		panic("wtf")
 	}
 	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, account.Address().String())
-
 }
 
+// createAccount creates a new account in the currently open wallet
 func (r *repl) createAccount() {
 	fmt.Println(printPrefix, "Create a new account")
 	alias := inputNotBlank(createAccountMsg)
@@ -93,8 +97,10 @@ func (r *repl) createAccount() {
 
 }
 
+// One smesh in base coin units
 const onesmh = 1000000000000
 
+// coinAmount formats an amount in base coin units to a display string
 func coinAmount(val uint64) string {
 	if val >= 1000000000000 {
 		return fmt.Sprintf("%d.%012d SMH", val/onesmh, val%onesmh)
@@ -105,7 +111,7 @@ func coinAmount(val uint64) string {
 	}
 }
 
-// printAccountInfo prints current account data from global state
+// printAccountInfo prints current wallet account info from global state
 func (r *repl) printAccountInfo() {
 	acc, err := r.getCurrent()
 	if err != nil {
@@ -152,6 +158,7 @@ func (r *repl) printLocalAccountRewards() {
 	r.printRewards(acc.Address())
 }
 
+// printReward prints a Reward
 func printReward(r *apitypes.Reward) {
 	fmt.Println(printPrefix, "Rewarded on layer:", r.Layer.Number)
 	//fmt.Println(printPrefix, "Rewarded for layer:", r.LayerComputed.Number)
@@ -162,6 +169,8 @@ func printReward(r *apitypes.Reward) {
 	fmt.Println(printPrefix, "Rewards account:", gosmtypes.BytesToAddress(r.Coinbase.Address).String())
 }
 
+// getCurrent returns the current open wallet's account. If there is no current account
+// then it prompts the user to choose one of the wallet's accounts.
 func (r *repl) getCurrent() (acc *common.LocalAccount, err error) {
 	acc, err = r.client.CurrentAccount()
 	if err != nil {
@@ -171,6 +180,7 @@ func (r *repl) getCurrent() (acc *common.LocalAccount, err error) {
 	return
 }
 
+// sign signs a hex string with the current account
 func (r *repl) sign() {
 	acc, err := r.getCurrent()
 	if err != nil {
@@ -190,6 +200,7 @@ func (r *repl) sign() {
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }
 
+// signText signs a string with the current account
 func (r *repl) signText() {
 	acc, err := r.getCurrent()
 	if err != nil {

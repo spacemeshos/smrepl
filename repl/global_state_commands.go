@@ -72,5 +72,4 @@ func (r *repl) printAccountState() {
 	fmt.Println(printPrefix, "Projected Balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
 	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
 	fmt.Println(printPrefix, "Projected state includes all pending transactions that haven't been added to the mesh yet.")
-
 }
