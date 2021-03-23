@@ -99,7 +99,6 @@ func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offs
 
 	for _, data := range resp.AccountItem {
 		r := data.GetReceipt()
-		// todo: add warning, each result should be a reward
 		if r != nil {
 			receipts = append(receipts, r)
 		}

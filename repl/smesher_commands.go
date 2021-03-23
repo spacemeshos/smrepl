@@ -47,7 +47,7 @@ func (r *repl) startSmeshing() {
 		return
 	}
 
-	resp, err := r.client.StartSmeshing(addr.Address(), dataDir, uint64(dataSizeGB<<20))
+	resp, err := r.client.StartSmeshing(addr.Address(), dataDir, dataSizeGB<<20)
 
 	if err != nil {
 		log.Error("failed to start smeshing: %v", err)
@@ -130,7 +130,7 @@ func (r *repl) setRewardsAddress() {
 	if resp.Code == 0 {
 		fmt.Println(printPrefix, "Rewards address set to:", addr.String())
 	} else {
-		// todo: what are possible non-zero status codes here?
+		// todo: what are the possible non-zero status codes here?
 		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", resp.Code))
 	}
 }

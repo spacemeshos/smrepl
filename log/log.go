@@ -51,11 +51,6 @@ func getBackendLevel(module, prefix, format string) logging.LeveledBackend {
 	return leveledBackend
 }
 
-// DebugMode sets log debug level
-func DebugMode(mode bool) {
-	debugMode = mode
-}
-
 // New creates a logger for a module. e.g. p2p instance logger.
 func New(module string, dataFolderPath string, logFileName string) Log {
 	log := logging.MustGetLogger(module)
@@ -95,8 +90,8 @@ func getBackendLevelWithFileBackend(module, prefix, logFormat, fileFormat, dataF
 	return leveledBackends
 }
 
-// InitSpacemeshLoggingSystem initializes app logging system.
-func InitSpacemeshLoggingSystem(dataFolderPath string, logFileName string) {
+// initSpacemeshLoggingSystem initializes app logging system.
+func initSpacemeshLoggingSystem(dataFolderPath string, logFileName string) {
 	log := logging.MustGetLogger("app")
 
 	// we wrap all log calls so we need to add 1 to call depth

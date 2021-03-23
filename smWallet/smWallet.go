@@ -17,14 +17,12 @@ import (
 
 const (
 	spaceSalt = "Spacemesh blockmesh"
-	// ErrorNoFileName thrown if saving an unnamed wallet
-	ErrorNoFileName = "No filename. Please use \"Save As\"."
-	// ErrorWalletNotUnlocked thrown if attemt is made to access crypto data without unlocking
-	ErrorWalletNotUnlocked = "Wallet has not been unlocked."
-	// ErrorWalletDoesNotHaveThatAddress if attempting to access an account that has not been generated
-	ErrorWalletDoesNotHaveThatAddress = "You are attempting to access an account that has not been generated."
-	// ErrorWalletDoesNotHavePassword This wallet does not have a password.
-	ErrorWalletDoesNotHavePassword = "Invalid State. This wallet does not have a password."
+	// errorNoFileName thrown if saving an unnamed wallet
+	errorNoFileName = "no filename. Please use \"Save As\""
+	// errorWalletNotUnlocked thrown if attempt is made to access crypto data without unlocking
+	errorWalletNotUnlocked = "wallet has not been unlocked"
+	// errorWalletDoesNotHaveThatAddress if attempting to access an account that has not been generated
+	errorWalletDoesNotHaveThatAddress = "you are attempting to access an account that has not been generated"
 )
 
 type account struct {
@@ -45,7 +43,7 @@ func (a *account) PrivateKey() (pub ed25519.PrivateKey, err error) {
 
 func (w *Wallet) CurrentAccount() (*account, error) {
 	if !w.unlocked {
-		return nil, errors.New(ErrorWalletNotUnlocked)
+		return nil, errors.New(errorWalletNotUnlocked)
 	}
 	return &w.Crypto.confidential.Accounts[w.Crypto.confidential.accountNumber], nil
 }
@@ -109,7 +107,12 @@ func NewWallet(walletName, password string) (w *Wallet, err error) {
 		return nil, err
 	}
 	wx.Crypto.confidential.Contacts = []contact{}
-	wx.reCrypt()
+
+	err = wx.reCrypt()
+	if err != nil {
+		return nil, err
+	}
+
 	return wx, nil
 }
 
@@ -140,7 +143,7 @@ func (w *Wallet) SaveWalletAs(keystorePrefix string) (err error) {
 // SaveWallet saves a file only if it already has a filename
 func (w *Wallet) SaveWallet() (err error) {
 	if len(w.keystore) == 0 {
-		return errors.New(ErrorNoFileName)
+		return errors.New(errorNoFileName)
 	}
 	f, err := os.Create(w.keystore)
 	if err != nil {
@@ -182,7 +185,7 @@ func interfaceToBytes(i interface{}) ([]byte, error) {
 // SignedTransaction turns a transaction into a signed transaction :-)
 func (w *Wallet) SignedTransaction(t *types.Transaction) ([]byte, error) {
 	if !w.unlocked {
-		return []byte{}, errors.New(ErrorWalletNotUnlocked)
+		return []byte{}, errors.New(errorWalletNotUnlocked)
 	}
 	acc, _ := w.CurrentAccount()
 	key, _ := acc.PrivateKey()

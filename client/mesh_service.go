@@ -32,7 +32,6 @@ func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 
 	for _, data := range resp.Data {
 		tx := data.GetTransaction()
-		// todo: add warning, each result should be a transaction
 		if tx != nil {
 			if !txsMap[string(tx.Id.Id)] {
 				txsMap[string(tx.Id.Id)] = true
@@ -69,7 +68,6 @@ func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32
 
 	for _, data := range resp.Data {
 		a := data.GetActivation()
-		// todo: add warning, each result should be a transaction
 		if a != nil {
 			activations = append(activations, a)
 		}

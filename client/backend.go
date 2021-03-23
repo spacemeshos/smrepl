@@ -13,14 +13,12 @@ import (
 	xdr "github.com/davecgh/go-xdr/xdr2"
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
-	smWallet "github.com/spacemeshos/CLIWallet/smWallet"
+	"github.com/spacemeshos/CLIWallet/smWallet"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"golang.org/x/crypto/ssh/terminal"
 )
-
-const accountsFileName = "accounts.json"
 
 // WalletBackend wallet holder
 type WalletBackend struct {
@@ -66,7 +64,7 @@ func getClearString(prompt string) string {
 
 	// convert CRLF to LF
 	text = strings.Replace(text, "\n", "", -1)
-	return strings.TrimSpace(string(text))
+	return strings.TrimSpace(text)
 }
 
 func getPassword() (string, error) {
@@ -180,34 +178,6 @@ func (w *WalletBackend) NewWallet() bool {
 	fmt.Println("Wallet created")
 	w.open = true
 	return true
-}
-
-// NewWalletBackend set up a wallet -
-func NewWalletBackend(walletName string, grpcServer string, secureConnection bool) (wbx *WalletBackend, err error) {
-	var wbe WalletBackend
-	wbx = nil
-	password, err := getPassword()
-	if err != nil {
-		return
-	}
-	fmt.Println("ok")
-	if wbe.wallet, err = smWallet.NewWallet(walletName, password); err != nil {
-		fmt.Println("failur to create wallet", err)
-		return
-	}
-	if err = wbe.wallet.SaveWalletAs("myWallet_"); err != nil {
-
-	}
-
-	fmt.Println(wbe.wallet.Meta.DisplayName, "successfully created")
-	wbe.gRPCClient = newGRPCClient(grpcServer, secureConnection)
-	if err = wbe.gRPCClient.Connect(); err != nil {
-		// failed to connect to grpc server
-		log.Error("failed to connect to the grpc server: %s", err)
-		return
-	}
-	wbe.open = true
-	return &wbe, nil
 }
 
 func (w *WalletBackend) CloseWallet() {

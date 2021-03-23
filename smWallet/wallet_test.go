@@ -182,7 +182,7 @@ func TestRollOurOwn(t *testing.T) {
 	if false {
 		mnemonic = mnemonic1
 	}
-	password := []byte{} // []byte("<<password>>")
+	var password []byte // []byte("<<password>>")
 	seed := mnemonicToSeedSync(mnemonic, password)
 	t.Log(seed)
 	fmt.Printf("0x%x\n", seed)
