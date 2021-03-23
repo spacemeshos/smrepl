@@ -115,7 +115,7 @@ func (r *repl) initializeCommands() {
 
 		// Misc entities status
 		{"node-status", "Display node status", r.nodeInfo},
-		{"ne-statust", "Display network information", r.printMeshInfo},
+		{"ne-status", "Display network information", r.printMeshInfo},
 		{"tx-status", "Display a transaction status", r.printTransactionStatus},
 
 		// global state
