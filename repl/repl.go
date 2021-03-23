@@ -114,9 +114,9 @@ func (r *repl) initializeCommands() {
 	otherCommands := []command{
 
 		// Misc entities status
-		{"node-status", "Display node status", r.nodeInfo},
-		{"net-status", "Display network information", r.printMeshInfo},
-		{"tx-status", "Display a transaction status", r.printTransactionStatus},
+		{"status-node", "Display node status", r.nodeInfo},
+		{"status-net", "Display network information", r.printMeshInfo},
+		{"status-tx", "Display a transaction status", r.printTransactionStatus},
 
 		// global state
 		{"state-account", "Display an account balance and nonce", r.printAccountState},
@@ -126,8 +126,8 @@ func (r *repl) initializeCommands() {
 
 		// smeshing - smesher ops
 		{"smesher-id", "Display current smesher id", r.printSmesherId},
-		{"smesher-rewards-account", "Display current smesher rewards account", r.printRewardsAddress},
-		{"smesher-set-rewards-account", "Set the smesher's rewards account", r.setRewardsAddress},
+		{"smesher-rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
+		{"smesher-set-rewards-address", "Set the smesher's rewards address", r.setRewardsAddress},
 
 		{"smesher-rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
 		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
