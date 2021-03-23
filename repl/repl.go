@@ -126,8 +126,8 @@ func (r *repl) initializeCommands() {
 
 		// smeshing - smesher ops
 		{"smesher-id", "Display current smesher id", r.printSmesherId},
-		{"smesher-rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
-		{"smesher-set-rewards-address", "Set the smesher rewards address to an account", r.setRewardsAddress},
+		{"smesher-rewards-account", "Display current smesher rewards account", r.printRewardsAddress},
+		{"smesher-set-rewards-account", "Set the smesher's rewards account", r.setRewardsAddress},
 
 		{"smesher-rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
 		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
@@ -135,12 +135,12 @@ func (r *repl) initializeCommands() {
 		{"smesher-post-status", "Display the proof of space status", r.printPostStatus},
 		{"smesher-post-providers", "Display the available proof of space providers", r.printPostProviders},
 
-		{"smesher-start", "Start smeshing using the current account as the rewards account", r.startSmeshing},
+		{"smesher-start", "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
 
 		// debug commands
 		{"dbg-all-accounts", "Display all global state accounts", r.printAllAccounts},
 
-		{"quit", "Quit the CLI", r.quit},
+		{"quit", "Quit this app", r.quit},
 	}
 	r.commands = append(accountCommands, otherCommands...)
 }
