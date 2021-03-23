@@ -15,5 +15,4 @@ func (c *gRPCClient) DebugAllAccounts() ([]*apitypes.Account, error) {
 	}
 
 	return resp.AccountWrapper, nil
-
 }

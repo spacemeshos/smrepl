@@ -12,7 +12,6 @@ import (
 // GetMeshTransactions returns the transactions on the mesh to or from an address.
 func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error) {
 	ms := c.getMeshServiceClient()
-
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
 		Filter: &apitypes.AccountMeshDataFilter{
 			AccountId:            &apitypes.AccountId{Address: address.Bytes()},
@@ -77,7 +76,6 @@ func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32
 }
 
 func (c *gRPCClient) GetMeshInfo() (*common.NetInfo, error) {
-
 	netInfo := &common.NetInfo{}
 	ms := c.getMeshServiceClient()
 

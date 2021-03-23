@@ -11,9 +11,7 @@ import (
 	"github.com/tyler-smith/go-bip39"
 )
 
-/*
-PublicKey retrieves public key from private
-*/
+// PublicKey retrieves public key from private
 func PublicKey(key ed25519.PrivateKey) ed25519.PublicKey {
 	return key.Public().(ed25519.PublicKey)
 }

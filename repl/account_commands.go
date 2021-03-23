@@ -17,7 +17,6 @@ func (r *repl) walletInfo() {
 
 // openWallet opens a wallet from locally stored wallet data file
 func (r *repl) openWallet() {
-
 	r.clientOpen = r.client.OpenWallet()
 	if !r.clientOpen {
 		fmt.Println("Wallet NOT opened")
@@ -94,7 +93,6 @@ func (r *repl) createAccount() {
 	}
 
 	fmt.Printf("%s Created account: %s, address: %s \n", printPrefix, ac.Name, ac.Address().String())
-
 }
 
 // One smesh in base coin units
@@ -120,7 +118,6 @@ func (r *repl) printAccountInfo() {
 	}
 
 	address := gosmtypes.BytesToAddress(acc.PubKey)
-
 	state, err := r.client.AccountState(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
@@ -194,9 +191,7 @@ func (r *repl) sign() {
 		log.Error("failed to decode msg hex string: %v", err)
 		return
 	}
-
 	signature := ed25519.Sign2(acc.PrivKey, msg)
-
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }
 
@@ -207,9 +202,7 @@ func (r *repl) signText() {
 		log.Error("failed to get account", err)
 		return
 	}
-
 	msg := inputNotBlank(msgTextSignMsg)
 	signature := ed25519.Sign2(acc.PrivKey, []byte(msg))
-
 	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
 }

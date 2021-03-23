@@ -64,9 +64,7 @@ func (r *repl) startSmeshing() {
 }
 
 func (r *repl) stopSmeshing() {
-
 	deleteData := yesOrNoQuestion(confirmDeleteDataMsg) == "y"
-
 	resp, err := r.client.StopSmeshing(deleteData)
 
 	if err != nil {
@@ -116,7 +114,6 @@ func (r *repl) printRewardsAddress() {
 
 // setRewardsAddress sets the smesher's reward address to a user provider address
 func (r *repl) setRewardsAddress() {
-
 	addrStr := inputNotBlank(enterAddressMsg)
 	addr := gosmtypes.HexToAddress(addrStr)
 
@@ -145,7 +142,6 @@ func (r *repl) printSmesherId() {
 
 // printSmesherRewards prints all rewards awarded to a smesher identified by an id
 func (r *repl) printCurrentSmesherRewards() {
-
 	if smesherId, err := r.client.GetSmesherId(); err != nil {
 		log.Error("failed to get smesher id: %v", err)
 	} else {

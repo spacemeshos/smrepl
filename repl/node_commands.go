@@ -7,7 +7,6 @@ import (
 )
 
 func (r *repl) nodeInfo() {
-
 	info, err := r.client.NodeInfo()
 	if err != nil {
 		log.Error("failed to get node info: %v", err)
@@ -29,5 +28,4 @@ func (r *repl) nodeInfo() {
 	fmt.Println(printPrefix, "Current layer:", status.TopLayer.Number)
 	fmt.Println(printPrefix, "Verified layer:", status.VerifiedLayer.Number)
 	fmt.Println(printPrefix, "Peers:", status.ConnectedPeers)
-
 }

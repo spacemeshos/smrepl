@@ -24,10 +24,8 @@ import (
 type WalletBackend struct {
 	*gRPCClient      // Embedded interface
 	workingDirectory string
-
-	wallet *smWallet.Wallet
-	open   bool
-	//currentAccount   *common.LocalAccount
+	wallet           *smWallet.Wallet
+	open             bool
 }
 
 func (w *WalletBackend) IsOpen() bool {
@@ -90,7 +88,7 @@ func accounts(num int) string {
 	return fmt.Sprintf("%d accounts", num)
 }
 
-// OpenWallet - happy?
+// OpenWallet opens a wallet from file
 func (w *WalletBackend) OpenWallet() bool {
 	fmt.Println("Press on TAB to select wallet file")
 	walletToOpen := w.getWallet()
@@ -118,7 +116,7 @@ func (w *WalletBackend) OpenWallet() bool {
 	return true
 }
 
-// OpenWalletBackend  open an existing wallet
+// OpenWalletBackend opens an existing wallet
 func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) (wbx *WalletBackend, err error) {
 	var wbe WalletBackend
 	wbx = nil
@@ -285,5 +283,4 @@ func (w *WalletBackend) ListAccounts() (res []string, err error) {
 	}
 
 	return res, nil
-
 }

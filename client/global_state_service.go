@@ -20,7 +20,6 @@ func (c *gRPCClient) GlobalStateHash() (*apitypes.GlobalStateHash, error) {
 // AccountInfo returns basic account data such as balance and nonce from the global state
 func (c *gRPCClient) AccountState(address gosmtypes.Address) (*apitypes.Account, error) {
 	gsc := c.getGlobalStateServiceClient()
-
 	resp, err := gsc.Account(context.Background(), &apitypes.AccountRequest{
 		AccountId: &apitypes.AccountId{Address: address.Bytes()}})
 	if err != nil {
@@ -33,7 +32,6 @@ func (c *gRPCClient) AccountState(address gosmtypes.Address) (*apitypes.Account,
 // SmesherRewards returns rewards for a smesher identified by a smesher id
 func (c *gRPCClient) SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
 	gsc := c.getGlobalStateServiceClient()
-
 	resp, err := gsc.SmesherDataQuery(context.Background(), &apitypes.SmesherDataQueryRequest{
 		SmesherId:  &apitypes.SmesherId{Id: smesherId},
 		MaxResults: maxResults,
@@ -50,7 +48,6 @@ func (c *gRPCClient) SmesherRewards(smesherId []byte, offset uint32, maxResults 
 // AccountRewards returns rewards for an account
 func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error) {
 	gsc := c.getGlobalStateServiceClient()
-
 	resp, err := gsc.AccountDataQuery(context.Background(), &apitypes.AccountDataQueryRequest{
 		Filter: &apitypes.AccountDataFilter{
 			AccountId:        &apitypes.AccountId{Address: address.Bytes()},
@@ -105,5 +102,4 @@ func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offs
 	}
 
 	return receipts, resp.TotalResults, nil
-
 }

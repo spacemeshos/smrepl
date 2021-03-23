@@ -3,7 +3,6 @@
 package log
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -127,13 +126,4 @@ func Error(format string, args ...interface{}) {
 // Warning prints formatted warning level log message.
 func Warning(format string, args ...interface{}) {
 	AppLog.Warning(format, args...)
-}
-
-// PrettyID formats ID.
-func PrettyID(id string) string {
-	m := 6
-	if len(id) < m {
-		m = len(id)
-	}
-	return fmt.Sprintf("<ID %s>", id[:m])
 }

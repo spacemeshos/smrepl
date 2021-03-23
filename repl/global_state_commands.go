@@ -35,7 +35,6 @@ func (r *repl) printAccountRewards() {
 
 // printGlobalState prints the current global state
 func (r *repl) printGlobalState() {
-
 	resp, err := r.client.GlobalStateHash()
 	if err != nil {
 		log.Error("failed to get global state: %v", err)

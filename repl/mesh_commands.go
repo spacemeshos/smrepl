@@ -8,7 +8,6 @@ import (
 )
 
 func (r *repl) printMeshInfo() {
-
 	info, err := r.client.GetMeshInfo()
 	if err != nil {
 		log.Error("failed to get mesh info: %v", err)

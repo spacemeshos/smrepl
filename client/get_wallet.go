@@ -53,7 +53,6 @@ func walkMatchDir(root string) ([]string, error) {
 var thisDir string
 
 func completer(d prompt.Document) []prompt.Suggest {
-
 	parent := filepath.Dir(thisDir)
 	s := []prompt.Suggest{
 		{Text: parent, Description: "Parent Directory"},
