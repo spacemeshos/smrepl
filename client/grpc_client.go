@@ -64,7 +64,6 @@ func (c *gRPCClient) Connect() error {
 
 // used in secure dial (tls)
 func (c *gRPCClient) dial(address string) (*grpc.ClientConn, error) {
-
 	dialTime := 60 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), dialTime)
 	defer cancel()
@@ -95,6 +94,7 @@ func (c *gRPCClient) Close() error {
 	return nil
 }
 
+//ServerInfo
 func (c *gRPCClient) ServerInfo() string {
 	s := c.server + " (GRPC API 2.0)"
 	if c.secureConnection {

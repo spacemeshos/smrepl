@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/spacemeshos/go-spacemesh/log"
@@ -65,7 +66,6 @@ func NewPrivateKey(data []byte) (PrivateKey, error) {
 	if len(data) != 32 {
 		return nil, errors.New("expected 32 bytes input")
 	}
-
 	privk, _ := btcec.PrivKeyFromBytes(btcec.S256(), data)
 	return &privateKeyImpl{privk}, nil
 }

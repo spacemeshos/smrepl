@@ -8,7 +8,6 @@ import (
 )
 
 func (r *repl) printAllAccounts() {
-
 	accounts, err := r.client.DebugAllAccounts()
 	if err != nil {
 		log.Error("failed to get debug all accounts: %v", err)

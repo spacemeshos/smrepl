@@ -8,7 +8,6 @@ import (
 )
 
 func (r *repl) printMeshInfo() {
-
 	info, err := r.client.GetMeshInfo()
 	if err != nil {
 		log.Error("failed to get mesh info: %v", err)
@@ -17,12 +16,11 @@ func (r *repl) printMeshInfo() {
 
 	localGenesisTime := time.Unix(int64(info.GenesisTime), 0)
 
-	fmt.Println(printPrefix, "Network Id:", info.NetId)
+	fmt.Println(printPrefix, "Network id:", info.NetId)
 	fmt.Println(printPrefix, "Max transactions per second:", info.MaxTxsPerSec)
 	fmt.Println(printPrefix, "Layers per epoch:", info.LayerPerEpoch)
-
 	fmt.Println(printPrefix, fmt.Sprintf("Layer duration: %d seconds", info.LayerDuration))
-	fmt.Println(printPrefix, "Current layer number:", info.CurrentLayer)
-	fmt.Println(printPrefix, "Current epoch number:", info.CurrentEpoch)
+	fmt.Println(printPrefix, "Current layer:", info.CurrentLayer)
+	fmt.Println(printPrefix, "Current epoch:", info.CurrentEpoch)
 	fmt.Println(printPrefix, "Genesis time:", localGenesisTime.Local().String())
 }

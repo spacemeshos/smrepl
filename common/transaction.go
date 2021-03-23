@@ -1,6 +1,6 @@
 package common
 
-import types "github.com/spacemeshos/go-spacemesh/common/types"
+import "github.com/spacemeshos/go-spacemesh/common/types"
 
 // TODO rename to SerializableTransaction once we remove the old SerializableTransaction
 type InnerSerializableSignedTransaction struct {

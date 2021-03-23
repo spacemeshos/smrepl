@@ -11,5 +11,6 @@ func Sha256(data ...[]byte) []byte {
 	for _, b := range data {
 		d.Write(b)
 	}
+
 	return d.Sum(nil)
 }

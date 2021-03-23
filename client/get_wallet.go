@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	prompt "github.com/c-bata/go-prompt"
+	"github.com/c-bata/go-prompt"
 )
 
 func walkMatchX(root, pattern string, dirz bool) ([]string, error) {
@@ -53,7 +53,6 @@ func walkMatchDir(root string) ([]string, error) {
 var thisDir string
 
 func completer(d prompt.Document) []prompt.Suggest {
-
 	parent := filepath.Dir(thisDir)
 	s := []prompt.Suggest{
 		{Text: parent, Description: "Parent Directory"},
@@ -97,24 +96,4 @@ func (w *WalletBackend) getWallet() string {
 		}
 		return t
 	}
-}
-
-func completer2(d prompt.Document) []prompt.Suggest {
-	s := []prompt.Suggest{
-		{Text: "new", Description: "Create a new wallet in current folder"},
-		{Text: "open", Description: "Open an existing wallet"},
-	}
-
-	p := prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
-	return p
-}
-
-func newOrOld() (mode string) {
-	for {
-		mode = prompt.Input("(create) new or open (existing wallet) ? >", completer2)
-		if (mode == "new") || (mode == "open") {
-			return
-		}
-	}
-
 }

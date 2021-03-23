@@ -8,7 +8,6 @@ import (
 
 // SubmitCoinTransaction submits a signed binary transaction to the node.
 func (c *gRPCClient) SubmitCoinTransaction(tx []byte) (*apitypes.TransactionState, error) {
-
 	s := c.getTransactionServiceClient()
 	resp, err := s.SubmitTransaction(context.Background(), &apitypes.SubmitTransactionRequest{Transaction: tx})
 	if err != nil {
@@ -32,6 +31,5 @@ func (c *gRPCClient) TransactionState(txId []byte, includeTx bool) (*apitypes.Tr
 	if err != nil {
 		return nil, nil, err
 	}
-
 	return resp.TransactionsState[0], resp.Transactions[0], nil
 }

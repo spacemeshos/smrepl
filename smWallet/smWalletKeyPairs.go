@@ -11,23 +11,14 @@ import (
 	"github.com/tyler-smith/go-bip39"
 )
 
-/*
-PublicKey retrives public key from private
-*/
+// PublicKey retrieves public key from private
 func PublicKey(key ed25519.PrivateKey) ed25519.PublicKey {
 	return key.Public().(ed25519.PublicKey)
 }
 
-/*
-Address retrives Address key form private
-*/
-func Address(key ed25519.PrivateKey) types.Address {
-	return types.BytesToAddress(key.Public().(ed25519.PublicKey))
-}
-
 func (w *Wallet) newAccount(displayName string) (*account, error) {
 	if !w.unlocked {
-		return nil, errors.New(ErrorWalletNotUnlocked)
+		return nil, errors.New(errorWalletNotUnlocked)
 	}
 	seed := bip39.NewSeed(w.Crypto.confidential.Mnemonic, "")
 	i := uint64(0)
@@ -87,7 +78,7 @@ func (w *Wallet) verifyAccounts() (err error) {
 		sig := ed25519.Sign(secret, message)
 		ok := ed25519.Verify(public, message, sig)
 		if !ok {
-			return fmt.Errorf("Error verifying account %d", pos)
+			return fmt.Errorf("error verifying account %d", pos)
 		}
 	}
 	return nil

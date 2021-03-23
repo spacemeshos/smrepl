@@ -62,7 +62,6 @@ func (c *gRPCClient) CreatePostData(data *apitypes.PostData) (*status.Status, er
 // StartSmeshing instructs the node to start smeshing using user's provider params
 func (c *gRPCClient) StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error) {
 	s := c.getSmesherServiceClient()
-
 	resp, err := s.StartSmeshing(context.Background(), &apitypes.StartSmeshingRequest{
 		Coinbase:       &apitypes.AccountId{Address: address.Bytes()},
 		DataDir:        dataDir,
@@ -72,49 +71,36 @@ func (c *gRPCClient) StartSmeshing(address gosmtypes.Address, dataDir string, da
 	if err != nil {
 		return nil, err
 	}
-
 	return resp.Status, nil
 }
 
 // StopSmeshing instructs the node to stop smeshing and optionally delete smeshing data file(s)
 func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
 	s := c.getSmesherServiceClient()
-
 	resp, err := s.StopSmeshing(context.Background(), &apitypes.StopSmeshingRequest{DeleteFiles: deleteFiles})
-
 	if err != nil {
 		return nil, err
 	}
-
 	return resp.Status, nil
 }
 
 // SetCoinbase sets the smesher's coinbase address
-func (c *gRPCClient) SetCoinbase(address gosmtypes.Address) (*status.Status, error) {
+func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Status, error) {
 	s := c.getSmesherServiceClient()
-
 	resp, err := s.SetCoinbase(context.Background(), &apitypes.SetCoinbaseRequest{Id: &apitypes.AccountId{Address: address.Bytes()}})
-
 	if err != nil {
 		return nil, err
 	}
-
 	return resp.Status, nil
-
 }
 
 // GetCoinbase get the smesher's current rewards address
-func (c *gRPCClient) GetCoinbase() (*gosmtypes.Address, error) {
+func (c *gRPCClient) GetRewardsAddress() (*gosmtypes.Address, error) {
 	s := c.getSmesherServiceClient()
-
 	resp, err := s.Coinbase(context.Background(), &empty.Empty{})
-
 	if err != nil {
 		return nil, err
 	}
-
 	addr := gosmtypes.BytesToAddress(resp.AccountId.Address)
-
 	return &addr, nil
-
 }
