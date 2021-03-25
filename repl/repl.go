@@ -83,6 +83,7 @@ type Client interface {
 	// global state service
 	AccountState(address gosmtypes.Address) (*apitypes.Account, error)
 	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
+	AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error)
 	AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error)
 	GlobalStateHash() (*apitypes.GlobalStateHash, error)
 	SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
@@ -121,7 +122,9 @@ func (r *repl) initializeCommands() {
 		// global state
 		{"state-account", "Display an account balance and nonce", r.printAccountState},
 		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
-		{"state-smesher-rewards", "Display rewards for a smesher", r.printSmesherRewards},
+		{"state-stream-rewards", "Stream new rewards to an account", r.printAccountRewardsStream},
+
+		{"state-smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
 		{"state-global", "Display the most recent network global state", r.printGlobalState},
 
 		// smeshing - smesher ops

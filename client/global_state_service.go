@@ -74,6 +74,17 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 	return rewards, resp.TotalResults, nil
 }
 
+func (c *gRPCClient) AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error) {
+	gsc := c.getGlobalStateServiceClient()
+	return gsc.AccountDataStream(context.Background(), &apitypes.AccountDataStreamRequest{
+		Filter: &apitypes.AccountDataFilter{
+			AccountId: &apitypes.AccountId{
+				Address: address.Bytes()},
+			AccountDataFlags: uint32(apitypes.AccountDataFlag_ACCOUNT_DATA_FLAG_REWARD),
+		},
+	})
+}
+
 // AccountTransactionsReceipts returns transaction receipts for an account
 func (c *gRPCClient) AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error) {
 	gsc := c.getGlobalStateServiceClient()

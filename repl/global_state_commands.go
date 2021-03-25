@@ -3,6 +3,7 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
+	"io"
 
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"github.com/spacemeshos/go-spacemesh/common/util"
@@ -31,6 +32,36 @@ func (r *repl) printAccountRewards() {
 	addrStr := inputNotBlank(enterAddressMsg)
 	addr := gosmtypes.HexToAddress(addrStr)
 	r.printRewards(addr)
+}
+
+func (r *repl) printAccountRewardsStream() {
+	addrStr := inputNotBlank(enterAddressMsg)
+	addr := gosmtypes.HexToAddress(addrStr)
+	streamClient, err := r.client.AccountRewardsStream(addr)
+	if err != nil {
+		log.Error("failed to get rewards stream for account: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, "Listening to new rewards for address: ", addr.String())
+
+	done := make(chan bool)
+	go func() {
+		for {
+			resp, err := streamClient.Recv()
+			if err == io.EOF {
+				// server closed the stream
+				log.Info("api server closed the server-side stream")
+				done <- true
+			} else if err != nil {
+				log.Error("error reading from rewards stream: %v", err)
+				done <- true
+			}
+
+			reward := resp.GetDatum().GetReward()
+			printReward(reward)
+		}
+	}()
 }
 
 // printGlobalState prints the current global state
