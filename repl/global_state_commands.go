@@ -34,6 +34,7 @@ func (r *repl) printAccountRewards() {
 	r.printRewards(addr)
 }
 
+// printAccountRewardsStream prints new rewards awarded to an account
 func (r *repl) printAccountRewardsStream() {
 	addrStr := inputNotBlank(enterAddressMsg)
 	addr := gosmtypes.HexToAddress(addrStr)
@@ -64,6 +65,37 @@ func (r *repl) printAccountRewardsStream() {
 	}()
 }
 
+// printAccountRewardsStream prints new rewards awarded to an account
+func (r *repl) printAccountUpdatesStream() {
+	addrStr := inputNotBlank(enterAddressMsg)
+	address := gosmtypes.HexToAddress(addrStr)
+	streamClient, err := r.client.AccountRewardsStream(address)
+	if err != nil {
+		log.Error("failed to get updates stream for account: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, "Listening for new updates for address: ", address.String())
+
+	done := make(chan bool)
+	go func() {
+		for {
+			resp, err := streamClient.Recv()
+			if err == io.EOF {
+				// server closed the stream
+				log.Info("api server closed the server-side stream")
+				done <- true
+			} else if err != nil {
+				log.Error("error reading from stream: %v", err)
+				done <- true
+			}
+
+			account := resp.GetDatum().GetAccountWrapper()
+			printAccount(account, address)
+		}
+	}()
+}
+
 // printGlobalState prints the current global state
 func (r *repl) printGlobalState() {
 	resp, err := r.client.GlobalStateHash()
@@ -80,26 +112,11 @@ func (r *repl) printGlobalState() {
 func (r *repl) printAccountState() {
 	addressStr := inputNotBlank(enterAddressMsg)
 	address := gosmtypes.BytesToAddress(util.FromHex(addressStr))
-	state, err := r.client.AccountState(address)
+	account, err := r.client.AccountState(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
 	}
 
-	currBalance := uint64(0)
-	if state.StateCurrent.Balance != nil {
-		currBalance = state.StateCurrent.Balance.Value
-	}
-
-	projectedBalance := uint64(0)
-	if state.StateProjected.Balance != nil {
-		projectedBalance = state.StateProjected.Balance.Value
-	}
-
-	fmt.Println(printPrefix, "Address:", address.String())
-	fmt.Println(printPrefix, "Balance:", coinAmount(currBalance)) // currBalance, coinUnitName)
-	fmt.Println(printPrefix, "Nonce:", state.StateCurrent.Counter)
-	fmt.Println(printPrefix, "Projected Balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
-	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
-	fmt.Println(printPrefix, "Projected state includes all pending transactions that haven't been added to the mesh yet.")
+	printAccount(account, address)
 }

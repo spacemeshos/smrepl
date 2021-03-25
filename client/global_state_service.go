@@ -74,15 +74,26 @@ func (c *gRPCClient) AccountRewards(address gosmtypes.Address, offset uint32, ma
 	return rewards, resp.TotalResults, nil
 }
 
-func (c *gRPCClient) AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error) {
+// getAccountStream returns an AccountDataStreamClient
+func (c *gRPCClient) getAccountStream(address gosmtypes.Address, flag apitypes.AccountDataFlag) (apitypes.GlobalStateService_AccountDataStreamClient, error) {
 	gsc := c.getGlobalStateServiceClient()
 	return gsc.AccountDataStream(context.Background(), &apitypes.AccountDataStreamRequest{
 		Filter: &apitypes.AccountDataFilter{
 			AccountId: &apitypes.AccountId{
 				Address: address.Bytes()},
-			AccountDataFlags: uint32(apitypes.AccountDataFlag_ACCOUNT_DATA_FLAG_REWARD),
+			AccountDataFlags: uint32(flag),
 		},
 	})
+}
+
+// AccountRewardsStream returns a stream of account rewards
+func (c *gRPCClient) AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error) {
+	return c.getAccountStream(address, apitypes.AccountDataFlag_ACCOUNT_DATA_FLAG_REWARD)
+}
+
+// AccountRewardsStream returns a stream of account changes
+func (c *gRPCClient) AccountUpdatesStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error) {
+	return c.getAccountStream(address, apitypes.AccountDataFlag_ACCOUNT_DATA_FLAG_ACCOUNT)
 }
 
 // AccountTransactionsReceipts returns transaction receipts for an account

@@ -109,7 +109,7 @@ func coinAmount(val uint64) string {
 	}
 }
 
-// printAccountInfo prints current wallet account info from global state
+// printAccountInfo prints current wallet's account info from global state
 func (r *repl) printAccountInfo() {
 	acc, err := r.getCurrent()
 	if err != nil {
@@ -118,29 +118,14 @@ func (r *repl) printAccountInfo() {
 	}
 
 	address := gosmtypes.BytesToAddress(acc.PubKey)
-	state, err := r.client.AccountState(address)
+	account, err := r.client.AccountState(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
 	}
 
-	currBalance := uint64(0)
-	if state.StateCurrent.Balance != nil {
-		currBalance = state.StateCurrent.Balance.Value
-	}
-
-	projectedBalance := uint64(0)
-	if state.StateProjected.Balance != nil {
-		projectedBalance = state.StateProjected.Balance.Value
-	}
-
 	fmt.Println(printPrefix, "Local alias:", acc.Name)
-	fmt.Println(printPrefix, "Address:", address.String())
-	fmt.Println(printPrefix, "Balance:", coinAmount(currBalance)) // currBalance, coinUnitName)
-	fmt.Println(printPrefix, "Nonce:", state.StateCurrent.Counter)
-	fmt.Println(printPrefix, "Projected Balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
-	fmt.Println(printPrefix, "Projected Nonce:", state.StateProjected.Counter)
-	fmt.Println(printPrefix, "Projected account state includes all pending transactions that haven't been added to the mesh yet.")
+	printAccount(account, address)
 	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
 	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
 }
@@ -153,6 +138,26 @@ func (r *repl) printLocalAccountRewards() {
 		return
 	}
 	r.printRewards(acc.Address())
+}
+
+// printAccountState prints the account data member
+func printAccount(account *apitypes.Account, address gosmtypes.Address) {
+	currBalance := uint64(0)
+	if account.StateCurrent.Balance != nil {
+		currBalance = account.StateCurrent.Balance.Value
+	}
+
+	projectedBalance := uint64(0)
+	if account.StateProjected.Balance != nil {
+		projectedBalance = account.StateProjected.Balance.Value
+	}
+
+	fmt.Println(printPrefix, "Address:", address.String())
+	fmt.Println(printPrefix, "Balance:", coinAmount(currBalance)) // currBalance, coinUnitName)
+	fmt.Println(printPrefix, "Nonce:", account.StateCurrent.Counter)
+	fmt.Println(printPrefix, "Projected Balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
+	fmt.Println(printPrefix, "Projected Nonce:", account.StateProjected.Counter)
+	fmt.Println(printPrefix, "Projected state includes all pending transactions that haven't been added to the mesh yet.")
 }
 
 // printReward prints a Reward
