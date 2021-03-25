@@ -123,8 +123,10 @@ func (r *repl) initializeCommands() {
 		// global state
 		{"state-account", "Display an account balance and nonce", r.printAccountState},
 		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
+
+		// global state streams
 		{"state-stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},
-		{"state-stream-account", "Stream account updates", r.printAccountRewardsStream},
+		{"state-stream-account", "Stream account updates", r.printAccountUpdatesStream},
 
 		{"state-smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
 		{"state-global", "Display the most recent network global state", r.printGlobalState},
