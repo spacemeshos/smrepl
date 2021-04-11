@@ -65,7 +65,7 @@ func (r *repl) printAccountRewardsStream() {
 	}()
 }
 
-// printAccountRewardsStream prints new rewards awarded to an account
+// printAccountRewardsStream prints account state updates
 func (r *repl) printAccountUpdatesStream() {
 	addrStr := inputNotBlank(enterAddressMsg)
 	address := gosmtypes.HexToAddress(addrStr)
