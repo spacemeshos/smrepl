@@ -89,8 +89,8 @@ func getBackendLevelWithFileBackend(module, prefix, logFormat, fileFormat, dataF
 	return leveledBackends
 }
 
-// initSpacemeshLoggingSystem initializes app logging system.
-func initSpacemeshLoggingSystem(dataFolderPath string, logFileName string) {
+// InitSpacemeshLoggingSystem initializes app logging system.
+func InitSpacemeshLoggingSystem(dataFolderPath string, logFileName string) {
 	log := logging.MustGetLogger("app")
 
 	// we wrap all log calls so we need to add 1 to call depth

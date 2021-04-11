@@ -156,13 +156,24 @@ func (r *repl) initializeCommands() {
 	r.commands = append(accountCommands, otherCommands...)
 }
 
-// Start starts REPL.
+// Start starts the REPL
 func Start(c Client) {
+
+	// init logging system
+	path, err := os.Getwd()
+	if err != nil {
+		fmt.Println(printPrefix, "Aborting. Can't get current dir. Your system is high.", err)
+		return
+	}
+
+	log.InitSpacemeshLoggingSystem(path, "log.txt")
+
+	log.Info("new session started")
+
 	if !TestMode {
 		r := &repl{client: c}
 		r.clientOpen = c.IsOpen()
 		r.initializeCommands()
-
 		runPrompt(r.executor, r.completer, r.firstTime, uint16(len(r.commands)))
 	} else {
 		// holds for unit test purposes
