@@ -108,7 +108,7 @@ func (r *repl) initializeCommands() {
 			{"account-rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
 			{"account-sign", "Sign a hex message with the current account private key", r.sign},
 			{"account-text-sign", "Sign a text message with the current account private key", r.signText},
-			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
 			{"account-send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		}
 	}
@@ -122,7 +122,11 @@ func (r *repl) initializeCommands() {
 
 		// global state
 		{"state-account", "Display an account balance and nonce", r.printAccountState},
+		{"state-account-txs", "Display account transactions in global state", r.printAccountState},
+
 		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
+
+		{"mesh-transactions", "Display mesh transaction for an account", r.printMeshTransactions},
 
 		// global state streams
 		{"state-stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},

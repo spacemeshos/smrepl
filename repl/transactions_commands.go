@@ -120,27 +120,6 @@ func (r *repl) submitCoinTransaction() {
 	}
 }
 
-func (r *repl) printAccountTransactions() {
-	acc, err := r.getCurrent()
-	if err != nil {
-		log.Error("failed to get account", err)
-		return
-	}
-
-	// todo: request offset and total from user
-	txs, total, err := r.client.GetMeshTransactions(acc.Address(), 0, 1000)
-	if err != nil {
-		log.Error("failed to print transactions: %v", err)
-		return
-	}
-
-	fmt.Println(printPrefix, fmt.Sprintf("Total mesh transactions: %d", total))
-	for _, tx := range txs {
-		printTransaction(tx)
-		fmt.Println(printPrefix, "-----")
-	}
-}
-
 // helper method - prints tx info
 func printTransaction(t *apitypes.Transaction) {
 
