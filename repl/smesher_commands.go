@@ -82,6 +82,21 @@ func (r *repl) stopSmeshing() {
 }
 
 func (r *repl) printPostStatus() {
+	status, err := r.client.GetPostStatus()
+	if err != nil {
+		log.Error("failed to get post status: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, "File status:", status.GetFilesStatus().String())
+	fmt.Println(printPrefix, "File creating in progress:", status.GetInitInProgress())
+	fmt.Println(printPrefix, "Bytes written: ", status.GetBytesWritten())
+
+	lastErr := status.GetErrorMessage()
+	if lastErr != "" {
+		fmt.Println(printPrefix, "Last error: ", status.GetErrorMessage())
+	}
+
 	fmt.Println(printPrefix, "Not yet implemented :-(")
 }
 

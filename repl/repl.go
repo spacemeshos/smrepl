@@ -76,6 +76,7 @@ type Client interface {
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
+	GetPostStatus() (*apitypes.PostStatus, error)
 
 	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)
@@ -126,14 +127,15 @@ func (r *repl) initializeCommands() {
 
 		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
 
-		{"mesh-transactions", "Display mesh transaction for an account", r.printMeshTransactions},
-
 		// global state streams
 		{"state-stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},
 		{"state-stream-account", "Stream account updates", r.printAccountUpdatesStream},
 
 		{"state-smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
 		{"state-global", "Display the most recent network global state", r.printGlobalState},
+
+		// mesh
+		{"mesh-transactions", "Display mesh transaction for an account", r.printMeshTransactions},
 
 		// smeshing - smesher ops
 		{"smesher-id", "Display current smesher id", r.printSmesherId},
@@ -145,7 +147,6 @@ func (r *repl) initializeCommands() {
 		{"smesher-status", "Display smesher status", r.printSmeshingStatus},
 		{"smesher-post-status", "Display the proof of space status", r.printPostStatus},
 		{"smesher-post-providers", "Display the available proof of space providers", r.printPostProviders},
-
 		{"smesher-start", "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
 
 		// debug commands
