@@ -70,13 +70,13 @@ type Client interface {
 	TransactionState(txId []byte, includeTx bool) (*apitypes.TransactionState, *apitypes.Transaction, error)
 
 	// Smesher service
-	GetSmesherId() ([]byte, error)
 	IsSmeshing() (bool, error)
-	StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error)
+	StartSmeshing(request *apitypes.StartSmeshingRequest) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
+	GetPostComputeProviders() ([]*apitypes.PostComputeProvider, error)
+	GetSmesherId() ([]byte, error)
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
-	GetPostStatus() (*apitypes.PostStatus, error)
 
 	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)
@@ -140,14 +140,14 @@ func (r *repl) initializeCommands() {
 		// smeshing - smesher ops
 		{"smesher-id", "Display current smesher id", r.printSmesherId},
 		{"smesher-rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
-		{"smesher-set-rewards-address", "Set the smesher's rewards address", r.setRewardsAddress},
-
+		{"smesher-set-rewards-address", "Set the smesher rewards address", r.setRewardsAddress},
 		{"smesher-rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
-		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
 		{"smesher-status", "Display smesher status", r.printSmeshingStatus},
-		{"smesher-post-status", "Display the proof of space status", r.printPostStatus},
-		{"smesher-post-providers", "Display the available proof of space providers", r.printPostProviders},
-		{"smesher-start", "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
+		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
+
+		// proof of space methods
+		{"pos-providers", "Display the available proof of space providers", r.printPosProviders},
+		{"pos-setup", "Set up (or change) smesher proof of space data", r.setupPos},
 
 		// debug commands
 		{"dbg-all-accounts", "Display all global state accounts", r.printAllAccounts},

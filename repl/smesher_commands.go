@@ -5,49 +5,64 @@ import (
 	"fmt"
 	"strconv"
 
+	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
+
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 
 	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/go-spacemesh/common/util"
 )
 
-// printSmesherRewards prints all rewards awarded to a smesher identified by an id
-func (r *repl) printSmesherRewards() {
+// number of bytes in 1 GiB
+const GIB uint64 = 1_262_485_504
 
-	smesherIdStr := inputNotBlank(smesherIdMsg)
-	smesherId := util.FromHex(smesherIdStr)
-
-	// todo: request offset and total from user
-	rewards, total, err := r.client.SmesherRewards(smesherId, 0, 0)
+func (r *repl) printSmeshingStatus() {
+	isSmeshing, err := r.client.IsSmeshing()
 	if err != nil {
-		log.Error("failed to get rewards: %v", err)
+		log.Error("failed to query for smeshing status: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
-	for _, r := range rewards {
-		printReward(r)
-		fmt.Println(printPrefix, "-----")
+	if isSmeshing {
+		fmt.Println(printPrefix, "node is smeshing")
+	} else {
+		fmt.Println(printPrefix, "node is not smeshing")
 	}
 }
 
-func (r *repl) startSmeshing() {
-	addr, err := r.getCurrent()
+/// setupPos start an interactive proof of space data creation process
+func (r *repl) setupPos() {
+
+	addrStr := inputNotBlank(enterRewardsAddress)
+	addr := gosmtypes.HexToAddress(addrStr)
+	dataDir := inputNotBlank(posDataDirMsg)
+	spaceGiBStr := inputNotBlank(posSizeMsg)
+	dataSizeGiB, err := strconv.ParseUint(spaceGiBStr, 10, 64)
 	if err != nil {
-		log.Error("failed to get account", err)
+		log.Error("failed to parse your input: %v", err)
 		return
 	}
 
-	dataDir := inputNotBlank(smeshingDatadirMsg)
+	numLabels := dataSizeGiB / GIB
 
-	spaceGBStr := inputNotBlank(smeshingSpaceAllocationMsg)
-	dataSizeGB, err := strconv.ParseUint(spaceGBStr, 10, 64)
+	providerIdStr := inputNotBlank(posProviderMsg)
+	providerId, err := strconv.ParseUint(providerIdStr, 10, 32)
 	if err != nil {
-		log.Error("failed to parse: %v", err)
+		log.Error("failed to parse your input: %v", err)
 		return
 	}
 
-	resp, err := r.client.StartSmeshing(addr.Address(), dataDir, dataSizeGB<<20)
+	req := &apitypes.StartSmeshingRequest{}
+	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
+	req.Opts = &apitypes.PostInitOpts{
+		DataDir:           dataDir,
+		NumLabels:         numLabels,
+		NumFiles:          1,
+		ComputeProviderId: uint32(providerId),
+		Throttle:          false,
+	}
+
+	resp, err := r.client.StartSmeshing(req)
 
 	if err != nil {
 		log.Error("failed to start smeshing: %v", err)
@@ -59,7 +74,8 @@ func (r *repl) startSmeshing() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Smeshing started")
+	fmt.Println(printPrefix, "Smeshing started. Add the following to your node's config file so it will continue smeshing after you restart it")
+	fmt.Println(printPrefix, "todo: Json to add to node cofig file here")
 
 }
 
@@ -77,45 +93,49 @@ func (r *repl) stopSmeshing() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Smeshing started")
+	fmt.Println(printPrefix, "Smeshing stopped. Don't forget to remove smeshing related data from your node's config file or startup flags so it won't start smeshing after you restart it")
 
 }
 
-func (r *repl) printPostStatus() {
-	status, err := r.client.GetPostStatus()
+var ComputeApiClass_name = map[int32]string{
+	0: "COMPUTE_API_CLASS_UNSPECIFIED",
+	1: "COMPUTE_API_CLASS_CPU",
+	2: "COMPUTE_API_CLASS_CUDA",
+	3: "COMPUTE_API_CLASS_VULKAN",
+}
+
+/// setupProofOfSpace prints the available proof of space compute providers
+func (r *repl) printPosProviders() {
+
+	providers, err := r.client.GetPostComputeProviders()
 	if err != nil {
-		log.Error("failed to get post status: %v", err)
+		log.Error("failed to get compute providers: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, "File status:", status.GetFilesStatus().String())
-	fmt.Println(printPrefix, "File creating in progress:", status.GetInitInProgress())
-	fmt.Println(printPrefix, "Bytes written: ", status.GetBytesWritten())
-
-	lastErr := status.GetErrorMessage()
-	if lastErr != "" {
-		fmt.Println(printPrefix, "Last error: ", status.GetErrorMessage())
-	}
-
-	fmt.Println(printPrefix, "Not yet implemented :-(")
-}
-
-func (r *repl) printPostProviders() {
-	fmt.Println(printPrefix, "Not yet implemented :-(")
-}
-
-func (r *repl) printSmeshingStatus() {
-	isSmeshing, err := r.client.IsSmeshing()
-
-	if err != nil {
-		log.Error("failed to get smeshing status: %v", err)
+	if len(providers) == 0 {
+		fmt.Println(printPrefix, "No supported compute providers found")
 		return
 	}
 
-	if isSmeshing {
-		fmt.Println(printPrefix, "Smeshing is enabled")
+	fmt.Println(printPrefix, "Supported providers on your system:")
+
+	for i, p := range providers {
+		if i != 0 {
+			fmt.Println(printPrefix, "---_-")
+		}
+		fmt.Println(printPrefix, "Provider id:", p.GetId())
+		fmt.Println(printPrefix, "Model:", p.GetModel())
+		fmt.Println(printPrefix, "Compute api:", ComputeApiClass_name[int32(p.GetComputeApi())])
+		fmt.Println(printPrefix, "Performance:", p.GetPerformance())
+	}
+}
+
+func (r *repl) printSmesherId() {
+	if resp, err := r.client.GetSmesherId(); err != nil {
+		log.Error("failed to get smesher id: %v", err)
 	} else {
-		fmt.Println(printPrefix, "Smeshing is disabled")
+		fmt.Println(printPrefix, "Smesher id:", "0x"+hex.EncodeToString(resp))
 	}
 }
 
@@ -147,11 +167,27 @@ func (r *repl) setRewardsAddress() {
 	}
 }
 
-func (r *repl) printSmesherId() {
-	if resp, err := r.client.GetSmesherId(); err != nil {
-		log.Error("failed to get smesher id: %v", err)
-	} else {
-		fmt.Println(printPrefix, "Smesher id:", "0x"+hex.EncodeToString(resp))
+////////// The following methods use the global state service and not the smesher service
+
+// printSmesherRewards prints all rewards awarded to a smesher identified by an id
+func (r *repl) printSmesherRewards() {
+
+	smesherIdStr := inputNotBlank(smesherIdMsg)
+	smesherId := util.FromHex(smesherIdStr)
+
+	// todo: request offset and total from user
+	rewards, total, err := r.client.SmesherRewards(smesherId, 0, 0)
+	if err != nil {
+		log.Error("failed to get rewards: %v", err)
+		return
+	}
+
+	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
+	for i, r := range rewards {
+		if i != 0 {
+			fmt.Println(printPrefix, "-----")
+		}
+		printReward(r)
 	}
 }
 
@@ -171,9 +207,11 @@ func (r *repl) printCurrentSmesherRewards() {
 		}
 
 		fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
-		for _, r := range rewards {
+		for i, r := range rewards {
+			if i != 0 {
+				fmt.Println(printPrefix, "-----")
+			}
 			printReward(r)
-			fmt.Println(printPrefix, "-----")
 		}
 	}
 }

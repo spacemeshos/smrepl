@@ -119,7 +119,7 @@ func (c *gRPCClient) GetMeshInfo() (*common.NetInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	netInfo.MaxTxsPerSec = maxTxsPerSec.Maxtxpersecond.Value
+	netInfo.MaxTxsPerSec = maxTxsPerSec.MaxTxsPerSecond.Value
 
 	return netInfo, nil
 }

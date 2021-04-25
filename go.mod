@@ -2,7 +2,6 @@ module github.com/spacemeshos/CLIWallet
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20200131002437-cf55d5288a48 // indirect
-
 	github.com/btcsuite/btcd v0.0.0-20190629003639-c26ffa870fd8
 	github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d
 	github.com/c-bata/go-prompt v0.2.3
@@ -12,7 +11,8 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/mattn/go-tty v0.0.0-20190424173100-523744f04859 // indirect
 	github.com/pkg/term v0.0.0-20190109203006-aa71e9d9e942 // indirect
-	github.com/spacemeshos/api/release/go v0.0.0-20201103002846-7d0dfed55cc1
+	github.com/spacemeshos/api v1.1.2-0.20210424135600-560a13efaafb // indirect
+	github.com/spacemeshos/api/release/go v0.0.0-20210424135600-560a13efaafb
 	github.com/spacemeshos/ed25519 v0.0.0-20200604074309-d72da3b5f487
 	github.com/spacemeshos/go-spacemesh v0.1.17
 	github.com/spf13/viper v1.4.0
