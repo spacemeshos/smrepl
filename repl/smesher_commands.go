@@ -27,9 +27,9 @@ func (r *repl) printSmeshingStatus() {
 	}
 
 	if isSmeshing {
-		fmt.Println(printPrefix, "node is smeshing")
+		fmt.Println(printPrefix, "Node is smeshing")
 	} else {
-		fmt.Println(printPrefix, "node is not smeshing")
+		fmt.Println(printPrefix, "Node is not smeshing")
 	}
 }
 
@@ -53,6 +53,8 @@ func (r *repl) setupPos() {
 	numLabels := dataSizeGiB / GIB
 
 	// TODO: validate that numLabels >= min_labels node param
+
+	// TODO: validate provider id is valid by enum the providers here....
 
 	providerIdStr := inputNotBlank(posProviderMsg)
 	providerId, err := strconv.ParseUint(providerIdStr, 10, 32)
@@ -114,11 +116,11 @@ func (r *repl) stopSmeshing() {
 
 }
 
-var ComputeApiClass_name = map[int32]string{
-	0: "COMPUTE_API_CLASS_UNSPECIFIED",
-	1: "COMPUTE_API_CLASS_CPU",
-	2: "COMPUTE_API_CLASS_CUDA",
-	3: "COMPUTE_API_CLASS_VULKAN",
+var computeApiClassName = map[int32]string{
+	0: "Unspecified",
+	1: "CPU",
+	2: "CUDA",
+	3: "VULKAN",
 }
 
 /// setupProofOfSpace prints the available proof of space compute providers
@@ -143,7 +145,7 @@ func (r *repl) printPosProviders() {
 		}
 		fmt.Println("Provider id:", p.GetId())
 		fmt.Println("Model:", p.GetModel())
-		fmt.Println("Compute api:", ComputeApiClass_name[int32(p.GetComputeApi())])
+		fmt.Println("Compute api:", computeApiClassName[int32(p.GetComputeApi())])
 		fmt.Println("Performance:", p.GetPerformance())
 	}
 }
