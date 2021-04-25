@@ -49,7 +49,7 @@ func (c *gRPCClient) GetPostComputeProviders() ([]*apitypes.PostComputeProvider,
 	}
 }
 
-// GetPostComputeProviders returns the proof of space generators available on the system
+// CreatePostData starts or continues pos data creation operation
 func (c *gRPCClient) CreatePostData(data *apitypes.PostData) (*status.Status, error) {
 	s := c.getSmesherServiceClient()
 	if resp, err := s.CreatePostData(context.Background(), &apitypes.CreatePostDataRequest{Data: data}); err != nil {
@@ -84,7 +84,7 @@ func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
 	return resp.Status, nil
 }
 
-// SetCoinbase sets the smesher's coinbase address
+// SetRewardsAddress sets the smesher's rewards address
 func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Status, error) {
 	s := c.getSmesherServiceClient()
 	resp, err := s.SetCoinbase(context.Background(), &apitypes.SetCoinbaseRequest{Id: &apitypes.AccountId{Address: address.Bytes()}})
@@ -94,7 +94,7 @@ func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Statu
 	return resp.Status, nil
 }
 
-// GetCoinbase get the smesher's current rewards address
+// GetRewardsAddress get the smesher's current rewards address
 func (c *gRPCClient) GetRewardsAddress() (*gosmtypes.Address, error) {
 	s := c.getSmesherServiceClient()
 	resp, err := s.Coinbase(context.Background(), &empty.Empty{})

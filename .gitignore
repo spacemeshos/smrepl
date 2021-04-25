@@ -7,4 +7,4 @@ cli_wallet*
 wallet
 myWallet*Z.json
 *.json
-
+log.*

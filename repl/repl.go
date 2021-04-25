@@ -76,6 +76,7 @@ type Client interface {
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
+	GetPostStatus() (*apitypes.PostStatus, error)
 
 	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)
@@ -83,6 +84,8 @@ type Client interface {
 	// global state service
 	AccountState(address gosmtypes.Address) (*apitypes.Account, error)
 	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
+	AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error)
+	AccountUpdatesStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error)
 	AccountTransactionsReceipts(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.TransactionReceipt, uint32, error)
 	GlobalStateHash() (*apitypes.GlobalStateHash, error)
 	SmesherRewards(smesherId []byte, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
@@ -106,7 +109,7 @@ func (r *repl) initializeCommands() {
 			{"account-rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
 			{"account-sign", "Sign a hex message with the current account private key", r.sign},
 			{"account-text-sign", "Sign a text message with the current account private key", r.signText},
-			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printAccountTransactions},
+			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
 			{"account-send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		}
 	}
@@ -120,9 +123,19 @@ func (r *repl) initializeCommands() {
 
 		// global state
 		{"state-account", "Display an account balance and nonce", r.printAccountState},
+		{"state-account-txs", "Display account transactions in global state", r.printAccountState},
+
 		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
-		{"state-smesher-rewards", "Display rewards for a smesher", r.printSmesherRewards},
+
+		// global state streams
+		{"state-stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},
+		{"state-stream-account", "Stream account updates", r.printAccountUpdatesStream},
+
+		{"state-smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
 		{"state-global", "Display the most recent network global state", r.printGlobalState},
+
+		// mesh
+		{"mesh-transactions", "Display mesh transaction for an account", r.printMeshTransactions},
 
 		// smeshing - smesher ops
 		{"smesher-id", "Display current smesher id", r.printSmesherId},
@@ -134,7 +147,6 @@ func (r *repl) initializeCommands() {
 		{"smesher-status", "Display smesher status", r.printSmeshingStatus},
 		{"smesher-post-status", "Display the proof of space status", r.printPostStatus},
 		{"smesher-post-providers", "Display the available proof of space providers", r.printPostProviders},
-
 		{"smesher-start", "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
 
 		// debug commands
@@ -145,13 +157,24 @@ func (r *repl) initializeCommands() {
 	r.commands = append(accountCommands, otherCommands...)
 }
 
-// Start starts REPL.
+// Start starts the REPL
 func Start(c Client) {
+
+	// init logging system
+	path, err := os.Getwd()
+	if err != nil {
+		fmt.Println(printPrefix, "Aborting. Can't get current dir. Your system is high.", err)
+		return
+	}
+
+	log.InitSpacemeshLoggingSystem(path, "log.txt")
+
+	log.Info("new session started")
+
 	if !TestMode {
 		r := &repl{client: c}
 		r.clientOpen = c.IsOpen()
 		r.initializeCommands()
-
 		runPrompt(r.executor, r.completer, r.firstTime, uint16(len(r.commands)))
 	} else {
 		// holds for unit test purposes
