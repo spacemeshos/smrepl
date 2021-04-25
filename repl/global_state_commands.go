@@ -21,9 +21,11 @@ func (r *repl) printRewards(address gosmtypes.Address) {
 	}
 
 	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
-	for _, r := range rewards {
+	for i, r := range rewards {
+		if i != 0 {
+			fmt.Println("-----")
+		}
 		printReward(r)
-		fmt.Println(printPrefix, "-----")
 	}
 }
 
@@ -104,8 +106,8 @@ func (r *repl) printGlobalState() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Hash:", "0x"+hex.EncodeToString(resp.RootHash))
-	fmt.Println(printPrefix, "Layer:", resp.Layer.Number)
+	fmt.Println("Hash:", "0x"+hex.EncodeToString(resp.RootHash))
+	fmt.Println("Layer:", resp.Layer.Number)
 }
 
 // printAccountState prints an account's global state

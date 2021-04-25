@@ -73,7 +73,7 @@ func (r *repl) chooseAccount() {
 	if err != nil {
 		panic("wtf")
 	}
-	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, account.Address().String())
+	fmt.Printf("%s Loaded account alias: `%s`, address: %s\n", printPrefix, account.Name, account.Address().String())
 }
 
 // createAccount creates a new account in the currently open wallet
@@ -92,7 +92,7 @@ func (r *repl) createAccount() {
 		return
 	}
 
-	fmt.Printf("%s Created account: %s, address: %s \n", printPrefix, ac.Name, ac.Address().String())
+	fmt.Printf("%s Created account: %s, address: %s\n", printPrefix, ac.Name, ac.Address().String())
 }
 
 // One smesh in base coin units
@@ -124,10 +124,10 @@ func (r *repl) printAccountInfo() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Local alias:", acc.Name)
+	fmt.Println("Local alias:", acc.Name)
 	printAccount(account, address)
-	fmt.Println(printPrefix, fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
-	fmt.Println(printPrefix, fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
+	fmt.Println(fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
+	fmt.Println(fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
 }
 
 // printAccountRewards prints all rewards awarded to the current account
@@ -152,23 +152,23 @@ func printAccount(account *apitypes.Account, address gosmtypes.Address) {
 		projectedBalance = account.StateProjected.Balance.Value
 	}
 
-	fmt.Println(printPrefix, "Address:", address.String())
-	fmt.Println(printPrefix, "Balance:", coinAmount(currBalance)) // currBalance, coinUnitName)
-	fmt.Println(printPrefix, "Nonce:", account.StateCurrent.Counter)
-	fmt.Println(printPrefix, "Projected Balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
-	fmt.Println(printPrefix, "Projected Nonce:", account.StateProjected.Counter)
-	fmt.Println(printPrefix, "Projected state includes all pending transactions that haven't been added to the mesh yet.")
+	fmt.Println("Address:", address.String())
+	fmt.Println("Balance:", coinAmount(currBalance)) // currBalance, coinUnitName)
+	fmt.Println("Nonce:", account.StateCurrent.Counter)
+	fmt.Println("Projected balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
+	fmt.Println("Projected nonce:", account.StateProjected.Counter)
+	fmt.Println("Projected state includes all pending transactions that haven't been added to the mesh yet.")
 }
 
 // printReward prints a Reward
 func printReward(r *apitypes.Reward) {
-	fmt.Println(printPrefix, "Rewarded on layer:", r.Layer.Number)
+	fmt.Println("Rewarded on layer:", r.Layer.Number)
 	//fmt.Println(printPrefix, "Rewarded for layer:", r.LayerComputed.Number)
-	fmt.Println(printPrefix, "Layer reward", r.LayerReward.Value, coinUnitName)
-	fmt.Println(printPrefix, "Transaction fees", r.Total.Value-r.LayerReward.Value, coinUnitName)
-	fmt.Println(printPrefix, "Total reward", r.Total.Value, coinUnitName)
+	fmt.Println("Layer reward", r.LayerReward.Value, coinUnitName)
+	fmt.Println("Transaction fees", r.Total.Value-r.LayerReward.Value, coinUnitName)
+	fmt.Println("Total reward", r.Total.Value, coinUnitName)
 	//fmt.Println(printPrefix, "Smesher id", "0x"+hex.EncodeToString(r.Smesher.Id))
-	fmt.Println(printPrefix, "Rewards account:", gosmtypes.BytesToAddress(r.Coinbase.Address).String())
+	fmt.Println("Rewards account:", gosmtypes.BytesToAddress(r.Coinbase.Address).String())
 }
 
 // getCurrent returns the current open wallet's account. If there is no current account

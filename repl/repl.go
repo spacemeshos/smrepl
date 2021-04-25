@@ -218,7 +218,7 @@ func (r *repl) commandLineParams(idx int, input string) string {
 }
 
 func (r *repl) firstTime() {
-	fmt.Print(printPrefix, splash)
+	fmt.Print(splash)
 
 	// TODO: change this is to use the health service when it is ready
 	_, err := r.client.GetMeshInfo()

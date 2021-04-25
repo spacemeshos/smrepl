@@ -12,10 +12,10 @@ func (r *repl) nodeInfo() {
 		log.Error("failed to get node info: %v", err)
 		return
 	}
-
-	fmt.Println(printPrefix, "Version:", info.Version)
-	fmt.Println(printPrefix, "Build:", info.Build)
-	fmt.Println(printPrefix, "API server:", r.client.ServerInfo())
+	fmt.Println(printPrefix, "Node info:")
+	fmt.Println("Version:", info.Version)
+	fmt.Println("Build:", info.Build)
+	fmt.Println("API server:", r.client.ServerInfo())
 
 	status, err := r.client.NodeStatus()
 	if err != nil {
@@ -23,9 +23,9 @@ func (r *repl) nodeInfo() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Synced:", status.IsSynced)
-	fmt.Println(printPrefix, "Synced layer:", status.SyncedLayer.Number)
-	fmt.Println(printPrefix, "Current layer:", status.TopLayer.Number)
-	fmt.Println(printPrefix, "Verified layer:", status.VerifiedLayer.Number)
-	fmt.Println(printPrefix, "Peers:", status.ConnectedPeers)
+	fmt.Println("Synced:", status.IsSynced)
+	fmt.Println("Synced layer:", status.SyncedLayer.Number)
+	fmt.Println("Current layer:", status.TopLayer.Number)
+	fmt.Println("Verified layer:", status.VerifiedLayer.Number)
+	fmt.Println("Peers:", status.ConnectedPeers)
 }

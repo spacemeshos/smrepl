@@ -61,6 +61,14 @@ func (r *repl) setupPos() {
 		return
 	}
 
+	// request summary information
+	fmt.Println(printPrefix, "Proof of space setup request summary:")
+	fmt.Println("Directory:", dataDir)
+	fmt.Println("Size (GiB):", dataSizeGiB)
+	fmt.Println("Labels:", numLabels)
+	fmt.Println("Bits per label:", 8)
+	fmt.Println("Compute provider id:", providerId)
+
 	req := &apitypes.StartSmeshingRequest{}
 	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
 	req.Opts = &apitypes.PostInitOpts{
@@ -74,12 +82,12 @@ func (r *repl) setupPos() {
 	resp, err := r.client.StartSmeshing(req)
 
 	if err != nil {
-		log.Error("failed to set up proof of space: %v", err)
+		log.Error("failed to set up proof of space due to an error: %v", err)
 		return
 	}
 
 	if resp.Code != 0 {
-		log.Error("failed to set up proof of space. Node response: %d", resp.Code)
+		log.Error("failed to set up proof of space. Node response code: %d", resp.Code)
 		return
 	}
 
@@ -131,12 +139,12 @@ func (r *repl) printPosProviders() {
 
 	for i, p := range providers {
 		if i != 0 {
-			fmt.Println(printPrefix, "---_-")
+			fmt.Println("-----")
 		}
-		fmt.Println(printPrefix, "Provider id:", p.GetId())
-		fmt.Println(printPrefix, "Model:", p.GetModel())
-		fmt.Println(printPrefix, "Compute api:", ComputeApiClass_name[int32(p.GetComputeApi())])
-		fmt.Println(printPrefix, "Performance:", p.GetPerformance())
+		fmt.Println("Provider id:", p.GetId())
+		fmt.Println("Model:", p.GetModel())
+		fmt.Println("Compute api:", ComputeApiClass_name[int32(p.GetComputeApi())])
+		fmt.Println("Performance:", p.GetPerformance())
 	}
 }
 
@@ -194,7 +202,7 @@ func (r *repl) printSmesherRewards() {
 	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
 	for i, r := range rewards {
 		if i != 0 {
-			fmt.Println(printPrefix, "-----")
+			fmt.Println("-----")
 		}
 		printReward(r)
 	}
@@ -218,7 +226,7 @@ func (r *repl) printCurrentSmesherRewards() {
 		fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
 		for i, r := range rewards {
 			if i != 0 {
-				fmt.Println(printPrefix, "-----")
+				fmt.Println("-----")
 			}
 			printReward(r)
 		}

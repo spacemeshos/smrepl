@@ -96,11 +96,11 @@ func (r *repl) submitCoinTransaction() {
 	}
 
 	fmt.Println(printPrefix, "New transaction summary:")
-	fmt.Println(printPrefix, "From:  ", srcAddress.String())
-	fmt.Println(printPrefix, "To:    ", destAddress.String())
-	fmt.Println(printPrefix, "Amount:", amountStr, coinUnitName)
-	fmt.Println(printPrefix, "Fee:   ", gas, coinUnitName)
-	fmt.Println(printPrefix, "Nonce: ", acctState.StateProjected.Counter)
+	fmt.Println("From:  ", srcAddress.String())
+	fmt.Println("To:    ", destAddress.String())
+	fmt.Println("Amount:", amountStr, coinUnitName)
+	fmt.Println("Fee:   ", gas, coinUnitName)
+	fmt.Println("Nonce: ", acctState.StateProjected.Counter)
 
 	amount, _ := strconv.ParseUint(amountStr, 10, 64)
 	// todo: handle error here!
@@ -115,8 +115,8 @@ func (r *repl) submitCoinTransaction() {
 		txStateDispString := transactionStateDisStringsMap[int32(txState.State.Number())]
 
 		fmt.Println(printPrefix, "Transaction submitted.")
-		fmt.Println(printPrefix, fmt.Sprintf("Transaction id: 0x%v", hex.EncodeToString(txState.Id.Id)))
-		fmt.Println(printPrefix, "Transaction state:", txStateDispString)
+		fmt.Println(fmt.Sprintf("Transaction id: 0x%v", hex.EncodeToString(txState.Id.Id)))
+		fmt.Println("Transaction state:", txStateDispString)
 	}
 }
 
@@ -124,15 +124,16 @@ func (r *repl) submitCoinTransaction() {
 func printTransaction(t *apitypes.Transaction) {
 
 	txIdStr := "0x" + util.Bytes2Hex(t.Id.Id)
-	fmt.Println(printPrefix, fmt.Sprintf("Transaction id: %v", txIdStr))
-	fmt.Println(printPrefix, "From:", gosmtypes.BytesToAddress(t.Sender.Address).String())
+	fmt.Println(printPrefix, "Transaction summary:")
+	fmt.Println(fmt.Sprintf("Id: %v", txIdStr))
+	fmt.Println("From:", gosmtypes.BytesToAddress(t.Sender.Address).String())
 
 	ct := t.GetCoinTransfer()
 	if ct != nil {
-		fmt.Println(printPrefix, "To (coin account):", gosmtypes.BytesToAddress(ct.Receiver.Address).String())
-		fmt.Println(printPrefix, "Nonce:", t.Counter)
-		fmt.Println(printPrefix, "Amount:", t.Amount.Value, coinUnitName)
-		fmt.Println(printPrefix, "Fee:", t.GasOffered.GasProvided, coinUnitName)
+		fmt.Println("To (coin account):", gosmtypes.BytesToAddress(ct.Receiver.Address).String())
+		fmt.Println("Nonce:", t.Counter)
+		fmt.Println("Amount:", t.Amount.Value, coinUnitName)
+		fmt.Println("Fee:", t.GasOffered.GasProvided, coinUnitName)
 		return
 	}
 
