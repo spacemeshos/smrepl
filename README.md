@@ -73,6 +73,10 @@ network. Use the `-grpc-server` and `-secure` flags connect to a remote Spacemes
 
 > Note that communications with the server will be secure using https/tls but the wallet doesn't currently verify the server identity.
 
+Your can find the grpc server url of a public Spacemesh testnet by copying the value of the `grpcAPI` field from the [Spacemesh discovery srvice data](https://discover.spacemesh.io/networks.json).
+
+
+
 ## Using with a local Spacemesh full node
 
 1. Join a Spacemesh network by running [go-spacemesh](https://github.com/spacemeshos/go-spacemesh/releases)
