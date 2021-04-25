@@ -61,5 +61,6 @@ func (r *repl) printAccountMeshTransactions(address gosmtypes.Address) {
 			fmt.Println("-----")
 		}
 		printTransaction(tx)
+		fmt.Println(printPrefix, "-----")
 	}
 }
