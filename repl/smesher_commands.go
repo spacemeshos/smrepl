@@ -16,6 +16,9 @@ import (
 // number of bytes in 1 GiB
 const GIB uint64 = 1_262_485_504
 
+// this needs to come from node's config
+const LABEL_SIZE_BITS = 8
+
 func (r *repl) printSmeshingStatus() {
 	isSmeshing, err := r.client.IsSmeshing()
 	if err != nil {
@@ -33,6 +36,8 @@ func (r *repl) printSmeshingStatus() {
 /// setupPos start an interactive proof of space data creation process
 func (r *repl) setupPos() {
 
+	// todo: query node for pos params: min_labels, max_lables, label_len when the api supports this
+
 	addrStr := inputNotBlank(enterRewardsAddress)
 	addr := gosmtypes.HexToAddress(addrStr)
 	dataDir := inputNotBlank(posDataDirMsg)
@@ -43,7 +48,11 @@ func (r *repl) setupPos() {
 		return
 	}
 
+	// TODO: query node for label size in bits and correctly compute number of labels based on this size
+
 	numLabels := dataSizeGiB / GIB
+
+	// TODO: validate that numLabels >= min_labels node param
 
 	providerIdStr := inputNotBlank(posProviderMsg)
 	providerId, err := strconv.ParseUint(providerIdStr, 10, 32)
@@ -65,17 +74,17 @@ func (r *repl) setupPos() {
 	resp, err := r.client.StartSmeshing(req)
 
 	if err != nil {
-		log.Error("failed to start smeshing: %v", err)
+		log.Error("failed to set up proof of space: %v", err)
 		return
 	}
 
 	if resp.Code != 0 {
-		log.Error("failed to start smeshing. Response status: %d", resp.Code)
+		log.Error("failed to set up proof of space. Node response: %d", resp.Code)
 		return
 	}
 
-	fmt.Println(printPrefix, "Smeshing started. Add the following to your node's config file so it will continue smeshing after you restart it")
-	fmt.Println(printPrefix, "todo: Json to add to node cofig file here")
+	fmt.Println(printPrefix, "Proof of space setup has started and your node will be smeshing as soon as it is complete. Please add the following to your node's config file so it will continue smeshing after you restart it")
+	fmt.Println(printPrefix, "todo: Json to add to node config file here")
 
 }
 
