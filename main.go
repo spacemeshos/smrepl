@@ -4,26 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"syscall"
 
 	"github.com/spacemeshos/CLIWallet/client"
-	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/repl"
 )
-
-type mockClient struct {
-}
-
-func (m mockClient) LocalAccount() *common.LocalAccount {
-	return nil
-}
-
-func (m mockClient) AccountInfo(id string) {
-
-}
-func (m mockClient) Transfer(from, to, amount, passphrase string) error {
-	return nil
-}
 
 func main() {
 
@@ -42,13 +26,7 @@ func main() {
 
 	flag.Parse()
 
-	_, err := syscall.Open("/dev/tty", syscall.O_RDONLY, 0)
-	if err != nil {
-		println(err)
-		os.Exit(1)
-	}
-
-	be, err = client.OpenConnection(grpcServer, secureConnection, dataDir)
+	be, err := client.OpenConnection(grpcServer, secureConnection, dataDir)
 	if err != nil {
 		os.Exit(1)
 	}
