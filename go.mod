@@ -11,8 +11,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/mattn/go-tty v0.0.0-20190424173100-523744f04859 // indirect
 	github.com/pkg/term v0.0.0-20190109203006-aa71e9d9e942 // indirect
-	github.com/spacemeshos/api v1.1.2-0.20210424135600-560a13efaafb // indirect
-	github.com/spacemeshos/api/release/go v0.0.0-20210424135600-560a13efaafb
+	github.com/spacemeshos/api/release/go v0.0.0-20210524031015-2dbd0d369b5b
 	github.com/spacemeshos/ed25519 v0.0.0-20200604074309-d72da3b5f487
 	github.com/spacemeshos/go-spacemesh v0.1.17
 	github.com/spf13/viper v1.4.0

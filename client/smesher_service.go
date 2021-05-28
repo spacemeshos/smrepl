@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-
 	"github.com/golang/protobuf/ptypes/empty"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
@@ -10,13 +9,9 @@ import (
 )
 
 // IsSmeshing returns true iff the node is currently setup to smesh
-func (c *gRPCClient) IsSmeshing() (bool, error) {
+func (c *gRPCClient) SmeshingStatus() (*apitypes.SmeshingStatusResponse, error) {
 	s := c.getSmesherServiceClient()
-	if resp, err := s.IsSmeshing(context.Background(), &empty.Empty{}); err != nil {
-		return false, err
-	} else {
-		return resp.IsSmeshing, nil
-	}
+	return s.SmeshingStatus(context.Background(), &empty.Empty{})
 }
 
 // StartSmeshing instructs the node to start smeshing using user's provider params
@@ -40,9 +35,9 @@ func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
 }
 
 // GetPostComputeProviders returns the proof of space generators available on the system
-func (c *gRPCClient) GetPostComputeProviders() ([]*apitypes.PostComputeProvider, error) {
+func (c *gRPCClient) GetPostComputeProviders(benchmark bool) ([]*apitypes.PostComputeProvider, error) {
 	s := c.getSmesherServiceClient()
-	if resp, err := s.PostComputeProviders(context.Background(), &empty.Empty{}); err != nil {
+	if resp, err := s.PostComputeProviders(context.Background(), &apitypes.PostComputeProvidersRequest{Benchmark: benchmark}); err != nil {
 		return nil, err
 	} else {
 		return resp.PostComputeProvider, nil
@@ -78,6 +73,16 @@ func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Statu
 		return nil, err
 	}
 	return resp.Status, nil
+}
+
+func (c *gRPCClient) Config() (*apitypes.ConfigResponse, error) {
+	s := c.getSmesherServiceClient()
+	return s.Config(context.Background(), &empty.Empty{})
+}
+
+func (c *gRPCClient) PostDataCreationProgressStream() (apitypes.SmesherService_PostDataCreationProgressStreamClient, error) {
+	s := c.getSmesherServiceClient()
+	return s.PostDataCreationProgressStream(context.Background(), &empty.Empty{})
 }
 
 // todo: add SetMinGas and MinGas methods

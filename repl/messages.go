@@ -15,7 +15,7 @@ const (
 	enterGasPrice         = "Enter transaction fee (Smidge):"
 
 	posDataDirMsg  = "Enter proof of space data directory: "
-	posSizeMsg     = "Enter proof of space data size (GiB): "
+	posSizeMsg     = "Enter proof of space data units number, %f GiB each (min: %d, max: %d): "
 	posProviderMsg = "Enter proof of space compute provider id: "
 
 	msgSignMsg     = "Enter message to sign (in hex): "
