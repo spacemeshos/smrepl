@@ -14,7 +14,7 @@ import (
 	"github.com/spacemeshos/go-spacemesh/common/util"
 )
 
-// number of bytes in 1 GiB
+// GIB is the number of bytes in 1 GiByes
 const GIB uint64 = 1_262_485_504
 
 func (r *repl) printSmeshingStatus() {
@@ -28,9 +28,9 @@ func (r *repl) printSmeshingStatus() {
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE:
 		fmt.Println(printPrefix, "Proof of space data was not created.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_CREATING_POST_DATA:
-		fmt.Println(printPrefix, "Proof of space data creation is in progress.")
+		fmt.Println(printPrefix, "⏱ Proof of space data creation is in progress.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_ACTIVE:
-		fmt.Println(printPrefix, "Proof of space data was created and is used for smeshing.")
+		fmt.Println(printPrefix, "👍 Proof of space data was created and is used for smeshing.")
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
 	}
@@ -40,7 +40,7 @@ func (r *repl) printSmeshingStatus() {
 func (r *repl) setupPos() {
 	cfg, err := r.client.Config()
 	if err != nil {
-		log.Error("failed get proof of space config: %v", err)
+		log.Error("failed get proof of space config from node: %v", err)
 		return
 	}
 
@@ -51,32 +51,40 @@ func (r *repl) setupPos() {
 	unitSize := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
 	unitSizeInGiB := float32(unitSize) / float32(GIB)
 	numUnitsStr := inputNotBlank(fmt.Sprintf(posSizeMsg, unitSizeInGiB, cfg.MinNumUnits, cfg.MaxNumUnits))
-	numUnits, err := strconv.ParseUint(numUnitsStr, 10, 64)
+	numUnits, err := strconv.ParseUint(numUnitsStr, 10, 32)
 	if err != nil {
 		log.Error("invalid input: %v", err)
 		return
 	}
 
-	// TODO: validate numUnits against min/max
+	if uint32(numUnits) > cfg.MaxNumUnits {
+		log.Error("Number of units must be equal or less than maximum number of units")
+		return
+	}
+
+	if uint32(numUnits) < cfg.MinNumUnits {
+		log.Error("Number of units must be equal or greater than minimum number of units")
+		return
+	}
 
 	// TODO: validate provider id is valid by enum the providers here....
 
 	providerIdStr := inputNotBlank(posProviderMsg)
 	providerId, err := strconv.ParseUint(providerIdStr, 10, 32)
 	if err != nil {
-		log.Error("failed to parse your input: %v", err)
+		log.Error("invalid input: %v", err)
 		return
 	}
 
 	// request summary information
 	fmt.Println(printPrefix, "Proof of space setup request summary")
-	fmt.Println("Directory path (relative to node or absolute):", dataDir)
+	fmt.Println("Data directory (relative to node or absolute):", dataDir)
 	fmt.Println("Number of units:", numUnits)
-	fmt.Println("Size (GiB):", unitSizeInGiB*float32(numUnits))
+	fmt.Println("Total size (GiB):", unitSizeInGiB*float32(numUnits))
 	fmt.Println("Compute provider id:", providerId)
+	fmt.Println("Number of files:", 1)
 	fmt.Println("Bits per label:", cfg.BitsPerLabel)
 	fmt.Println("Labels per unit:", cfg.LabelsPerUnit)
-	fmt.Println("Number of files:", 1)
 
 	req := &apitypes.StartSmeshingRequest{}
 	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
@@ -99,8 +107,9 @@ func (r *repl) setupPos() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Proof of space setup has started and your node will be smeshing as soon as it is complete. Please add the following to your node's config file so it will continue smeshing after you restart it")
-	fmt.Println(printPrefix, "todo: Json to add to node config file here")
+	fmt.Println(printPrefix, "Proof of space setup has started and your node will be smeshing as soon as it is complete.")
+	fmt.Println("Please add the following to the `post` section of  your node's config file so it will continue smeshing after you restart it:")
+	fmt.Println(printPrefix, " > >todo: [Json to add to node config file here]")
 }
 
 func (r *repl) printPostDataCreationProgress() {
@@ -156,7 +165,7 @@ func (r *repl) stopSmeshing() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Smeshing stopped. Don't forget to remove smeshing related data from your node's config file or startup flags so it won't start smeshing after you restart it")
+	fmt.Println(printPrefix, "⛔️ Smeshing stopped.\n⚠️ Don't forget to remove smeshing related data from your node's startup flags (or config file) so it won't start smeshing again after you restart it")
 
 }
 
