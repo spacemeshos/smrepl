@@ -15,9 +15,9 @@ import (
 	"github.com/spacemeshos/go-spacemesh/common/util"
 )
 
-// GIB is the number of bytes in 1 GiByes
+// GIB is the number of bytes in 1 GiByte	s
 const GIB uint64 = 1_262_485_504
-const pos_data_file_name = "pos-data.json"
+const posDataFileName = "pos-data.json"
 
 func (r *repl) printSmeshingStatus() {
 	res, err := r.client.SmeshingStatus()
@@ -43,16 +43,16 @@ func (r *repl) printSmeshingStatus() {
 		return
 	}
 
-	data, err := ioutil.ReadFile(pos_data_file_name)
+	data, err := ioutil.ReadFile(posDataFileName)
 	if err != nil {
 		log.Error("failed to read proof of space from data file: %v", err)
-		fmt.Println(printPrefix, "failed to read from %s. Error: %v", pos_data_file_name, err)
+		fmt.Println(printPrefix, "failed to read from %s. Error: %v", posDataFileName, err)
 	} else {
 		var posInitOps apitypes.PostInitOpts
 		err = json.Unmarshal(data, &posInitOps)
 		if err != nil {
-			log.Error("failed to parse data from %s. %v", pos_data_file_name, err)
-			fmt.Println(printPrefix, "failed to parse data from %s. Error: %v", pos_data_file_name, err)
+			log.Error("failed to parse data from %s. %v", posDataFileName, err)
+			fmt.Println(printPrefix, "failed to parse data from %s. Error: %v", posDataFileName, err)
 			return
 		}
 
@@ -200,11 +200,11 @@ func (r *repl) setupPos() {
 	// save pos options in pos.json in cliwallet folder:
 	data, _ := json.MarshalIndent(req.Opts, "", " ")
 
-	err = ioutil.WriteFile(pos_data_file_name, data, 0644)
+	err = ioutil.WriteFile(posDataFileName, data, 0644)
 	if err == nil {
-		fmt.Printf("Saved proof of space setup options to %s.\n\n", pos_data_file_name)
+		fmt.Printf("Saved proof of space setup options to %s.\n\n", posDataFileName)
 	} else {
-		log.Error("failed to save proof of space setup options to %s: %v", pos_data_file_name, err)
+		log.Error("failed to save proof of space setup options to %s: %v", posDataFileName, err)
 	}
 }
 
