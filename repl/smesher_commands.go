@@ -195,7 +195,7 @@ func (r *repl) stopSmeshing() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Smeshing stopped.\n⚠️  Don't forget to remove smeshing related data from your node's startup flags (or config file) so it won't start smeshing again after you restart it.")
+	fmt.Println(printPrefix, "Smeshing stopped.\n⚠️  Don't forget to remove smeshing related flags from your node's startup flags (or config file) so it won't start smeshing again after you restart it.")
 
 }
 

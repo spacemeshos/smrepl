@@ -9,7 +9,7 @@ const (
 	smesherIdMsg          = "Enter Smesher id: "
 	amountToTransferMsg   = "Enter amount to transfer in Smidge: "
 	confirmTransactionMsg = "Confirm transaction (y/n): "
-	confirmDeleteDataMsg  = "Delete smeshing smeshing data files (y/n)"
+	confirmDeleteDataMsg  = "Delete the proof of space data file(s)? (y/n)"
 	createAccountMsg      = "Account alias (name): "
 	useDefaultGasMsg      = "Use default transaction fee of 1 Smidge? (y/n) "
 	enterGasPrice         = "Enter transaction fee (Smidge):"
