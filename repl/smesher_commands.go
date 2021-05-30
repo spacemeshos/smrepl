@@ -17,6 +17,7 @@ import (
 
 // GIB is the number of bytes in 1 GiByes
 const GIB uint64 = 1_262_485_504
+const pos_data_file_name = "pos-data.json"
 
 func (r *repl) printSmeshingStatus() {
 	res, err := r.client.SmeshingStatus()
@@ -35,6 +36,44 @@ func (r *repl) printSmeshingStatus() {
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
 	}
+
+	cfg, err := r.client.Config()
+	if err != nil {
+		log.Error("failed get proof of space config from node: %v", err)
+		return
+	}
+
+	data, err := ioutil.ReadFile(pos_data_file_name)
+	if err != nil {
+		log.Error("failed to read proof of space from data file: %v", err)
+		fmt.Println(printPrefix, "failed to read from %s. Error: %v", pos_data_file_name, err)
+	} else {
+		var posInitOps apitypes.PostInitOpts
+		err = json.Unmarshal(data, &posInitOps)
+		if err != nil {
+			log.Error("failed to parse data from %s. %v", pos_data_file_name, err)
+			fmt.Println(printPrefix, "failed to parse data from %s. Error: %v", pos_data_file_name, err)
+			return
+		}
+
+		fmt.Println("Proof of space information:")
+
+		fmt.Println("Data dir (relative to node):", posInitOps.DataDir)
+		fmt.Println("Date files:", posInitOps.NumFiles)
+		fmt.Println("Compute provider id:", posInitOps.ComputeProviderId)
+		fmt.Println("Throttle when computer is busy:", posInitOps.Throttle)
+		fmt.Println("Bits per label:", cfg.BitsPerLabel)
+
+		fmt.Println("Units:", posInitOps.NumUnits)
+		fmt.Println("Labels:", uint64(posInitOps.NumUnits)*cfg.LabelsPerUnit)
+
+		unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
+		unitSizeInGiB := float32(unitSizeBytes) / float32(GIB)
+
+		fmt.Println("Size (GiB):", unitSizeInGiB*float32(posInitOps.NumUnits))
+		fmt.Println("Size (Bytes):", unitSizeBytes*uint64(posInitOps.NumUnits))
+
+	}
 }
 
 /// setupPos start an interactive proof of space data creation process
@@ -52,8 +91,10 @@ func (r *repl) setupPos() {
 		return
 	}
 
+	// check if idle - if not idle then pos is in progress or pos is active....
+	// in both cases we need to call StopSmeshing(false) before pos size can be adjusted
 	if res.Status != apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE {
-		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of space data, you first need to stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
+		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of space setup, you must first stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
 		if stopSmeshing {
 			// stop smeshing without deleting the data
 			resp, err := r.client.StopSmeshing(false)
@@ -70,7 +111,7 @@ func (r *repl) setupPos() {
 			fmt.Println(printPrefix, "Smeshing stopped.")
 
 		} else {
-			println("You must to stop smeshing before changing your proof of space data setup")
+			println("You must stop smeshing before changing your proof of space data setup")
 			return
 		}
 	}
@@ -159,11 +200,11 @@ func (r *repl) setupPos() {
 	// save pos options in pos.json in cliwallet folder:
 	data, _ := json.MarshalIndent(req.Opts, "", " ")
 
-	err = ioutil.WriteFile("pos-data.json", data, 0644)
+	err = ioutil.WriteFile(pos_data_file_name, data, 0644)
 	if err == nil {
-		fmt.Println("Saved proof of space setup options in pos-data.json.")
+		fmt.Printf("Saved proof of space setup options to %s.\n\n", pos_data_file_name)
 	} else {
-		log.Error("failed to save proof of space setup options in pos_data.json: %v", err)
+		log.Error("failed to save proof of space setup options to %s: %v", pos_data_file_name, err)
 	}
 }
 
