@@ -4,16 +4,12 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/spacemeshos/CLIWallet/common"
+	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
-	"github.com/spacemeshos/smrepl/common"
-	"github.com/spacemeshos/smrepl/log"
 )
-
-func (r *repl) printWalletMnemonic() {
-	r.client.PrintWalletMnemonic()
-}
 
 func (r *repl) walletInfo() {
 	r.client.WalletInfo()
@@ -75,12 +71,9 @@ func (r *repl) chooseAccount() {
 
 	account, err := r.client.CurrentAccount()
 	if err != nil {
-		log.Error("error getting current account", err)
-		return
+		panic("wtf")
 	}
-
 	fmt.Printf("Loaded account alias: `%s`, address: %s\n", account.Name, account.Address().String())
-
 }
 
 // createAccount creates a new account in the currently open wallet

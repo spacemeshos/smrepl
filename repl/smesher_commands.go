@@ -28,11 +28,11 @@ func (r *repl) printSmeshingStatus() {
 
 	switch res.Status {
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE:
-		fmt.Println(printPrefix, "Proof of space data was not created.")
+		fmt.Println("Proof of space data was not created.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_CREATING_POST_DATA:
-		fmt.Println(printPrefix, "⏱ Proof of space data creation is in progress.")
+		fmt.Println("⏱  Proof of space data creation is in progress.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_ACTIVE:
-		fmt.Println(printPrefix, "👍 Proof of space data was created and is used for smeshing.")
+		fmt.Println("👍  Proof of space data was created and is used for smeshing.")
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
 	}
@@ -45,19 +45,16 @@ func (r *repl) printSmeshingStatus() {
 
 	data, err := ioutil.ReadFile(posDataFileName)
 	if err != nil {
-		log.Error("failed to read proof of space from data file: %v", err)
-		fmt.Println(printPrefix, "failed to read from %s. Error: %v", posDataFileName, err)
+		log.Error("failed to read proof of space from data file %s. %v", posDataFileName, err)
 	} else {
 		var posInitOps apitypes.PostInitOpts
 		err = json.Unmarshal(data, &posInitOps)
 		if err != nil {
 			log.Error("failed to parse data from %s. %v", posDataFileName, err)
-			fmt.Println(printPrefix, "failed to parse data from %s. Error: %v", posDataFileName, err)
 			return
 		}
 
 		fmt.Println("Proof of space information:")
-
 		fmt.Println("Data dir (relative to node):", posInitOps.DataDir)
 		fmt.Println("Date files:", posInitOps.NumFiles)
 		fmt.Println("Compute provider id:", posInitOps.ComputeProviderId)
@@ -108,7 +105,7 @@ func (r *repl) setupPos() {
 				return
 			}
 
-			fmt.Println(printPrefix, "Smeshing stopped.")
+			fmt.Println("Smeshing stopped.")
 
 		} else {
 			println("You must stop smeshing before changing your proof of space data setup")
@@ -151,7 +148,7 @@ func (r *repl) setupPos() {
 	totalSizeBytes := unitSizeBytes * numUnits
 	numLabels := numUnits * cfg.LabelsPerUnit
 	// request summary information
-	fmt.Println(printPrefix, "Proof of space setup request summary")
+	fmt.Println("Proof of space setup request summary")
 	fmt.Println("Data directory (relative to node or absolute):", dataDir)
 	fmt.Println("Size (GiB):", unitSizeInGiB*float32(numUnits))
 	fmt.Println("Size (Bytes):", totalSizeBytes)
@@ -183,7 +180,7 @@ func (r *repl) setupPos() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Proof of space setup has started and your node will start smeshing when it is complete.")
+	fmt.Println("Proof of space setup has started and your node will start smeshing when it is complete.")
 	fmt.Println("IMPORTANT: Please add the following to your node's config file so it will smesh after you restart it.")
 	fmt.Println()
 	fmt.Println("\"post-init\": {")
@@ -263,7 +260,7 @@ func (r *repl) stopSmeshing() {
 	}
 
 	if res.Status == apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE {
-		fmt.Println(printPrefix, "Smeshing has not started")
+		fmt.Println("Can't stop smeshing because it has not started")
 		return
 	}
 
@@ -280,7 +277,7 @@ func (r *repl) stopSmeshing() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Smeshing stopped.\n⚠️  Don't forget to remove smeshing related flags from your node's startup flags (or config file) so it won't start smeshing again after you restart it.")
+	fmt.Println("Smeshing stopped.\n⚠️  Don't forget to remove smeshing related flags from your node's startup flags (or config file) so it won't start smeshing again after you restart it.")
 }
 
 var computeApiClassName = map[int32]string{
@@ -300,11 +297,11 @@ func (r *repl) printPosProviders() {
 	}
 
 	if len(providers) == 0 {
-		fmt.Println(printPrefix, "No supported compute providers found")
+		fmt.Println("No supported compute providers found")
 		return
 	}
 
-	fmt.Println(printPrefix, "Supported providers on your system:")
+	fmt.Println("Supported providers on your system:")
 
 	for i, p := range providers {
 		if i != 0 {
@@ -321,7 +318,7 @@ func (r *repl) printSmesherId() {
 	if resp, err := r.client.GetSmesherId(); err != nil {
 		log.Error("failed to get smesher id: %v", err)
 	} else {
-		fmt.Println(printPrefix, "Smesher id:", "0x"+hex.EncodeToString(resp))
+		fmt.Println("Smesher id:", "0x"+hex.EncodeToString(resp))
 	}
 }
 
@@ -329,7 +326,7 @@ func (r *repl) printRewardsAddress() {
 	if resp, err := r.client.GetRewardsAddress(); err != nil {
 		log.Error("failed to get rewards address: %v", err)
 	} else {
-		fmt.Println(printPrefix, "Rewards address is:", resp.String())
+		fmt.Println("Rewards address is:", resp.String())
 	}
 }
 
@@ -346,10 +343,10 @@ func (r *repl) setRewardsAddress() {
 	}
 
 	if resp.Code == 0 {
-		fmt.Println(printPrefix, "Rewards address set to:", addr.String())
+		fmt.Println("Rewards address set to:", addr.String())
 	} else {
 		// todo: what are the possible non-zero status codes here?
-		fmt.Println(printPrefix, fmt.Sprintf("Response status code: %d", resp.Code))
+		fmt.Printf("Response status code: %d\n", resp.Code)
 	}
 }
 
@@ -368,7 +365,7 @@ func (r *repl) printSmesherRewards() {
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
+	fmt.Printf("Total rewards: %d\n", total)
 	for i, r := range rewards {
 		if i != 0 {
 			fmt.Println("-----")
@@ -383,7 +380,7 @@ func (r *repl) printCurrentSmesherRewards() {
 		log.Error("failed to get smesher id: %v", err)
 	} else {
 
-		fmt.Println(printPrefix, "Smesher id:", "0x"+hex.EncodeToString(smesherId))
+		fmt.Println("Smesher id:", "0x"+hex.EncodeToString(smesherId))
 
 		// todo: request offset and total from user
 		rewards, total, err := r.client.SmesherRewards(smesherId, 0, 10000)
@@ -392,7 +389,7 @@ func (r *repl) printCurrentSmesherRewards() {
 			return
 		}
 
-		fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
+		fmt.Printf("Total rewards: %d", total)
 		for i, r := range rewards {
 			if i != 0 {
 				fmt.Println("-----")
