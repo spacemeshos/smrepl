@@ -112,8 +112,16 @@ func (r *repl) setupPos() {
 	}
 
 	fmt.Println(printPrefix, "Proof of space setup has started and your node will start smeshing when it is complete.")
-	fmt.Println("IMPORTANT: Please add the following to the `post` section of  your node's config file so it will continue smeshing after you restart it:")
-	fmt.Println(printPrefix, " >> todo: [Json to add to node config file here]")
+	fmt.Println("IMPORTANT: Please add the following to your node's config file so it will smesh after you restart it.")
+	fmt.Println("\"post-init\": {")
+	fmt.Printf(" \"datadir\": \"%s\",\n", dataDir)
+	fmt.Println(" \"numfiles\": \"1\",")
+	fmt.Printf(" \"numunits\": \"%d\",\n", numUnits)
+	fmt.Printf(" \"provider\": \"%d\",\n", providerId)
+	fmt.Println(" \"throttle\": false,")
+	fmt.Println(" \"start-smeshing\": true,")
+	fmt.Println("},")
+	fmt.Printf("\"coinbase\": \"%s\"\n", addrStr)
 }
 
 func (r *repl) printPostDataCreationProgress() {
@@ -145,8 +153,11 @@ func (r *repl) printPostDataCreationProgress() {
 		PosSizeBytes := uint64(cfg.BitsPerLabel) * numLabels / 8
 
 		if initial == false {
-			fmt.Printf("Session options: %+v\n", e.Status.SessionOpts)
-			fmt.Printf("Session settings: %+v\n", cfg)
+			fmt.Printf("Data directory: %s\n", e.Status.SessionOpts.DataDir)
+			fmt.Printf("Units: %d\n", e.Status.SessionOpts.NumUnits)
+			fmt.Printf("Files: %d\n", e.Status.SessionOpts.NumFiles)
+			fmt.Printf("Bits per label: %d\n", cfg.BitsPerLabel)
+			fmt.Printf("Labels per unit: %d\n", cfg.LabelsPerUnit)
 			fmt.Printf("Labels: %+v\n", numLabels)
 			fmt.Printf("Data size: %d bytes\n", PosSizeBytes)
 			initial = true
