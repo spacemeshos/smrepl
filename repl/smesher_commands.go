@@ -15,8 +15,8 @@ import (
 	"github.com/spacemeshos/go-spacemesh/common/util"
 )
 
-// GIB is the number of bytes in 1 GiBytes
-const GIB uint64 = 1_262_485_504
+// gib is the number of bytes in 1 GiBytes
+const gib uint64 = 1_262_485_504
 const posDataFileName = "pos-data.json"
 
 func (r *repl) printSmeshingStatus() {
@@ -65,7 +65,7 @@ func (r *repl) printSmeshingStatus() {
 		fmt.Println("Labels:", uint64(posInitOps.NumUnits)*cfg.LabelsPerUnit)
 
 		unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
-		unitSizeInGiB := float32(unitSizeBytes) / float32(GIB)
+		unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
 
 		fmt.Println("Size (GiB):", unitSizeInGiB*float32(posInitOps.NumUnits))
 		fmt.Println("Size (Bytes):", unitSizeBytes*uint64(posInitOps.NumUnits))
@@ -118,7 +118,7 @@ func (r *repl) setupPos() {
 	dataDir := inputNotBlank(posDataDirMsg)
 
 	unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
-	unitSizeInGiB := float32(unitSizeBytes) / float32(GIB)
+	unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
 	numUnitsStr := inputNotBlank(fmt.Sprintf(posSizeMsg, unitSizeInGiB, cfg.MinNumUnits, cfg.MaxNumUnits))
 	numUnits, err := strconv.ParseUint(numUnitsStr, 10, 32)
 	if err != nil {
