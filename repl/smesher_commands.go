@@ -45,6 +45,36 @@ func (r *repl) setupPos() {
 		return
 	}
 
+	// check if user needs to stop smeshing before changing pos data
+	res, err := r.client.SmeshingStatus()
+	if err != nil {
+		log.Error("failed to get proof of space status: %v", err)
+		return
+	}
+
+	if res.Status != apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE {
+		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of space data, you first need to stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
+		if stopSmeshing {
+			// stop smeshing without deleting the data
+			resp, err := r.client.StopSmeshing(false)
+			if err != nil {
+				log.Error("failed to stop smeshing: %v", err)
+				return
+			}
+
+			if resp.Code != 0 {
+				log.Error("failed to stop smeshing. Response status: %d", resp.Code)
+				return
+			}
+
+			fmt.Println(printPrefix, "Smeshing stopped.")
+
+		} else {
+			println("You must to stop smeshing before changing your proof of space data setup")
+			return
+		}
+	}
+
 	addrStr := inputNotBlank(enterRewardsAddress)
 	addr := gosmtypes.HexToAddress(addrStr)
 	dataDir := inputNotBlank(posDataDirMsg)
@@ -114,6 +144,7 @@ func (r *repl) setupPos() {
 
 	fmt.Println(printPrefix, "Proof of space setup has started and your node will start smeshing when it is complete.")
 	fmt.Println("IMPORTANT: Please add the following to your node's config file so it will smesh after you restart it.")
+	fmt.Println()
 	fmt.Println("\"post-init\": {")
 	fmt.Printf(" \"datadir\": \"%s\",\n", dataDir)
 	fmt.Println(" \"numfiles\": \"1\",")
@@ -123,13 +154,14 @@ func (r *repl) setupPos() {
 	fmt.Println(" \"start-smeshing\": true,")
 	fmt.Println("},")
 	fmt.Printf("\"coinbase\": \"%s\"\n", addrStr)
+	fmt.Println()
 
 	// save pos options in pos.json in cliwallet folder:
 	data, _ := json.MarshalIndent(req.Opts, "", " ")
 
 	err = ioutil.WriteFile("pos-data.json", data, 0644)
 	if err == nil {
-		fmt.Println("Saved proof of space setup options in pos-data.json")
+		fmt.Println("Saved proof of space setup options in pos-data.json.")
 	} else {
 		log.Error("failed to save proof of space setup options in pos_data.json: %v", err)
 	}
@@ -196,7 +228,6 @@ func (r *repl) stopSmeshing() {
 	}
 
 	fmt.Println(printPrefix, "Smeshing stopped.\n⚠️  Don't forget to remove smeshing related flags from your node's startup flags (or config file) so it won't start smeshing again after you restart it.")
-
 }
 
 var computeApiClassName = map[int32]string{
