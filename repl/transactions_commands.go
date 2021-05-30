@@ -8,8 +8,8 @@ import (
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/go-spacemesh/common/util"
 
+	"github.com/spacemeshos/CLIWallet/log"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
-	"github.com/spacemeshos/smrepl/log"
 )
 
 var transactionStateDisStringsMap = map[int32]string{
@@ -34,15 +34,15 @@ func (r *repl) printTransactionStatus() {
 
 	if txState != nil {
 		txStateDispString := transactionStateDisStringsMap[int32(txState.State.Number())]
-		fmt.Println("State:", txStateDispString)
+		fmt.Println(printPrefix, "State:", txStateDispString)
 	} else {
-		fmt.Println("Unknown transaction state")
+		fmt.Println(printPrefix, "Unknown transaction state")
 	}
 
 	if tx != nil {
 		printTransaction(tx)
 	} else {
-		fmt.Println("Unknown transaction")
+		fmt.Println(printPrefix, "Unknown transaction")
 	}
 }
 
@@ -63,10 +63,10 @@ func (r *repl) canSubmitTransactions() bool {
 func (r *repl) submitCoinTransaction() {
 
 	if !r.canSubmitTransactions() {
-		fmt.Println("Can't submit a new transaction. Please try again later")
+		fmt.Println(printPrefix, "Can't submit a new transaction. Please try again later")
 		return
 	}
-	fmt.Println(initialTransferMsg)
+	fmt.Println(printPrefix, initialTransferMsg)
 	acc, err := r.getCurrent()
 	if err != nil {
 		log.Error("failed to get account", err)
@@ -95,7 +95,7 @@ func (r *repl) submitCoinTransaction() {
 		}
 	}
 
-	fmt.Println("New transaction summary:")
+	fmt.Println(printPrefix, "New transaction summary:")
 	fmt.Println("From:  ", srcAddress.String())
 	fmt.Println("To:    ", destAddress.String())
 	fmt.Println("Amount:", amountStr, coinUnitName)
@@ -114,7 +114,7 @@ func (r *repl) submitCoinTransaction() {
 
 		txStateDispString := transactionStateDisStringsMap[int32(txState.State.Number())]
 
-		fmt.Println("Transaction submitted.")
+		fmt.Println(printPrefix, "Transaction submitted.")
 		fmt.Printf("Transaction id: 0x%v\n", hex.EncodeToString(txState.Id.Id))
 		fmt.Println("Transaction state:", txStateDispString)
 	}
@@ -124,7 +124,7 @@ func (r *repl) submitCoinTransaction() {
 func printTransaction(t *apitypes.Transaction) {
 
 	txIdStr := "0x" + util.Bytes2Hex(t.Id.Id)
-	fmt.Println("Transaction summary:")
+	fmt.Println(printPrefix, "Transaction summary:")
 	fmt.Printf("Id: %v\n", txIdStr)
 	fmt.Println("From:", gosmtypes.BytesToAddress(t.Sender.Address).String())
 
