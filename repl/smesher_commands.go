@@ -2,12 +2,13 @@ package repl
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"strconv"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
-
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 
 	"github.com/spacemeshos/CLIWallet/log"
@@ -122,6 +123,16 @@ func (r *repl) setupPos() {
 	fmt.Println(" \"start-smeshing\": true,")
 	fmt.Println("},")
 	fmt.Printf("\"coinbase\": \"%s\"\n", addrStr)
+
+	// save pos options in pos.json in cliwallet folder:
+	data, _ := json.MarshalIndent(req.Opts, "", " ")
+
+	err = ioutil.WriteFile("pos-data.json", data, 0644)
+	if err == nil {
+		fmt.Println("Saved proof of space setup options in pos-data.json")
+	} else {
+		log.Error("failed to save proof of space setup options in pos_data.json: %v", err)
+	}
 }
 
 func (r *repl) printPostDataCreationProgress() {
