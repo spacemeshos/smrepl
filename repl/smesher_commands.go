@@ -48,8 +48,8 @@ func (r *repl) setupPos() {
 	addr := gosmtypes.HexToAddress(addrStr)
 	dataDir := inputNotBlank(posDataDirMsg)
 
-	unitSize := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
-	unitSizeInGiB := float32(unitSize) / float32(GIB)
+	unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
+	unitSizeInGiB := float32(unitSizeBytes) / float32(GIB)
 	numUnitsStr := inputNotBlank(fmt.Sprintf(posSizeMsg, unitSizeInGiB, cfg.MinNumUnits, cfg.MaxNumUnits))
 	numUnits, err := strconv.ParseUint(numUnitsStr, 10, 32)
 	if err != nil {
@@ -76,15 +76,19 @@ func (r *repl) setupPos() {
 		return
 	}
 
+	totalSizeBytes := unitSizeBytes * numUnits
+	numLabels := numUnits * cfg.LabelsPerUnit
 	// request summary information
 	fmt.Println(printPrefix, "Proof of space setup request summary")
 	fmt.Println("Data directory (relative to node or absolute):", dataDir)
-	fmt.Println("Number of units:", numUnits)
-	fmt.Println("Total size (GiB):", unitSizeInGiB*float32(numUnits))
-	fmt.Println("Compute provider id:", providerId)
-	fmt.Println("Number of files:", 1)
+	fmt.Println("Size (GiB):", unitSizeInGiB*float32(numUnits))
+	fmt.Println("Size (Bytes):", totalSizeBytes)
+	fmt.Println("Units:", numUnits)
+	fmt.Println("Labels:", numLabels)
 	fmt.Println("Bits per label:", cfg.BitsPerLabel)
 	fmt.Println("Labels per unit:", cfg.LabelsPerUnit)
+	fmt.Println("Compute provider id:", providerId)
+	fmt.Println("Data files:", 1)
 
 	req := &apitypes.StartSmeshingRequest{}
 	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
@@ -107,9 +111,9 @@ func (r *repl) setupPos() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Proof of space setup has started and your node will be smeshing as soon as it is complete.")
-	fmt.Println("Please add the following to the `post` section of  your node's config file so it will continue smeshing after you restart it:")
-	fmt.Println(printPrefix, " > >todo: [Json to add to node config file here]")
+	fmt.Println(printPrefix, "Proof of space setup has started and your node will start smeshing when it is complete.")
+	fmt.Println("IMPORTANT: Please add the following to the `post` section of  your node's config file so it will continue smeshing after you restart it:")
+	fmt.Println(printPrefix, " >> todo: [Json to add to node config file here]")
 }
 
 func (r *repl) printPostDataCreationProgress() {
@@ -121,7 +125,7 @@ func (r *repl) printPostDataCreationProgress() {
 
 	stream, err := r.client.PostDataCreationProgressStream()
 	if err != nil {
-		log.Error("failed to get post data creation stream: %v", err)
+		log.Error("failed to get pos data creation stream: %v", err)
 		return
 	}
 
@@ -138,16 +142,20 @@ func (r *repl) printPostDataCreationProgress() {
 
 		numLabels := uint64(e.Status.SessionOpts.NumUnits) * cfg.LabelsPerUnit
 		numLabelsWrittenPct := uint64(float64(e.Status.NumLabelsWritten) / float64(numLabels) * 100)
+		PosSizeBytes := uint64(cfg.BitsPerLabel) * numLabels / 8
 
 		if initial == false {
-			fmt.Printf("session options: %+v\n", e.Status.SessionOpts)
-			fmt.Printf("config: %+v\n", cfg)
-			fmt.Printf("num labels target: %+v\n", numLabels)
+			fmt.Printf("Session options: %+v\n", e.Status.SessionOpts)
+			fmt.Printf("Session settings: %+v\n", cfg)
+			fmt.Printf("Labels: %+v\n", numLabels)
+			fmt.Printf("Data size: %d bytes\n", PosSizeBytes)
 			initial = true
 		}
 
-		fmt.Printf("num labels written: %d (%d%%)\n",
-			e.Status.NumLabelsWritten, numLabelsWrittenPct)
+		bytesWritten := uint64(cfg.BitsPerLabel) * e.Status.NumLabelsWritten / 8
+
+		fmt.Printf("Bytes written: %d (%d Labels) - %d%%\n",
+			bytesWritten, e.Status.NumLabelsWritten, numLabelsWrittenPct)
 	}
 }
 
@@ -165,7 +173,7 @@ func (r *repl) stopSmeshing() {
 		return
 	}
 
-	fmt.Println(printPrefix, "⛔️ Smeshing stopped.\n⚠️ Don't forget to remove smeshing related data from your node's startup flags (or config file) so it won't start smeshing again after you restart it")
+	fmt.Println(printPrefix, "Smeshing stopped.\n⚠️  Don't forget to remove smeshing related data from your node's startup flags (or config file) so it won't start smeshing again after you restart it.")
 
 }
 
