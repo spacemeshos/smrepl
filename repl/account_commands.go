@@ -126,8 +126,8 @@ func (r *repl) printAccountInfo() {
 
 	fmt.Println("Local alias:", acc.Name)
 	printAccount(account, address)
-	fmt.Println(fmt.Sprintf("Public key: 0x%s", hex.EncodeToString(acc.PubKey)))
-	fmt.Println(fmt.Sprintf("Private key: 0x%s", hex.EncodeToString(acc.PrivKey)))
+	fmt.Printf("Public key: 0x%s\n", hex.EncodeToString(acc.PubKey))
+	fmt.Printf("Private key: 0x%s\n", hex.EncodeToString(acc.PrivKey))
 }
 
 // printAccountRewards prints all rewards awarded to the current account

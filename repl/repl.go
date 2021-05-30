@@ -3,7 +3,6 @@ package repl
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/spacemeshos/CLIWallet/common"
 	"github.com/spacemeshos/CLIWallet/log"
@@ -211,13 +210,6 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 	}
 
 	return prompt.FilterHasPrefix(suggets, in.GetWordBeforeCursor(), true)
-}
-
-func (r *repl) commandLineParams(idx int, input string) string {
-	c := r.commands[idx]
-	params := strings.Replace(input, c.text, "", -1)
-
-	return strings.TrimSpace(params)
 }
 
 func (r *repl) firstTime() {

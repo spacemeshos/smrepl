@@ -115,7 +115,7 @@ func (r *repl) submitCoinTransaction() {
 		txStateDispString := transactionStateDisStringsMap[int32(txState.State.Number())]
 
 		fmt.Println(printPrefix, "Transaction submitted.")
-		fmt.Println(fmt.Sprintf("Transaction id: 0x%v", hex.EncodeToString(txState.Id.Id)))
+		fmt.Printf("Transaction id: 0x%v\n", hex.EncodeToString(txState.Id.Id))
 		fmt.Println("Transaction state:", txStateDispString)
 	}
 }
@@ -125,7 +125,7 @@ func printTransaction(t *apitypes.Transaction) {
 
 	txIdStr := "0x" + util.Bytes2Hex(t.Id.Id)
 	fmt.Println(printPrefix, "Transaction summary:")
-	fmt.Println(fmt.Sprintf("Id: %v", txIdStr))
+	fmt.Printf("Id: %v\n", txIdStr)
 	fmt.Println("From:", gosmtypes.BytesToAddress(t.Sender.Address).String())
 
 	ct := t.GetCoinTransfer()

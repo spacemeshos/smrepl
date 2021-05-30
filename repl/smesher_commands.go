@@ -15,7 +15,7 @@ import (
 	"github.com/spacemeshos/go-spacemesh/common/util"
 )
 
-// GIB is the number of bytes in 1 GiByte	s
+// GIB is the number of bytes in 1 GiBytes
 const GIB uint64 = 1_262_485_504
 const posDataFileName = "pos-data.json"
 
@@ -236,7 +236,7 @@ func (r *repl) printPostDataCreationProgress() {
 		numLabelsWrittenPct := uint64(float64(e.Status.NumLabelsWritten) / float64(numLabels) * 100)
 		PosSizeBytes := uint64(cfg.BitsPerLabel) * numLabels / 8
 
-		if initial == false {
+		if !initial {
 			fmt.Printf("Data directory: %s\n", e.Status.SessionOpts.DataDir)
 			fmt.Printf("Units: %d\n", e.Status.SessionOpts.NumUnits)
 			fmt.Printf("Files: %d\n", e.Status.SessionOpts.NumFiles)
@@ -255,6 +255,18 @@ func (r *repl) printPostDataCreationProgress() {
 }
 
 func (r *repl) stopSmeshing() {
+
+	res, err := r.client.SmeshingStatus()
+	if err != nil {
+		log.Error("failed to get proof of space status: %v", err)
+		return
+	}
+
+	if res.Status == apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE {
+		fmt.Println(printPrefix, "Smeshing has not started")
+		return
+	}
+
 	deleteData := yesOrNoQuestion(confirmDeleteDataMsg) == "y"
 	resp, err := r.client.StopSmeshing(deleteData)
 
@@ -281,31 +293,6 @@ var computeApiClassName = map[int32]string{
 /// setupProofOfSpace prints the available proof of space compute providers
 func (r *repl) printPosProviders() {
 
-	providers, err := r.client.GetPostComputeProviders(false)
-	if err != nil {
-		log.Error("failed to get compute providers: %v", err)
-		return
-	}
-
-	if len(providers) == 0 {
-		fmt.Println(printPrefix, "No supported compute providers found")
-		return
-	}
-
-	fmt.Println(printPrefix, "Supported providers on your system:")
-
-	for i, p := range providers {
-		if i != 0 {
-			fmt.Println("-----")
-		}
-		fmt.Println("Provider id:", p.GetId())
-		fmt.Println("Model:", p.GetModel())
-		fmt.Println("Compute api:", computeApiClassName[int32(p.GetComputeApi())])
-		fmt.Println("Performance:", p.GetPerformance())
-	}
-}
-
-func (r *repl) print() {
 	providers, err := r.client.GetPostComputeProviders(false)
 	if err != nil {
 		log.Error("failed to get compute providers: %v", err)
