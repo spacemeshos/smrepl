@@ -14,8 +14,8 @@ const (
 	useDefaultGasMsg      = "Use default transaction fee of 1 Smidge? (y/n) "
 	enterGasPrice         = "Enter transaction fee (Smidge):"
 
-	posDataDirMsg  = "Enter proof of space data directory: "
-	posSizeMsg     = "Enter proof of space data units number, %f GiB each (min: %d, max: %d): "
+	posDataDirMsg  = "Enter proof of space data directory (relative to node or absolute): "
+	posSizeMsg     = "Enter number of units. (%f GiB per unit. Min units: %d, Max units: %d): "
 	posProviderMsg = "Enter proof of space compute provider id: "
 
 	msgSignMsg     = "Enter message to sign (in hex): "

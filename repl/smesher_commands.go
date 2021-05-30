@@ -20,19 +20,19 @@ const GIB uint64 = 1_262_485_504
 func (r *repl) printSmeshingStatus() {
 	res, err := r.client.SmeshingStatus()
 	if err != nil {
-		log.Error("failed to query for smeshing status: %v", err)
+		log.Error("failed to get proof of space status: %v", err)
 		return
 	}
 
 	switch res.Status {
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE:
-		fmt.Println(printPrefix, "Node's smeshing status: IDLE")
+		fmt.Println(printPrefix, "Proof of space data was not created.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_CREATING_POST_DATA:
-		fmt.Println(printPrefix, "Node's smeshing status: CREATING_POST_DATA")
+		fmt.Println(printPrefix, "Proof of space data creation is in progress.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_ACTIVE:
-		fmt.Println(printPrefix, "Node's smeshing status: ACTIVE")
+		fmt.Println(printPrefix, "Proof of space data was created and is used for smeshing.")
 	default:
-		panic("unreachable")
+		fmt.Println("printPrefix", "Unexpected api result.")
 	}
 }
 
@@ -40,7 +40,7 @@ func (r *repl) printSmeshingStatus() {
 func (r *repl) setupPos() {
 	cfg, err := r.client.Config()
 	if err != nil {
-		log.Error("failed to query for smeshing config: %v", err)
+		log.Error("failed get proof of space config: %v", err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (r *repl) setupPos() {
 	numUnitsStr := inputNotBlank(fmt.Sprintf(posSizeMsg, unitSizeInGiB, cfg.MinNumUnits, cfg.MaxNumUnits))
 	numUnits, err := strconv.ParseUint(numUnitsStr, 10, 64)
 	if err != nil {
-		log.Error("failed to parse your input: %v", err)
+		log.Error("invalid input: %v", err)
 		return
 	}
 
@@ -69,13 +69,14 @@ func (r *repl) setupPos() {
 	}
 
 	// request summary information
-	fmt.Println(printPrefix, "Proof of space setup request summary:")
-	fmt.Println("Directory:", dataDir)
-	fmt.Println("Bits per label:", cfg.BitsPerLabel)
-	fmt.Println("Labels per unit:", cfg.LabelsPerUnit)
+	fmt.Println(printPrefix, "Proof of space setup request summary")
+	fmt.Println("Directory path (relative to node or absolute):", dataDir)
 	fmt.Println("Number of units:", numUnits)
 	fmt.Println("Size (GiB):", unitSizeInGiB*float32(numUnits))
 	fmt.Println("Compute provider id:", providerId)
+	fmt.Println("Bits per label:", cfg.BitsPerLabel)
+	fmt.Println("Labels per unit:", cfg.LabelsPerUnit)
+	fmt.Println("Number of files:", 1)
 
 	req := &apitypes.StartSmeshingRequest{}
 	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
