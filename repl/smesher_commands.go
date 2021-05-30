@@ -54,19 +54,17 @@ func (r *repl) printSmeshingStatus() {
 			return
 		}
 
-		fmt.Println("Proof of space information:")
-		fmt.Println("Data dir (relative to node):", posInitOps.DataDir)
+		unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
+		unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
+
+		fmt.Println("Proof of space info:")
+		fmt.Println("Data dir (relative to node or absolute):", posInitOps.DataDir)
 		fmt.Println("Date files:", posInitOps.NumFiles)
 		fmt.Println("Compute provider id:", posInitOps.ComputeProviderId)
 		fmt.Println("Throttle when computer is busy:", posInitOps.Throttle)
 		fmt.Println("Bits per label:", cfg.BitsPerLabel)
-
 		fmt.Println("Units:", posInitOps.NumUnits)
 		fmt.Println("Labels:", uint64(posInitOps.NumUnits)*cfg.LabelsPerUnit)
-
-		unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
-		unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
-
 		fmt.Println("Size (GiB):", unitSizeInGiB*float32(posInitOps.NumUnits))
 		fmt.Println("Size (Bytes):", unitSizeBytes*uint64(posInitOps.NumUnits))
 
@@ -85,6 +83,17 @@ func (r *repl) setupPos() {
 	res, err := r.client.SmeshingStatus()
 	if err != nil {
 		log.Error("failed to get proof of space status: %v", err)
+		return
+	}
+
+	providers, err := r.client.GetPostComputeProviders(false)
+	if err != nil {
+		log.Error("failed to get compute providers: %v", err)
+		return
+	}
+
+	if len(providers) == 0 {
+		log.Error("No supported compute providers found on system")
 		return
 	}
 
@@ -120,6 +129,7 @@ func (r *repl) setupPos() {
 	unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
 	unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
 	numUnitsStr := inputNotBlank(fmt.Sprintf(posSizeMsg, unitSizeInGiB, cfg.MinNumUnits, cfg.MaxNumUnits))
+
 	numUnits, err := strconv.ParseUint(numUnitsStr, 10, 32)
 	if err != nil {
 		log.Error("invalid input: %v", err)
@@ -136,12 +146,23 @@ func (r *repl) setupPos() {
 		return
 	}
 
-	// TODO: validate provider id is valid by enum the providers here....
-
 	providerIdStr := inputNotBlank(posProviderMsg)
 	providerId, err := strconv.ParseUint(providerIdStr, 10, 32)
 	if err != nil {
 		log.Error("invalid input: %v", err)
+		return
+	}
+
+	validProvider := false
+	for _, p := range providers {
+		if uint32(providerId) == p.Id {
+			validProvider = true
+			break
+		}
+	}
+
+	if !validProvider {
+		println("invalid provider id. Please select a provider id for a provider that is available in your system")
 		return
 	}
 
@@ -194,7 +215,7 @@ func (r *repl) setupPos() {
 	fmt.Printf("\"coinbase\": \"%s\"\n", addrStr)
 	fmt.Println()
 
-	// save pos options in pos.json in cliwallet folder:
+	// save pos options in pos.json in cli-wallet directory:
 	data, _ := json.MarshalIndent(req.Opts, "", " ")
 
 	err = ioutil.WriteFile(posDataFileName, data, 0644)
