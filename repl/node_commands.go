@@ -12,7 +12,7 @@ func (r *repl) nodeInfo() {
 		log.Error("failed to get node info: %v", err)
 		return
 	}
-	fmt.Println(printPrefix, "Node info:")
+	fmt.Println("Node info:")
 	fmt.Println("Version:", info.Version)
 	fmt.Println("Build:", info.Build)
 	fmt.Println("API server:", r.client.ServerInfo())

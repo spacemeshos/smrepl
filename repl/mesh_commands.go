@@ -18,7 +18,7 @@ func (r *repl) printMeshInfo() {
 
 	localGenesisTime := time.Unix(int64(info.GenesisTime), 0)
 
-	fmt.Println(printPrefix, "Network info:")
+	fmt.Println("Network info:")
 	fmt.Println("Network id:", info.NetId)
 	fmt.Println("Max transactions per second:", info.MaxTxsPerSec)
 	fmt.Println("Layers per epoch:", info.LayerPerEpoch)
@@ -55,7 +55,7 @@ func (r *repl) printAccountMeshTransactions(address gosmtypes.Address) {
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Total mesh transactions: %d", total))
+	fmt.Printf("Total mesh transactions: %d", total)
 	for i, tx := range txs {
 		if i != 0 {
 			fmt.Println("-----")

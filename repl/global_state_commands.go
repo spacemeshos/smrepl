@@ -20,7 +20,7 @@ func (r *repl) printRewards(address gosmtypes.Address) {
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
+	fmt.Printf("Total rewards: %d\n", total)
 	for i, r := range rewards {
 		if i != 0 {
 			fmt.Println("-----")
@@ -46,7 +46,7 @@ func (r *repl) printAccountRewardsStream() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Listening to new rewards for address: ", addr.String())
+	fmt.Println("Listening to new rewards for address: ", addr.String())
 
 	done := make(chan bool)
 	go func() {
@@ -77,7 +77,7 @@ func (r *repl) printAccountUpdatesStream() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Listening for new updates for address: ", address.String())
+	fmt.Println("Listening for new updates for address: ", address.String())
 
 	done := make(chan bool)
 	go func() {

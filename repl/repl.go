@@ -15,8 +15,7 @@ import (
 )
 
 const (
-	prefix      = "$ "
-	printPrefix = ">"
+	prefix = "$ "
 )
 
 // TestMode variable used for check if unit test is running
@@ -165,7 +164,7 @@ func Start(c Client) {
 	// init logging system
 	path, err := os.Getwd()
 	if err != nil {
-		fmt.Println(printPrefix, "Aborting. Can't get current dir. Your system is high.", err)
+		fmt.Println("Aborting. Can't get current dir. Your system is high.", err)
 		return
 	}
 
@@ -195,7 +194,7 @@ func (r *repl) executor(text string) {
 		}
 	}
 
-	fmt.Println(printPrefix, "invalid command.")
+	fmt.Println("invalid command.")
 }
 
 func (r *repl) completer(in prompt.Document) []prompt.Suggest {

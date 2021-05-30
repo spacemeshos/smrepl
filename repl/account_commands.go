@@ -56,7 +56,7 @@ func (r *repl) chooseAccount() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Choose an account to load:")
+	fmt.Println("Choose an account to load:")
 	accNumber := multipleChoice(accs)
 	if accNumber == 0 {
 		fmt.Println("none selected")
@@ -73,12 +73,12 @@ func (r *repl) chooseAccount() {
 	if err != nil {
 		panic("wtf")
 	}
-	fmt.Printf("%s Loaded account alias: `%s`, address: %s\n", printPrefix, account.Name, account.Address().String())
+	fmt.Printf("Loaded account alias: `%s`, address: %s\n", account.Name, account.Address().String())
 }
 
 // createAccount creates a new account in the currently open wallet
 func (r *repl) createAccount() {
-	fmt.Println(printPrefix, "Create a new account")
+	fmt.Println("Create a new account")
 	alias := inputNotBlank(createAccountMsg)
 
 	ac, err := r.client.CreateAccount(alias)
@@ -92,7 +92,7 @@ func (r *repl) createAccount() {
 		return
 	}
 
-	fmt.Printf("%s Created account: %s, address: %s\n", printPrefix, ac.Name, ac.Address().String())
+	fmt.Printf("Created account: %s, address: %s\n", ac.Name, ac.Address().String())
 }
 
 // One smesh in base coin units
@@ -163,11 +163,11 @@ func printAccount(account *apitypes.Account, address gosmtypes.Address) {
 // printReward prints a Reward
 func printReward(r *apitypes.Reward) {
 	fmt.Println("Rewarded on layer:", r.Layer.Number)
-	//fmt.Println(printPrefix, "Rewarded for layer:", r.LayerComputed.Number)
+	//fmt.Println("Rewarded for layer:", r.LayerComputed.Number)
 	fmt.Println("Layer reward", r.LayerReward.Value, coinUnitName)
 	fmt.Println("Transaction fees", r.Total.Value-r.LayerReward.Value, coinUnitName)
 	fmt.Println("Total reward", r.Total.Value, coinUnitName)
-	//fmt.Println(printPrefix, "Smesher id", "0x"+hex.EncodeToString(r.Smesher.Id))
+	//fmt.Println("Smesher id", "0x"+hex.EncodeToString(r.Smesher.Id))
 	fmt.Println("Rewards account:", gosmtypes.BytesToAddress(r.Coinbase.Address).String())
 }
 
@@ -197,7 +197,7 @@ func (r *repl) sign() {
 		return
 	}
 	signature := ed25519.Sign2(acc.PrivKey, msg)
-	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
+	fmt.Printf("signature (in hex): %x\n", signature)
 }
 
 // signText signs a string with the current account
@@ -209,5 +209,5 @@ func (r *repl) signText() {
 	}
 	msg := inputNotBlank(msgTextSignMsg)
 	signature := ed25519.Sign2(acc.PrivKey, []byte(msg))
-	fmt.Println(printPrefix, fmt.Sprintf("signature (in hex): %x", signature))
+	fmt.Printf("signature (in hex): %x\n", signature)
 }
