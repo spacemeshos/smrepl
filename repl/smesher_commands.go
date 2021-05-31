@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
+	"path"
 	"strconv"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
@@ -127,6 +129,10 @@ func (r *repl) setupPos() {
 	addr := gosmtypes.HexToAddress(addrStr)
 	dataDir := inputNotBlank(posDataDirMsg)
 
+	if !validatePath(dataDir) {
+		return
+	}
+
 	unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
 	unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
 	numUnitsStr := inputNotBlank(fmt.Sprintf(posSizeMsg, unitSizeInGiB, cfg.MinNumUnits, cfg.MaxNumUnits))
@@ -232,6 +238,48 @@ func (r *repl) setupPos() {
 	} else {
 		log.Error("failed to save proof of space setup options to %s: %v", posDataFileName, err)
 	}
+}
+
+// validatePath validates file permissions for the current user for the directory in the provided path
+func validatePath(dataDir string) bool {
+
+	// check path is valid os path
+	pathInfo, err := os.Stat(dataDir)
+	if err != nil {
+		println("Invalid target directory. Please provide a valid directory")
+		return false
+	}
+
+	// check path is a dir
+	if !pathInfo.IsDir() {
+		println("Invalid target directory. Please provide a valid directory")
+		return false
+	}
+
+	tempFilePath := path.Join(dataDir, "temp.bin")
+
+	// check write file perms
+	err = os.WriteFile(tempFilePath, []byte{0xff}, 0600)
+	if err != nil {
+		println("You don't have write permissions for this directory. Please enter a directory you have permissions to write to")
+		return false
+	}
+
+	// check read file perms
+	_, err = os.ReadFile(tempFilePath)
+	if err != nil {
+		println("You don't have read permissions to read from this directory. Please enter a directory you have permissions to read from.")
+		return false
+	}
+
+	// check delete file perms
+	err = os.Remove(tempFilePath)
+	if err != nil {
+		println("You don't have permissions to delete files in this directory. Please enter a directory you have permissions to delete files from")
+		return false
+	}
+
+	return true
 }
 
 func (r *repl) printPostDataCreationProgress() {
