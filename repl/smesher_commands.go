@@ -28,7 +28,8 @@ func (r *repl) printSmeshingStatus() {
 
 	switch res.Status {
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE:
-		fmt.Println("Proof of space data was not created.")
+		fmt.Println("Proof of space data is not setup. Enter `pos-setup` to set it up.")
+		return
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_CREATING_POST_DATA:
 		fmt.Println("⏱  Proof of space data creation is in progress.")
 	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_ACTIVE:
@@ -144,6 +145,13 @@ func (r *repl) setupPos() {
 	if uint32(numUnits) < cfg.MinNumUnits {
 		log.Error("Number of units must be equal or greater than minimum number of units")
 		return
+	}
+
+	// todo: estimate performance for each provider and display performance
+
+	println("Available proof of space compute providers:")
+	for _, p := range providers {
+		fmt.Printf("Id %d - %s (%s)\n", p.Id, p.Model, computeApiClassName[int32(p.GetComputeApi())])
 	}
 
 	providerIdStr := inputNotBlank(posProviderMsg)
@@ -331,7 +339,7 @@ func (r *repl) printPosProviders() {
 		fmt.Println("Provider id:", p.GetId())
 		fmt.Println("Model:", p.GetModel())
 		fmt.Println("Compute api:", computeApiClassName[int32(p.GetComputeApi())])
-		fmt.Println("Performance:", p.GetPerformance())
+		// fmt.Println("Performance:", p.GetPerformance())
 	}
 }
 
