@@ -6,7 +6,7 @@ import (
 
 type windowsStorageAPI struct{}
 
-func platformStorageApi() iStorageUtils {
+func platformStorageApi() istorageUtils {
 	return &windowsStorageAPI{}
 }
 

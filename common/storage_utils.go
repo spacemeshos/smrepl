@@ -8,7 +8,7 @@ import (
 
 type linuxStorageAPI struct{}
 
-func platformStorageApi() iStorageUtils {
+func platformStorageApi() istorageUtils {
 	return &linuxStorageAPI{}
 }
 
