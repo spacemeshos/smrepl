@@ -1,6 +1,7 @@
 package common
 
 import (
+	"io/ioutil"
 	"os"
 	"path"
 )
@@ -35,14 +36,14 @@ func ValidatePath(dataDir string) bool {
 	tempFilePath := path.Join(dataDir, "temp.bin")
 
 	// check write file perms
-	err = os.WriteFile(tempFilePath, []byte{0xff}, 0644)
+	err = ioutil.WriteFile(tempFilePath, []byte{0xff}, 0644)
 	if err != nil {
 		println("You don't have write permissions for this directory. Please enter a directory you have permissions to write to")
 		return false
 	}
 
 	// check read file perms
-	_, err = os.ReadFile(tempFilePath)
+	_, err = ioutil.ReadFile(tempFilePath)
 	if err != nil {
 		println("You don't have read permissions to read from this directory. Please enter a directory you have permissions to read from.")
 		return false

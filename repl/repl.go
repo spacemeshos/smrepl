@@ -68,7 +68,7 @@ type Client interface {
 	TransactionState(txId []byte, includeTx bool) (*apitypes.TransactionState, *apitypes.Transaction, error)
 
 	// Smesher service
-	SmeshingStatus() (*apitypes.SmeshingStatusResponse, error)
+	IsSmeshing() (*apitypes.IsSmeshingResponse, error)
 	StartSmeshing(request *apitypes.StartSmeshingRequest) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
 	GetPostComputeProviders(benchmark bool) ([]*apitypes.PostComputeProvider, error)
@@ -76,6 +76,7 @@ type Client interface {
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
 	Config() (*apitypes.ConfigResponse, error)
+	PostStatus() (*apitypes.PostStatusResponse, error)
 	PostDataCreationProgressStream() (apitypes.SmesherService_PostDataCreationProgressStreamClient, error)
 
 	// debug service
@@ -146,6 +147,7 @@ func (r *repl) initializeCommands() {
 		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
 
 		// proof of space methods
+		{"pos-status", "Display proof of space status", r.printPostStatus},
 		{"pos-providers", "Display the available proof of space providers", r.printPosProviders},
 		{"pos-setup", "Set up (or change) smesher proof of space data", r.setupPos},
 		{"pos-stream-progress", "Stream data creation progress", r.printPostDataCreationProgress},
