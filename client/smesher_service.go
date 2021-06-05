@@ -9,9 +9,9 @@ import (
 )
 
 // IsSmeshing returns true iff the node is currently setup to smesh
-func (c *gRPCClient) SmeshingStatus() (*apitypes.SmeshingStatusResponse, error) {
+func (c *gRPCClient) IsSmeshing() (*apitypes.IsSmeshingResponse, error) {
 	s := c.getSmesherServiceClient()
-	return s.SmeshingStatus(context.Background(), &empty.Empty{})
+	return s.IsSmeshing(context.Background(), &empty.Empty{})
 }
 
 // StartSmeshing instructs the node to start smeshing using user's provider params
@@ -78,6 +78,11 @@ func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Statu
 func (c *gRPCClient) Config() (*apitypes.ConfigResponse, error) {
 	s := c.getSmesherServiceClient()
 	return s.Config(context.Background(), &empty.Empty{})
+}
+
+func (c *gRPCClient) PostStatus() (*apitypes.PostStatusResponse, error) {
+	s := c.getSmesherServiceClient()
+	return s.PostStatus(context.Background(), &empty.Empty{})
 }
 
 func (c *gRPCClient) PostDataCreationProgressStream() (apitypes.SmesherService_PostDataCreationProgressStreamClient, error) {

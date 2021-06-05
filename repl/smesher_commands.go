@@ -22,22 +22,35 @@ const gib uint64 = 1073741824
 const posDataFileName = "pos-data.json"
 
 func (r *repl) printSmeshingStatus() {
-	res, err := r.client.SmeshingStatus()
+	res, err := r.client.IsSmeshing()
+	if err != nil {
+		log.Error("failed to get smeshing status: %v", err)
+		return
+	}
+
+	fmt.Printf("IsSmeshing: %v\n", res.IsSmeshing)
+}
+
+func (r *repl) printPostStatus() {
+	res, err := r.client.PostStatus()
 	if err != nil {
 		log.Error("failed to get proof of space status: %v", err)
 		return
 	}
 
-	switch res.Status {
-	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE:
+	switch res.Status.InitStatus {
+	case apitypes.PostStatus_INIT_STATUS_NOT_STARTED:
 		fmt.Println("Proof of space data is not setup. Enter `pos-setup` to set it up.")
 		return
-	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_CREATING_POST_DATA:
+	case apitypes.PostStatus_INIT_STATUS_IN_PROGRESS:
 		fmt.Println("⏱  Proof of space data creation is in progress.")
-	case apitypes.SmeshingStatusResponse_SMESHING_STATUS_ACTIVE:
+	case apitypes.PostStatus_INIT_STATUS_COMPLETE:
 		fmt.Println("👍  Proof of space data was created and is used for smeshing.")
+	case apitypes.PostStatus_INIT_STATUS_ERROR:
+		fmt.Printf("⚠️  Proof of space data creation error: %v", res.Status.ErrorMessage)
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
+		return
 	}
 
 	cfg, err := r.client.Config()
@@ -46,32 +59,21 @@ func (r *repl) printSmeshingStatus() {
 		return
 	}
 
-	data, err := ioutil.ReadFile(posDataFileName)
-	if err != nil {
-		log.Error("failed to read proof of space from data file %s. %v", posDataFileName, err)
-	} else {
-		var posInitOps apitypes.PostInitOpts
-		err = json.Unmarshal(data, &posInitOps)
-		if err != nil {
-			log.Error("failed to parse data from %s. %v", posDataFileName, err)
-			return
-		}
+	unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
+	unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
+	opts := res.Status.InitOpts
 
-		unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
-		unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
-
-		fmt.Println("Proof of space info:")
-		fmt.Println("Data dir (relative to node or absolute):", posInitOps.DataDir)
-		fmt.Println("Date files:", posInitOps.NumFiles)
-		fmt.Println("Compute provider id:", posInitOps.ComputeProviderId)
-		fmt.Println("Throttle when computer is busy:", posInitOps.Throttle)
-		fmt.Println("Bits per label:", cfg.BitsPerLabel)
-		fmt.Println("Units:", posInitOps.NumUnits)
-		fmt.Println("Labels:", uint64(posInitOps.NumUnits)*cfg.LabelsPerUnit)
-		fmt.Println("Size (GiB):", unitSizeInGiB*float32(posInitOps.NumUnits))
-		fmt.Println("Size (Bytes):", unitSizeBytes*uint64(posInitOps.NumUnits))
-
-	}
+	println()
+	fmt.Println("Proof of space info:")
+	fmt.Println("  Data dir (relative to node or absolute):", opts.DataDir)
+	fmt.Println("  Date files:", opts.NumFiles)
+	fmt.Println("  Compute provider id:", opts.ComputeProviderId)
+	fmt.Println("  Throttle when computer is busy:", opts.Throttle)
+	fmt.Println("  Bits per label:", cfg.BitsPerLabel)
+	fmt.Println("  Units:", opts.NumUnits)
+	fmt.Println("  Labels:", uint64(opts.NumUnits)*cfg.LabelsPerUnit)
+	fmt.Println("  Size (GiB):", unitSizeInGiB*float32(opts.NumUnits))
+	fmt.Println("  Size (Bytes):", unitSizeBytes*uint64(opts.NumUnits))
 }
 
 /// setupPos start an interactive proof of space data creation process
@@ -83,7 +85,7 @@ func (r *repl) setupPos() {
 	}
 
 	// check if user needs to stop smeshing before changing pos data
-	res, err := r.client.SmeshingStatus()
+	res, err := r.client.IsSmeshing()
 	if err != nil {
 		log.Error("failed to get proof of space status: %v", err)
 		return
@@ -100,9 +102,8 @@ func (r *repl) setupPos() {
 		return
 	}
 
-	// check if idle - if not idle then pos is in progress or pos is active....
-	// in both cases we need to call StopSmeshing(false) before pos size can be adjusted
-	if res.Status != apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE {
+	// If smeshing already started, StopSmeshing(false) should be called before init size could be adjusted.
+	if res.IsSmeshing {
 		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of space setup, you must first stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
 		if stopSmeshing {
 			// stop smeshing without deleting the data
@@ -276,14 +277,15 @@ func (r *repl) printPostDataCreationProgress() {
 			return
 		}
 
-		numLabels := uint64(e.Status.SessionOpts.NumUnits) * cfg.LabelsPerUnit
+		numLabels := uint64(e.Status.InitOpts.NumUnits) * cfg.LabelsPerUnit
 		numLabelsWrittenPct := uint64(float64(e.Status.NumLabelsWritten) / float64(numLabels) * 100)
 		PosSizeBytes := uint64(cfg.BitsPerLabel) * numLabels / 8
 
 		if !initial {
-			fmt.Printf("Data directory: %s\n", e.Status.SessionOpts.DataDir)
-			fmt.Printf("Units: %d\n", e.Status.SessionOpts.NumUnits)
-			fmt.Printf("Files: %d\n", e.Status.SessionOpts.NumFiles)
+			// TODO: use the same printing of cfg/opts as in r.printPostStatus.
+			fmt.Printf("Data directory: %s\n", e.Status.InitOpts.DataDir)
+			fmt.Printf("Units: %d\n", e.Status.InitOpts.NumUnits)
+			fmt.Printf("Files: %d\n", e.Status.InitOpts.NumFiles)
 			fmt.Printf("Bits per label: %d\n", cfg.BitsPerLabel)
 			fmt.Printf("Labels per unit: %d\n", cfg.LabelsPerUnit)
 			fmt.Printf("Labels: %+v\n", numLabels)
@@ -292,21 +294,24 @@ func (r *repl) printPostDataCreationProgress() {
 		}
 
 		bytesWritten := uint64(cfg.BitsPerLabel) * e.Status.NumLabelsWritten / 8
-
 		fmt.Printf("Bytes written: %d (%d Labels) - %d%%\n",
 			bytesWritten, e.Status.NumLabelsWritten, numLabelsWrittenPct)
+
+		if e.Status.ErrorMessage != "" {
+			fmt.Printf("Error: %v\n", e.Status.ErrorMessage)
+			return
+		}
 	}
 }
 
 func (r *repl) stopSmeshing() {
-
-	res, err := r.client.SmeshingStatus()
+	res, err := r.client.IsSmeshing()
 	if err != nil {
 		log.Error("failed to get proof of space status: %v", err)
 		return
 	}
 
-	if res.Status == apitypes.SmeshingStatusResponse_SMESHING_STATUS_IDLE {
+	if !res.IsSmeshing {
 		fmt.Println("Can't stop smeshing because it has not started")
 		return
 	}
