@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spacemeshos/CLIWallet/common"
-	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+	"github.com/spacemeshos/smrepl/common"
+	"github.com/spacemeshos/smrepl/log"
 	"google.golang.org/genproto/googleapis/rpc/status"
 
 	"github.com/c-bata/go-prompt"

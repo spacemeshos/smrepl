@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spacemeshos/CLIWallet/client"
-	"github.com/spacemeshos/CLIWallet/repl"
+	"github.com/spacemeshos/smrepl/client"
+	"github.com/spacemeshos/smrepl/repl"
 )
 
 func main() {

@@ -7,8 +7,8 @@ import (
 
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 
-	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/go-spacemesh/common/util"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 // printSmesherRewards prints all rewards awarded to a smesher identified by an id

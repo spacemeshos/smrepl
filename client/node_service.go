@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/spacemeshos/CLIWallet/common"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
+	"github.com/spacemeshos/smrepl/common"
 	"golang.org/x/net/context"
 )
 

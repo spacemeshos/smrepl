@@ -1,5 +1,5 @@
-BINARY := cli_wallet
-DOCKER_IMAGE_REPO := cli_wallet
+BINARY := smrepl
+DOCKER_IMAGE_REPO := smrepl
 WINDOWS=$(BINARY)_windows_amd64.exe
 LINUX=$(BINARY)_linux_amd64
 DARWIN=$(BINARY)_darwin_amd64

@@ -1,6 +1,6 @@
 FROM golang:1.11.2-alpine3.8 AS build_base
 RUN apk add bash make git curl unzip rsync libc6-compat gcc musl-dev
-WORKDIR /go/src/github.com/spacemeshos/CLIWallet
+WORKDIR /go/src/github.com/spacemeshos/smrepl
 
 # Force the go compiler to use modules
 ENV GO111MODULE=on
@@ -21,5 +21,5 @@ COPY . .
 RUN go build
 
 FROM alpine AS spacemesh
-COPY --from=server_builder /go/src/github.com/spacemeshos/CLIWallet/CLIWallet /bin/CLIWallet
-ENTRYPOINT ["/bin/CLIWallet"]
+COPY --from=server_builder /go/src/github.com/spacemeshos/smrepl/smrepl /bin/smrepl
+ENTRYPOINT ["/bin/smrepl"]
