@@ -62,7 +62,9 @@ jobs:
         uses: release-drafter/release-drafter@v5
 
       - uses: actions/download-artifact@v2
-
+        with:
+          path: .
+          
       - run: |
           VER="${{ github.ref }}"
           echo "VERSION=${VER#refs/tags/v}" >> $GITHUB_ENV
