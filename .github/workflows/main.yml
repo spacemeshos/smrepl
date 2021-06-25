@@ -30,10 +30,19 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: make build
+        run: make
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux
+          path: src/smrepl_linux_amd64
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows
+          path: src/smrepl_windows_amd64.exe
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macoOS
+          path: src/smrepl_darwin_amd64
