@@ -8,6 +8,9 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  release:
+    types:
+      - published
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,15 +37,15 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: linux
+          name: linux.zip
           path: smrepl_linux_amd64
 
       - uses: actions/upload-artifact@v2
         with:
-          name: windows
+          name: windows.zip
           path: smrepl_windows_amd64.exe
 
       - uses: actions/upload-artifact@v2
         with:
-          name: macoOS
+          name: macoOS.zip
           path: smrepl_darwin_amd64
