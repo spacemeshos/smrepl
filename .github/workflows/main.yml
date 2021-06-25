@@ -35,14 +35,14 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: linux
-          path: src/smrepl_linux_amd64
+          path: smrepl_linux_amd64
 
       - uses: actions/upload-artifact@v2
         with:
           name: windows
-          path: src/smrepl_windows_amd64.exe
+          path: smrepl_windows_amd64.exe
 
       - uses: actions/upload-artifact@v2
         with:
           name: macoOS
-          path: src/smrepl_darwin_amd64
+          path: smrepl_darwin_amd64
