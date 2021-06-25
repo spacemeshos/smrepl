@@ -24,6 +24,7 @@ const (
 var TestMode = false
 
 type command struct {
+	parent      string
 	text        string
 	description string
 	fn          func()
@@ -92,69 +93,80 @@ type Client interface {
 }
 
 func (r *repl) initializeCommands() {
+	firstStageCommands := []command{
+		{"root", "wallet", "wallet related commands", r.invalid},
+		{"root", "state", "global state commands", r.invalid},
+		{"root", "status", "status related commands", r.invalid},
+		{"root", "mesh", "mesh data", r.invalid},
+		{"root", "smesher", "smesher related commands", r.invalid},
+		{"root", "pos", "proof of spacetime setup related commands", r.invalid},
+		{"root", "dbg", "dbg commands", r.invalid},
+		{"root", "quit", "Quit this app", r.quit},
+	}
 	accountCommands := []command{
 		// wallets
-		{"wallet-open", "Open a wallet", r.openWallet},
-		{"wallet-create", "Create a wallet", r.createWallet},
+		{"wallet", "open", "Open a wallet", r.openWallet},
+		{"wallet", "create", "Create a wallet", r.createWallet},
 	}
 	if r.clientOpen {
 		accountCommands = []command{
 			// local wallet account commands
-			{"wallet-info", "Display wallet info", r.walletInfo},
-			{"wallet-close", "Close current wallet", r.closeWallet},
+			{"wallet", "info", "Display wallet info", r.walletInfo},
+			{"wallet", "close", "Close current wallet", r.closeWallet},
 
-			{"account-new", "Create a new account (key pair) and set as current", r.createAccount},
-			{"account-set", "Set one of the previously created accounts as current", r.chooseAccount},
-			{"account-info", "Display the current account info", r.printAccountInfo},
-			{"account-rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
-			{"account-sign", "Sign a hex message with the current account private key", r.sign},
-			{"account-text-sign", "Sign a text message with the current account private key", r.signText},
-			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
-			{"account-send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
+			{"account", "new", "Create a new account (key pair) and set as current", r.createAccount},
+			{"account", "set", "Set one of the previously created accounts as current", r.chooseAccount},
+			{"account", "info", "Display the current account info", r.printAccountInfo},
+			{"account", "rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
+			{"account", "sign", "Sign a hex message with the current account private key", r.sign},
+			{"account", "text-sign", "Sign a text message with the current account private key", r.signText},
+			{"account", "txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
+			{"account", "send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
 		}
+
+		firstStageCommands = append(firstStageCommands,
+			command{"root", "account", "account related commands", r.invalid})
 	}
 
 	otherCommands := []command{
 
 		// Misc entities status
-		{"status-node", "Display node status", r.nodeInfo},
-		{"status-net", "Display network information", r.printMeshInfo},
-		{"status-tx", "Display a transaction status", r.printTransactionStatus},
+		{"status", "node", "Display node status", r.nodeInfo},
+		{"status", "net", "Display network information", r.printMeshInfo},
+		{"status", "tx", "Display a transaction status", r.printTransactionStatus},
 
 		// global state
-		{"state-account", "Display an account balance and nonce", r.printAccountState},
-		{"state-account-txs", "Display account transactions in global state", r.printAccountState},
+		{"state", "account", "Display an account balance and nonce", r.printAccountState},
+		{"state", "account-txs", "Display account transactions in global state", r.printAccountState},
 
-		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
+		{"state", "rewards", "Display an account rewards ", r.printAccountRewards},
 
 		// global state streams
-		{"state-stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},
-		{"state-stream-account", "Stream account updates", r.printAccountUpdatesStream},
+		{"state", "stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},
+		{"state", "stream-account", "Stream account updates", r.printAccountUpdatesStream},
 
-		{"state-smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
-		{"state-global", "Display the most recent network global state", r.printGlobalState},
+		{"state", "smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
+		{"state", "global", "Display the most recent network global state", r.printGlobalState},
 
 		// mesh
-		{"mesh-transactions", "Display mesh transaction for an account", r.printMeshTransactions},
+		{"mesh", "transactions", "Display mesh transaction for an account", r.printMeshTransactions},
 
 		// smeshing - smesher ops
-		{"smesher-id", "Display current smesher id", r.printSmesherId},
-		{"smesher-rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
-		{"smesher-set-rewards-address", "Set the smesher's rewards address", r.setRewardsAddress},
+		{"smesher", "id", "Display current smesher id", r.printSmesherId},
+		{"smesher", "rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
+		{"smesher", "set-rewards-address", "Set the smesher's rewards address", r.setRewardsAddress},
 
-		{"smesher-rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
-		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
-		{"smesher-status", "Display smesher status", r.printSmeshingStatus},
-		{"smesher-post-status", "Display the proof of space status", r.printPostStatus},
-		{"smesher-post-providers", "Display the available proof of space providers", r.printPostProviders},
-		{"smesher-start", "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
+		{"smesher", "rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
+		{"smesher", "stop", "Stop smeshing", r.stopSmeshing},
+		{"smesher", "status", "Display smesher status", r.printSmeshingStatus},
+		{"smesher", "post-status", "Display the proof of space status", r.printPostStatus},
+		{"smesher", "post-providers", "Display the available proof of space providers", r.printPostProviders},
+		{"smesher", "start", "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
 
 		// debug commands
-		{"dbg-all-accounts", "Display all global state accounts", r.printAllAccounts},
-
-		{"quit", "Quit this app", r.quit},
+		{"dbg", "all-accounts", "Display all global state accounts", r.printAllAccounts},
 	}
-	r.commands = append(accountCommands, otherCommands...)
+	r.commands = append(firstStageCommands, append(accountCommands, otherCommands...)...)
 }
 
 // Start starts the REPL
@@ -198,7 +210,16 @@ func (r *repl) executor(text string) {
 
 func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 	suggets := make([]prompt.Suggest, 0)
+	textSliceBeforeCursor := strings.Split(in.TextBeforeCursor(), " ")
+	lastWord := "root"
+	if len(textSliceBeforeCursor) >= 2 {
+		lastWord = textSliceBeforeCursor[len(textSliceBeforeCursor)-2]
+	}
 	for _, command := range r.commands {
+		if command.parent != lastWord {
+			continue
+		}
+
 		s := prompt.Suggest{
 			Text:        command.text,
 			Description: command.description,
@@ -229,6 +250,10 @@ func (r *repl) firstTime() {
 
 	fmt.Println("Welcome to Spacemesh. Connected to api server at", r.client.ServerInfo())
 	r.printMeshInfo()
+}
+
+func (r *repl) invalid() {
+	fmt.Println(printPrefix, "invalid command.")
 }
 
 func (r *repl) quit() {
