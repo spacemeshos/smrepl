@@ -109,14 +109,14 @@ type Client interface {
 
 func (r *repl) initializeCommands() {
 	firstStageCommands := []command{
-		{commandStateRoot, "wallet", commandStateWallet, "wallet related commands", nil},
-		{commandStateRoot, "state", commandStateState, "global state commands", nil},
-		{commandStateRoot, "status", commandStateStatus, "status related commands", nil},
-		{commandStateRoot, "mesh", commandStateMesh, "mesh data", nil},
-		{commandStateRoot, "smesher", commandStateMesh, "smesher related commands", nil},
-		{commandStateRoot, "pos", commandStatePOS, "proof of spacetime setup related commands", nil},
-		{commandStateRoot, "dbg", commandStateDBG, "dbg commands", nil},
-		{commandStateRoot, "quit", commandStateLeaf, "Quit this app", r.quit},
+		{commandStateRoot, "wallet", commandStateWallet, "Wallet related commands", nil},
+		{commandStateRoot, "state", commandStateState, "Global state commands", nil},
+		{commandStateRoot, "status", commandStateStatus, "Status commands", nil},
+		{commandStateRoot, "mesh", commandStateMesh, "Mesh data", nil},
+		{commandStateRoot, "smesher", commandStateMesh, "Smesher commands", nil},
+		{commandStateRoot, "pos", commandStatePOS, "Proof of spacetime commands", nil},
+		{commandStateRoot, "dbg", commandStateDBG, "Debugging commands", nil},
+		{commandStateRoot, "quit", commandStateLeaf, "Quit app", r.quit},
 	}
 	accountCommands := []command{
 		// wallets
@@ -125,7 +125,7 @@ func (r *repl) initializeCommands() {
 	}
 	if r.clientOpen {
 		firstStageCommands = append(firstStageCommands,
-			command{commandStateRoot, "account", commandStateAccount, "account related commands", nil})
+			command{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil})
 
 		accountCommands = []command{
 			// local wallet account commands
