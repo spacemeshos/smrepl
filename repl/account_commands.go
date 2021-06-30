@@ -11,6 +11,10 @@ import (
 	"github.com/spacemeshos/smrepl/log"
 )
 
+func (r* repl) printWalletMnemonic() {
+	r.client.PrintWalletMnemonic()
+}
+
 func (r *repl) walletInfo() {
 	r.client.WalletInfo()
 }
@@ -71,8 +75,10 @@ func (r *repl) chooseAccount() {
 
 	account, err := r.client.CurrentAccount()
 	if err != nil {
-		panic("wtf")
+		log.Error("error getting current account", err)
+		return
 	}
+
 	fmt.Printf("%s Loaded account alias: `%s`, address: %s \n", printPrefix, account.Name, account.Address().String())
 }
 

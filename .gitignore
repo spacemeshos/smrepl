@@ -9,3 +9,4 @@ wallet
 myWallet*Z.json
 *.json
 log.*
+/smrepl_*
