@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/spacemeshos/smrepl/client"
+	"github.com/spacemeshos/smrepl/log"
 	"github.com/spacemeshos/smrepl/repl"
 )
 
@@ -38,6 +39,15 @@ func main() {
 			fmt.Println("failed to open wallet file : ", err)
 			os.Exit(1)
 		}
+	}
+
+	// TODO: change this to use the health service when it is ready
+	_, err = be.GetMeshInfo()
+	if err != nil {
+		log.Error("Failed to connect to mesh service at %v: %v", be.ServerInfo(), err)
+		fmt.Println()
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	repl.Start(be)
