@@ -29,6 +29,7 @@ func main() {
 
 	be, err := client.OpenConnection(grpcServer, secureConnection, dataDir)
 	if err != nil {
+		flag.Usage()
 		os.Exit(1)
 	}
 	if walletName != "" {
@@ -41,7 +42,6 @@ func main() {
 		}
 	}
 
-	// TODO: change this to use the health service when it is ready
 	_, err = be.GetMeshInfo()
 	if err != nil {
 		log.Error("Failed to connect to mesh service at %v: %v", be.ServerInfo(), err)

@@ -40,10 +40,29 @@ func friendlyTime(nastyString string) string {
 	return t.Format("Jan 02 2006 03:04 PM")
 }
 
+func (w *WalletBackend) PrintWalletMnemonic() {
+	mnemonic, err := w.wallet.GetMnemonic()
+	if err != nil {
+		log.Error("error reading mnemonic", err)
+		return
+	}
+
+	fmt.Println("Mnemonic:", mnemonic)
+}
+
 func (w *WalletBackend) WalletInfo() {
-	fmt.Println("Wallet Name:", w.wallet.Meta.DisplayName)
+	fmt.Println("Name:", w.wallet.Meta.DisplayName)
 	fmt.Println("Created:", friendlyTime(w.wallet.Meta.Created))
-	fmt.Println("Wallet Path:", w.wallet.WalletPath())
+	fmt.Println("File Path:", w.wallet.WalletPath())
+
+	addressesCount, err := w.wallet.GetNumberOfAccounts()
+	if err != nil {
+		log.Error("error reading addresses count", err)
+		return
+	}
+
+	fmt.Println("Addresses created:", addressesCount)
+
 }
 
 func getString(prompt string) (string, error) {
@@ -147,14 +166,14 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 }
 
 func (w *WalletBackend) NewWallet() bool {
-	walletName := getClearString("Wallet Display Name : ")
+	walletName := getClearString("Wallet Display Name: ")
 	fmt.Println()
 	password, err := getPassword()
 	fmt.Println()
 	if err != nil {
 		return false
 	}
-	password2, err := getString("Repeat password : ")
+	password2, err := getString("Repeat password: ")
 	fmt.Println()
 	if err != nil {
 		return false
@@ -163,11 +182,23 @@ func (w *WalletBackend) NewWallet() bool {
 		fmt.Println("passwords do not match")
 		return false
 	}
-	w.wallet, err = smWallet.NewWallet(walletName, password)
-	if err != nil {
-		fmt.Println(err)
-		return false
+
+	mnemonicString := getClearString("Mnemonic (optional): ")
+	fmt.Println()
+	if len(mnemonicString) > 0 {
+		w.wallet, err = smWallet.NewWalletWithMnemonic(walletName, password, mnemonicString)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+	} else {
+		w.wallet, err = smWallet.NewWallet(walletName, password)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
 	}
+
 	err = w.wallet.SaveWalletAs(w.workingDirectory + "/my_wallet")
 	if err != nil {
 		fmt.Println(err)

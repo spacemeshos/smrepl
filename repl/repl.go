@@ -53,6 +53,7 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
+	PrintWalletMnemonic()
 	WalletInfo()
 	IsOpen() bool
 	OpenWallet() bool
@@ -129,6 +130,8 @@ func (r *repl) initializeCommands() {
 		accountCommands = []command{
 			// local wallet account commands
 			{commandStateWallet, "info", commandStateLeaf, "Display wallet info", r.walletInfo},
+			{commandStateWallet, "mnemonic", commandStateLeaf, "Display wallet mnemonic", r.printWalletMnemonic},
+
 			{commandStateWallet, "close", commandStateLeaf, "Close current wallet", r.closeWallet},
 
 			{commandStateAccount, "new", commandStateLeaf, "Create a new account (key pair) and set as current", r.createAccount},
@@ -270,7 +273,6 @@ func (r *repl) commandLineParams(idx int, input string) string {
 func (r *repl) firstTime() {
 	fmt.Print(printPrefix, splash)
 
-	// TODO: change this is to use the health service when it is ready
 	_, err := r.client.GetMeshInfo()
 	if err != nil {
 		log.Error("Failed to connect to mesh service at %v: %v", r.client.ServerInfo(), err)

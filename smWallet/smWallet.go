@@ -23,6 +23,9 @@ const (
 	errorWalletNotUnlocked = "wallet has not been unlocked"
 	// errorWalletDoesNotHaveThatAddress if attempting to access an account that has not been generated
 	errorWalletDoesNotHaveThatAddress = "you are attempting to access an account that has not been generated"
+
+	// entropySizeBytes is the number of bytes required for wallet entropy
+	entropySizeBytes = 16
 )
 
 type account struct {
@@ -86,6 +89,27 @@ type Wallet struct {
 
 // NewWallet returns a brand shiny new wallet with random seed and mnemonic phrase
 func NewWallet(walletName, password string) (w *Wallet, err error) {
+
+	entropy, err := bip39.NewEntropy(entropySizeBytes * 8)
+	if err != nil {
+		return nil, err
+	}
+
+	mnemonic, err := bip39.NewMnemonic(entropy)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewWalletWithMnemonic(walletName, password, mnemonic)
+}
+
+// NewWalletWithMnemonic creates a new wallet with the provided mnemonic
+func NewWalletWithMnemonic(walletName, password string, mnemonic string) (w *Wallet, err error) {
+
+	if len(mnemonic) == 0 {
+		return nil, errors.New("invalid mnemonic input")
+	}
+
 	wx := new(Wallet)
 	wx.password = password
 	wx.unlocked = true
@@ -93,12 +117,8 @@ func NewWallet(walletName, password string) (w *Wallet, err error) {
 	wx.Meta.DisplayName = walletName
 	wx.Meta.NetID = 0
 	wx.Meta.Meta.Salt = spaceSalt
-	entropy, err := bip39.NewEntropy(128)
-	if err != nil {
-		return nil, err
-	}
 	wx.Crypto.Cipher = "AES-128-CTR"
-	wx.Crypto.confidential.Mnemonic, err = bip39.NewMnemonic(entropy)
+	wx.Crypto.confidential.Mnemonic = mnemonic
 	if err != nil {
 		return nil, err
 	}
