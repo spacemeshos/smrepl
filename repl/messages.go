@@ -16,7 +16,7 @@ const (
 
 	posDataDirMsg  = "Enter proof of space data directory (relative to node or absolute): "
 	posSizeMsg     = "Enter number of units. (%f GiB per unit. Min units: %d, Max units: %d): "
-	posProviderMsg = "Enter proof of space compute provider id: "
+	posProviderMsg = "Enter proof of space compute provider id number: "
 
 	msgSignMsg     = "Enter message to sign (in hex): "
 	msgTextSignMsg = "Enter text message to sign: "
