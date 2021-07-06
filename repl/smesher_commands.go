@@ -312,7 +312,7 @@ func (r *repl) stopSmeshing() {
 	}
 
 	if !res.IsSmeshing {
-		fmt.Println("Can't stop smeshing because it has not started")
+		fmt.Println("Can't stop smeshing because it is not running")
 		return
 	}
 
