@@ -177,7 +177,7 @@ func (r *repl) initializeCommands() {
 		{commandStateSmesher, "rewards", commandStateLeaf, "Display current smesher rewards", r.printCurrentSmesherRewards},
 
 		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
-  		{commandStateSmesher, "status", commandStateLeaf, "Display smesher status", r.printSmeshingStatus},
+		{commandStateSmesher, "status", commandStateLeaf, "Display smesher status", r.printSmeshingStatus},
 
 		{commandStateSmesher, "post-status", commandStateLeaf, "Display the proof of space status", r.printPostStatus},
 		{commandStateSmesher, "post-providers", commandStateLeaf, "Display the available proof of space providers", r.printPosProviders},

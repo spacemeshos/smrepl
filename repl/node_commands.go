@@ -6,6 +6,7 @@ import (
 	"github.com/spacemeshos/smrepl/log"
 )
 
+/// nodeInfo displays basic node info
 func (r *repl) nodeInfo() {
 	info, err := r.client.NodeInfo()
 	if err != nil {

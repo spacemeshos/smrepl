@@ -75,16 +75,19 @@ func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Statu
 	return resp.Status, nil
 }
 
+// Config returns the current smesher configuration
 func (c *gRPCClient) Config() (*apitypes.ConfigResponse, error) {
 	s := c.getSmesherServiceClient()
 	return s.Config(context.Background(), &empty.Empty{})
 }
 
+// PostStatus returns the current proof of space time status
 func (c *gRPCClient) PostStatus() (*apitypes.PostStatusResponse, error) {
 	s := c.getSmesherServiceClient()
 	return s.PostStatus(context.Background(), &empty.Empty{})
 }
 
+// PostDataCreationProgressStream returns a stram client for post status updates
 func (c *gRPCClient) PostDataCreationProgressStream() (apitypes.SmesherService_PostDataCreationProgressStreamClient, error) {
 	s := c.getSmesherServiceClient()
 	return s.PostDataCreationProgressStream(context.Background(), &empty.Empty{})
