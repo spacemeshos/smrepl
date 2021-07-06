@@ -6,7 +6,7 @@ import (
 	"path"
 )
 
-type istorageUtils interface {
+type iStorageUtils interface {
 	GetFreeSpace(path string) (uint64, error)
 }
 
