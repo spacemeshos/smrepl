@@ -19,7 +19,7 @@ import (
 
 // gib is the number of bytes in 1 gibibyte (2^30 bytes)
 const gib uint64 = 1073741824
-const posDataFileName = "pos-data.json"
+const posDataFileName = "post-data.json"
 
 func (r *repl) printSmeshingStatus() {
 	res, err := r.client.IsSmeshing()
@@ -34,20 +34,20 @@ func (r *repl) printSmeshingStatus() {
 func (r *repl) printPostStatus() {
 	res, err := r.client.PostStatus()
 	if err != nil {
-		log.Error("failed to get proof of space status: %v", err)
+		log.Error("failed to get proof of spacetime status: %v", err)
 		return
 	}
 
 	switch res.Status.State {
 	case apitypes.PoSTSetupStatus_STATE_NOT_STARTED:
-		fmt.Println("Proof of space data is not setup. Enter `pos-setup` to set it up.")
+		fmt.Println("Proof of spacetime data is not set up. Use the `post setup` command to set it up.")
 		return
 	case apitypes.PoSTSetupStatus_STATE_IN_PROGRESS:
-		fmt.Println("⏱  Proof of space data creation is in progress.")
+		fmt.Println("⏱  Proof of spacetime data creation is in progress.")
 	case apitypes.PoSTSetupStatus_STATE_COMPLETE:
-		fmt.Println("👍  Proof of space data was created and is used for smeshing.")
+		fmt.Println("👍  Proof of spacetime data was created and is used for smeshing.")
 	case apitypes.PoSTSetupStatus_STATE_ERROR:
-		fmt.Printf("⚠️  Proof of space data creation error: %v", res.Status.ErrorMessage)
+		fmt.Printf("⚠️  Proof of spacetime data creation error: %v", res.Status.ErrorMessage)
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
 		return
@@ -55,7 +55,7 @@ func (r *repl) printPostStatus() {
 
 	cfg, err := r.client.Config()
 	if err != nil {
-		log.Error("failed get proof of space config from node: %v", err)
+		log.Error("failed get proof of spacetime config from node: %v", err)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (r *repl) printPostStatus() {
 	opts := res.Status.Opts
 
 	println()
-	fmt.Println("Proof of space info:")
+	fmt.Println("Proof of spacetime configuration:")
 	fmt.Println("  Data dir (relative to node or absolute):", opts.DataDir)
 	fmt.Println("  Date files:", opts.NumFiles)
 	fmt.Println("  Compute provider id:", opts.ComputeProviderId)
@@ -80,14 +80,14 @@ func (r *repl) printPostStatus() {
 func (r *repl) setupPos() {
 	cfg, err := r.client.Config()
 	if err != nil {
-		log.Error("failed get proof of space config from node: %v", err)
+		log.Error("failed get proof of spacetime configuration from node: %v", err)
 		return
 	}
 
 	// check if user needs to stop smeshing before changing pos data
 	res, err := r.client.IsSmeshing()
 	if err != nil {
-		log.Error("failed to get proof of space status: %v", err)
+		log.Error("failed to get proof of spacetime status: %v", err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (r *repl) setupPos() {
 
 	// If smeshing already started, StopSmeshing(false) should be called before init size could be adjusted.
 	if res.IsSmeshing {
-		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of space setup, you must first stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
+		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of spacetime setup, you must first stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
 		if stopSmeshing {
 			// stop smeshing without deleting the data
 			resp, err := r.client.StopSmeshing(false)
@@ -121,7 +121,7 @@ func (r *repl) setupPos() {
 			fmt.Println("Smeshing stopped.")
 
 		} else {
-			println("You must stop smeshing before changing your proof of space data setup")
+			println("You must stop smeshing before changing your proof of spacetime data configuration")
 			return
 		}
 	}
@@ -169,7 +169,7 @@ func (r *repl) setupPos() {
 
 	// todo: estimate performance for each provider and display performance
 
-	println("Available proof of space compute providers:")
+	println("Available proof of spacetime compute providers:")
 	for _, p := range providers {
 		fmt.Printf("Id %d - %s (%s)\n", p.Id, p.Model, computeApiClassName[int32(p.GetComputeApi())])
 	}
@@ -196,7 +196,7 @@ func (r *repl) setupPos() {
 
 	numLabels := numUnits * cfg.LabelsPerUnit
 	// request summary information
-	fmt.Println("Proof of space setup request summary")
+	fmt.Println("Proof of spacetime setup configuration summary")
 	fmt.Println("Data directory (relative to node or absolute):", dataDir)
 	fmt.Println("Size (GiB):", unitSizeInGiB*float32(numUnits))
 	fmt.Println("Size (Bytes):", totalSizeBytes)
@@ -219,16 +219,16 @@ func (r *repl) setupPos() {
 
 	resp, err := r.client.StartSmeshing(req)
 	if err != nil {
-		log.Error("failed to set up proof of space due to an error: %v", err)
+		log.Error("failed to set up proof of spacetime due to an error: %v", err)
 		return
 	}
 
 	if resp.Code != 0 {
-		log.Error("failed to set up proof of space. Node response code: %d", resp.Code)
+		log.Error("failed to set up proof of spacetime. Node response code: %d", resp.Code)
 		return
 	}
 
-	fmt.Println("Proof of space setup has started and your node will start smeshing when it is complete.")
+	fmt.Println("Proof of spacetime setup has started and your node will start smeshing when it is complete.")
 	fmt.Println("IMPORTANT: Please add the following to your node's config file so it will smesh after you restart it.")
 	fmt.Println()
 	fmt.Println("\"post-init\": {")
@@ -247,9 +247,9 @@ func (r *repl) setupPos() {
 
 	err = ioutil.WriteFile(posDataFileName, data, 0644)
 	if err == nil {
-		fmt.Printf("Saved proof of space setup options to %s.\n\n", posDataFileName)
+		fmt.Printf("Saved proof of spacetime setup options to %s.\n\n", posDataFileName)
 	} else {
-		log.Error("failed to save proof of space setup options to %s: %v", posDataFileName, err)
+		log.Error("failed to save proof of spacetime setup options to %s: %v", posDataFileName, err)
 	}
 }
 
@@ -307,7 +307,7 @@ func (r *repl) printPostDataCreationProgress() {
 func (r *repl) stopSmeshing() {
 	res, err := r.client.IsSmeshing()
 	if err != nil {
-		log.Error("failed to get proof of space status: %v", err)
+		log.Error("failed to get proof of spacetime status: %v", err)
 		return
 	}
 
