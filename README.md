@@ -1,23 +1,18 @@
-# Spacemesh CLI Wallet
+# SMRepl - A Spacemesh Repl
 
 ## Overview
 
-A basic reference Spacemesh Wallet designed to work together with
-a [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh). The wallet is designed to run from the command
-line.
+A basic reference Spacemesh Wallet and a full node manager command line REPL. 
+Designed to work together with a locally running [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh) or with the public Spacemesh API. 
+Target users are developers who want to hack on the Spacemesh platform and Spacemesh testnet users who are comfortable with terminal apps and repls. 
+For non-terminal savvy users we recommend using [Smapp - the Spacemesh App](https://github.com/spacemeshos/smapp). Smapp is available for all major desktop platforms and
+includes a wallet and a node manager.
 
-The wallet is designed for developers who want to hack on the Spacemesh platform. For non-devs we recommend using Smapp
-- the Spacemesh App. [Smapp](https://github.com/spacemeshos/smapp) is available for all major desktop platforms and
-includes a wallet.
+## Features
 
-## Functionality
-
-The wallet is a Spacemesh API client and implements basic wallet features via a REPL interface. You can create a new
-coin account, execute transactions, check account balance and view transactions.
-
-The wallet has been upgraded to use Spacemesh standard wallets (encrypted)
-
-See below on how to use with any network.
+SMRepl is a Spacemesh API client and it implements basic wallet features via a REPL interface. Using it you can create a new coin account, execute transactions, check account balance and view transactions. You can also use it to se tup smeshing (Spacemesh mining) for your local node.
+You can also use it when working on Spacemesh code by connecting it to a locally built node or to a [local Spacemesh devnet](https://github.com/spacemeshos/local-testnet)
+You can also connect to a public Spacemesh network API. In this configuraiton you can execute transactions, view account balances, past transactions and smeshing rewards.
 
 ## Building
 
@@ -55,14 +50,14 @@ make dockerbuild-go
 
 ---
 
-## Wallet Directives
+## CLI Flags
 
 Use `-wallet_directory` to override the default of current working directory when opening and creating wallets.
 
 Use `-wallet` to specify a wallet to pre-open when starting cli-wallet. cli-wallet will look in current directory
 unless `-wallet_directory` has been specified.
 
-## Using a public Spacemesh API server
+## Using with a public Spacemesh API server
 
 You can use your wallet without running a full node by connecting it to a public Spacemesh api service for a Spacemesh
 network. Use the `-grpc-server` and `-secure` flags connect to a remote Spacemesh api server. For example:
@@ -74,7 +69,6 @@ network. Use the `-grpc-server` and `-secure` flags connect to a remote Spacemes
 > Note that communications with the server will be secure using https/tls but the wallet doesn't currently verify the server identity.
 
 Your can find the grpc server url of a public Spacemesh testnet by copying the value of the `grpcAPI` field from the [Spacemesh discovery srvice data](https://discover.spacemesh.io/networks.json).
-
 
 
 ## Using with a local Spacemesh full node

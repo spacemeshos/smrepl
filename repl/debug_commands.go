@@ -3,8 +3,8 @@ package repl
 import (
 	"fmt"
 
-	"github.com/spacemeshos/CLIWallet/log"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 func (r *repl) printAllAccounts() {

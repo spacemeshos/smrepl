@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 
-	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/ed25519"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 type accountKeys struct {

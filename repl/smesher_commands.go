@@ -8,13 +8,13 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/spacemeshos/CLIWallet/common"
+	"github.com/spacemeshos/smrepl/common"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 
-	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/go-spacemesh/common/util"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 // gib is the number of bytes in 1 gibibyte (2^30 bytes)

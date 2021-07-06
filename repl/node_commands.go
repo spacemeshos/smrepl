@@ -3,7 +3,7 @@ package repl
 import (
 	"fmt"
 
-	"github.com/spacemeshos/CLIWallet/log"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 func (r *repl) nodeInfo() {

@@ -6,7 +6,7 @@ import (
 
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 
-	"github.com/spacemeshos/CLIWallet/log"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 func (r *repl) printMeshInfo() {

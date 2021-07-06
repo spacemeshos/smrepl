@@ -8,7 +8,7 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"github.com/spacemeshos/go-spacemesh/common/util"
 
-	"github.com/spacemeshos/CLIWallet/log"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 // printRewards prints all rewards awarded to an account

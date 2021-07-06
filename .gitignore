@@ -1,4 +1,5 @@
 CLIWallet
+smrepl
 .idea/
 accounts.json
 *accounts.json
@@ -8,3 +9,4 @@ wallet
 myWallet*Z.json
 *.json
 log.*
+/smrepl_*

@@ -8,8 +8,8 @@ import (
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/go-spacemesh/common/util"
 
-	"github.com/spacemeshos/CLIWallet/log"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 var transactionStateDisStringsMap = map[int32]string{

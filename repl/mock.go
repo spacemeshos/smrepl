@@ -1,7 +1,7 @@
 package repl
 
 import (
-	"github.com/spacemeshos/CLIWallet/common"
+	"github.com/spacemeshos/smrepl/common"
 )
 
 // Mock struct created temporarily while node

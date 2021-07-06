@@ -3,12 +3,13 @@ package repl
 import (
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/spacemeshos/CLIWallet/common"
-	"github.com/spacemeshos/CLIWallet/log"
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+	"github.com/spacemeshos/smrepl/common"
+	"github.com/spacemeshos/smrepl/log"
 	"google.golang.org/genproto/googleapis/rpc/status"
 
 	"github.com/c-bata/go-prompt"
@@ -18,11 +19,26 @@ const (
 	prefix = "$ "
 )
 
+const (
+	commandStateRoot = iota
+	commandStateWallet
+	commandStateAccount
+	commandStateStatus
+	commandStateState
+	commandStateMesh
+	commandStatePOS
+	commandStateSmesher
+	commandStateDBG
+	commandStateLeaf
+)
+
 // TestMode variable used for check if unit test is running
 var TestMode = false
 
 type command struct {
+	parent      int
 	text        string
+	state       int
 	description string
 	fn          func()
 }
@@ -36,6 +52,7 @@ type repl struct {
 
 // Client interface to REPL clients.
 type Client interface {
+	PrintWalletMnemonic()
 	WalletInfo()
 	IsOpen() bool
 	OpenWallet() bool
@@ -93,71 +110,85 @@ type Client interface {
 }
 
 func (r *repl) initializeCommands() {
+	firstStageCommands := []command{
+		{commandStateRoot, "wallet", commandStateWallet, "Wallet related commands", nil},
+		{commandStateRoot, "state", commandStateState, "Global state commands", nil},
+		{commandStateRoot, "status", commandStateStatus, "Status commands", nil},
+		{commandStateRoot, "mesh", commandStateMesh, "Mesh data", nil},
+		{commandStateRoot, "smesher", commandStateMesh, "Smesher commands", nil},
+		{commandStateRoot, "pos", commandStatePOS, "Proof of spacetime commands", nil},
+		{commandStateRoot, "dbg", commandStateDBG, "Debugging commands", nil},
+		{commandStateRoot, "quit", commandStateLeaf, "Quit app", r.quit},
+	}
 	accountCommands := []command{
 		// wallets
-		{"wallet-open", "Open a wallet", r.openWallet},
-		{"wallet-create", "Create a wallet", r.createWallet},
+		{commandStateWallet, "open", commandStateLeaf, "Open a wallet", r.openWallet},
+		{commandStateWallet, "create", commandStateLeaf, "Create a wallet", r.createWallet},
 	}
 	if r.clientOpen {
+		firstStageCommands = append(firstStageCommands,
+			command{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil})
+
 		accountCommands = []command{
 			// local wallet account commands
-			{"wallet-info", "Display wallet info", r.walletInfo},
-			{"wallet-close", "Close current wallet", r.closeWallet},
+			{commandStateWallet, "info", commandStateLeaf, "Display wallet info", r.walletInfo},
+			{commandStateWallet, "mnemonic", commandStateLeaf, "Display wallet mnemonic", r.printWalletMnemonic},
 
-			{"account-new", "Create a new account (key pair) and set as current", r.createAccount},
-			{"account-set", "Set one of the previously created accounts as current", r.chooseAccount},
-			{"account-info", "Display the current account info", r.printAccountInfo},
-			{"account-rewards", "Display all rewards awarded to the current account", r.printLocalAccountRewards},
-			{"account-sign", "Sign a hex message with the current account private key", r.sign},
-			{"account-text-sign", "Sign a text message with the current account private key", r.signText},
-			{"account-txs", "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
-			{"account-send-coin", "Transfer coins from current account to another account", r.submitCoinTransaction},
+			{commandStateWallet, "close", commandStateLeaf, "Close current wallet", r.closeWallet},
+
+			{commandStateAccount, "new", commandStateLeaf, "Create a new account (key pair) and set as current", r.createAccount},
+			{commandStateAccount, "set", commandStateLeaf, "Set one of the previously created accounts as current", r.chooseAccount},
+			{commandStateAccount, "info", commandStateLeaf, "Display the current account info", r.printAccountInfo},
+			{commandStateAccount, "rewards", commandStateLeaf, "Display all rewards awarded to the current account", r.printLocalAccountRewards},
+			{commandStateAccount, "sign", commandStateLeaf, "Sign a hex message with the current account private key", r.sign},
+			{commandStateAccount, "text-sign", commandStateLeaf, "Sign a text message with the current account private key", r.signText},
+			{commandStateAccount, "txs", commandStateLeaf, "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
+			{commandStateAccount, "send-coin", commandStateLeaf, "Transfer coins from current account to another account", r.submitCoinTransaction},
 		}
 	}
 
 	otherCommands := []command{
-
 		// Misc entities status
-		{"status-node", "Display node status", r.nodeInfo},
-		{"status-net", "Display network information", r.printMeshInfo},
-		{"status-tx", "Display a transaction status", r.printTransactionStatus},
+		{commandStateStatus, "node", commandStateLeaf, "Display node status", r.nodeInfo},
+		{commandStateStatus, "net", commandStateLeaf, "Display network information", r.printMeshInfo},
+		{commandStateStatus, "tx", commandStateLeaf, "Display a transaction status", r.printTransactionStatus},
 
 		// global state
-		{"state-account", "Display an account balance and nonce", r.printAccountState},
-		{"state-account-txs", "Display account transactions in global state", r.printAccountState},
+		{commandStateState, "account", commandStateLeaf, "Display an account balance and nonce", r.printAccountState},
+		{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printAccountState},
 
-		{"state-rewards", "Display an account rewards ", r.printAccountRewards},
+		{commandStateState, "rewards", commandStateLeaf, "Display an account rewards ", r.printAccountRewards},
 
 		// global state streams
-		{"state-stream-rewards", "Stream new rewards for an account", r.printAccountRewardsStream},
-		{"state-stream-account", "Stream account updates", r.printAccountUpdatesStream},
+		{commandStateState, "stream-rewards", commandStateLeaf, "Stream new rewards for an account", r.printAccountRewardsStream},
+		{commandStateState, "stream-account", commandStateLeaf, "Stream account updates", r.printAccountUpdatesStream},
 
-		{"state-smesher-rewards", "Display smesher rewards", r.printSmesherRewards},
-		{"state-global", "Display the most recent network global state", r.printGlobalState},
+		{commandStateState, "smesher-rewards", commandStateLeaf, "Display smesher rewards", r.printSmesherRewards},
+		{commandStateState, "global", commandStateLeaf, "Display the most recent network global state", r.printGlobalState},
 
 		// mesh
-		{"mesh-transactions", "Display mesh transaction for an account", r.printMeshTransactions},
+		{commandStateMesh, "transactions", commandStateLeaf, "Display mesh transaction for an account", r.printMeshTransactions},
 
 		// smeshing - smesher ops
-		{"smesher-id", "Display current smesher id", r.printSmesherId},
-		{"smesher-rewards-address", "Display current smesher rewards address", r.printRewardsAddress},
-		{"smesher-set-rewards-address", "Set the smesher rewards address", r.setRewardsAddress},
-		{"smesher-rewards", "Display current smesher rewards", r.printCurrentSmesherRewards},
-		{"smesher-status", "Display smesher status", r.printSmeshingStatus},
-		{"smesher-stop", "Stop smeshing", r.stopSmeshing},
 
-		// proof of space methods
-		{"pos-status", "Display proof of space status", r.printPostStatus},
-		{"pos-providers", "Display the available proof of space providers", r.printPosProviders},
-		{"pos-setup", "Set up (or change) smesher proof of space data", r.setupPos},
-		{"pos-stream-progress", "Stream data creation progress", r.printPostDataCreationProgress},
+		{commandStateSmesher, "id", commandStateLeaf, "Display current smesher id", r.printSmesherId},
+		{commandStateSmesher, "rewards-address", commandStateLeaf, "Display current smesher rewards address", r.printRewardsAddress},
+		{commandStateSmesher, "set-rewards-address", commandStateLeaf, "Set the smesher rewards address", r.setRewardsAddress},
+		{commandStateSmesher, "rewards", commandStateLeaf, "Display current smesher rewards", r.printCurrentSmesherRewards},
+
+		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
+  		{commandStateSmesher, "status", commandStateLeaf, "Display smesher status", r.printSmeshingStatus},
+
+		{commandStateSmesher, "post-status", commandStateLeaf, "Display the proof of space status", r.printPostStatus},
+		{commandStateSmesher, "post-providers", commandStateLeaf, "Display the available proof of space providers", r.printPosProviders},
+		{commandStateSmesher, "post-setup", commandStateLeaf, "Set up (or change) smesher proof of space data", r.setupPos},
+
+		{commandStateSmesher, "post-progress", commandStateLeaf, "Stream proof of space data creation progress", r.printPostDataCreationProgress},
 
 		// debug commands
-		{"dbg-all-accounts", "Display all global state accounts", r.printAllAccounts},
-
-		{"quit", "Quit this app", r.quit},
+		{commandStateDBG, "all-accounts", commandStateLeaf, "Display all global state accounts", r.printAllAccounts},
 	}
-	r.commands = append(accountCommands, otherCommands...)
+	r.commands = append(firstStageCommands, append(accountCommands, otherCommands...)...)
 }
 
 // Start starts the REPL
@@ -187,12 +218,21 @@ func Start(c Client) {
 }
 
 func (r *repl) executor(text string) {
-	for _, c := range r.commands {
-		if len(text) >= len(c.text) && text[:len(c.text)] == c.text {
-			r.input = text
-			//log.Debug(userExecutingCommandMsg, c.text)
-			c.fn()
-			return
+	// All commands currently follows a format of `FirstStageCommand SecondStageCommand ...`
+	textSlice := strings.Split(text, " ")
+	parseState := commandStateRoot
+	for _, s := range textSlice {
+		for _, c := range r.commands {
+			if parseState == c.parent && s == c.text {
+				if c.state == commandStateLeaf {
+					r.input = text
+					//log.Debug(userExecutingCommandMsg, c.text)
+					c.fn()
+					return
+				} else {
+					parseState = c.state
+				}
+			}
 		}
 	}
 
@@ -200,23 +240,38 @@ func (r *repl) executor(text string) {
 }
 
 func (r *repl) completer(in prompt.Document) []prompt.Suggest {
-	suggets := make([]prompt.Suggest, 0)
+	suggests := make([]prompt.Suggest, 0)
+	textSliceBeforeCursor := strings.Split(in.TextBeforeCursor(), " ")
+	parseState := commandStateRoot
+	// get current state by parsing the whole text before the cursor position
+	for _, s := range textSliceBeforeCursor {
+		for _, c := range r.commands {
+			if parseState == c.parent && s == c.text {
+				parseState = c.state
+			}
+		}
+	}
+
+	// give suggestions based on current state
 	for _, command := range r.commands {
+		if command.parent != parseState {
+			continue
+		}
+
 		s := prompt.Suggest{
 			Text:        command.text,
 			Description: command.description,
 		}
 
-		suggets = append(suggets, s)
+		suggests = append(suggests, s)
 	}
 
-	return prompt.FilterHasPrefix(suggets, in.GetWordBeforeCursor(), true)
+	return prompt.FilterHasPrefix(suggests, in.GetWordBeforeCursor(), true)
 }
 
 func (r *repl) firstTime() {
 	fmt.Print(splash)
 
-	// TODO: change this is to use the health service when it is ready
 	_, err := r.client.GetMeshInfo()
 	if err != nil {
 		log.Error("Failed to connect to mesh service at %v: %v", r.client.ServerInfo(), err)

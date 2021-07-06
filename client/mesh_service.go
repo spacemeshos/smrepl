@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/spacemeshos/CLIWallet/common"
+	"github.com/spacemeshos/smrepl/common"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
