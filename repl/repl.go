@@ -26,7 +26,7 @@ const (
 	commandStateStatus
 	commandStateState
 	commandStateMesh
-	commandStatePOS
+	commandStatePost
 	commandStateSmesher
 	commandStateDBG
 	commandStateLeaf
@@ -88,13 +88,13 @@ type Client interface {
 	IsSmeshing() (*apitypes.IsSmeshingResponse, error)
 	StartSmeshing(request *apitypes.StartSmeshingRequest) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
-	GetPostComputeProviders(benchmark bool) ([]*apitypes.PostComputeProvider, error)
+	GetPostComputeProviders(benchmark bool) ([]*apitypes.PoSTSetupComputeProvider, error)
 	GetSmesherId() ([]byte, error)
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
-	Config() (*apitypes.ConfigResponse, error)
-	PostStatus() (*apitypes.PostStatusResponse, error)
-	PostDataCreationProgressStream() (apitypes.SmesherService_PostDataCreationProgressStreamClient, error)
+	Config() (*apitypes.PoSTConfigResponse, error)
+	PostStatus() (*apitypes.PoSTSetupStatusResponse, error)
+	PostDataCreationProgressStream() (apitypes.SmesherService_PoSTSetupStatusStreamClient, error)
 
 	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)
@@ -115,8 +115,8 @@ func (r *repl) initializeCommands() {
 		{commandStateRoot, "state", commandStateState, "Global state commands", nil},
 		{commandStateRoot, "status", commandStateStatus, "Status commands", nil},
 		{commandStateRoot, "mesh", commandStateMesh, "Mesh data", nil},
-		{commandStateRoot, "smesher", commandStateMesh, "Smesher commands", nil},
-		{commandStateRoot, "pos", commandStatePOS, "Proof of spacetime commands", nil},
+		{commandStateRoot, "smesher", commandStateSmesher, "Smesher commands", nil},
+		{commandStateRoot, "post", commandStatePost, "Proof of spacetime commands", nil},
 		{commandStateRoot, "dbg", commandStateDBG, "Debugging commands", nil},
 		{commandStateRoot, "quit", commandStateLeaf, "Quit app", r.quit},
 	}
@@ -175,15 +175,14 @@ func (r *repl) initializeCommands() {
 		{commandStateSmesher, "rewards-address", commandStateLeaf, "Display current smesher rewards address", r.printRewardsAddress},
 		{commandStateSmesher, "set-rewards-address", commandStateLeaf, "Set the smesher rewards address", r.setRewardsAddress},
 		{commandStateSmesher, "rewards", commandStateLeaf, "Display current smesher rewards", r.printCurrentSmesherRewards},
-
-		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
 		{commandStateSmesher, "status", commandStateLeaf, "Display smesher status", r.printSmeshingStatus},
+		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
 
-		{commandStateSmesher, "post-status", commandStateLeaf, "Display the proof of space status", r.printPostStatus},
-		{commandStateSmesher, "post-providers", commandStateLeaf, "Display the available proof of space providers", r.printPosProviders},
-		{commandStateSmesher, "post-setup", commandStateLeaf, "Set up (or change) smesher proof of space data", r.setupPos},
+		{commandStatePost, "status", commandStateLeaf, "Display the proof of space status", r.printPostStatus},
+		{commandStatePost, "providers", commandStateLeaf, "Display the available proof of space providers", r.printPosProviders},
+		{commandStatePost, "setup", commandStateLeaf, "Set up (or change) smesher proof of space data", r.setupPos},
 
-		{commandStateSmesher, "post-progress", commandStateLeaf, "Stream proof of space data creation progress", r.printPostDataCreationProgress},
+		{commandStatePost, "progress", commandStateLeaf, "Stream proof of space data creation progress", r.printPostDataCreationProgress},
 
 		// debug commands
 		{commandStateDBG, "all-accounts", commandStateLeaf, "Display all global state accounts", r.printAllAccounts},

@@ -38,15 +38,15 @@ func (r *repl) printPostStatus() {
 		return
 	}
 
-	switch res.Status.InitStatus {
-	case apitypes.PostStatus_INIT_STATUS_NOT_STARTED:
+	switch res.Status.State {
+	case apitypes.PoSTSetupStatus_STATE_NOT_STARTED:
 		fmt.Println("Proof of space data is not setup. Enter `pos-setup` to set it up.")
 		return
-	case apitypes.PostStatus_INIT_STATUS_IN_PROGRESS:
+	case apitypes.PoSTSetupStatus_STATE_IN_PROGRESS:
 		fmt.Println("⏱  Proof of space data creation is in progress.")
-	case apitypes.PostStatus_INIT_STATUS_COMPLETE:
+	case apitypes.PoSTSetupStatus_STATE_COMPLETE:
 		fmt.Println("👍  Proof of space data was created and is used for smeshing.")
-	case apitypes.PostStatus_INIT_STATUS_ERROR:
+	case apitypes.PoSTSetupStatus_STATE_ERROR:
 		fmt.Printf("⚠️  Proof of space data creation error: %v", res.Status.ErrorMessage)
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
@@ -61,7 +61,7 @@ func (r *repl) printPostStatus() {
 
 	unitSizeBytes := uint64(cfg.BitsPerLabel) * cfg.LabelsPerUnit / 8
 	unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
-	opts := res.Status.InitOpts
+	opts := res.Status.Opts
 
 	println()
 	fmt.Println("Proof of space info:")
@@ -209,7 +209,7 @@ func (r *repl) setupPos() {
 
 	req := &apitypes.StartSmeshingRequest{}
 	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
-	req.Opts = &apitypes.PostInitOpts{
+	req.Opts = &apitypes.PoSTSetupOpts{
 		DataDir:           dataDir,
 		NumUnits:          uint32(numUnits),
 		NumFiles:          1,
@@ -277,15 +277,15 @@ func (r *repl) printPostDataCreationProgress() {
 			return
 		}
 
-		numLabels := uint64(e.Status.InitOpts.NumUnits) * cfg.LabelsPerUnit
+		numLabels := uint64(e.Status.Opts.NumUnits) * cfg.LabelsPerUnit
 		numLabelsWrittenPct := uint64(float64(e.Status.NumLabelsWritten) / float64(numLabels) * 100)
 		PosSizeBytes := uint64(cfg.BitsPerLabel) * numLabels / 8
 
 		if !initial {
 			// TODO: use the same printing of cfg/opts as in r.printPostStatus.
-			fmt.Printf("Data directory: %s\n", e.Status.InitOpts.DataDir)
-			fmt.Printf("Units: %d\n", e.Status.InitOpts.NumUnits)
-			fmt.Printf("Files: %d\n", e.Status.InitOpts.NumFiles)
+			fmt.Printf("Data directory: %s\n", e.Status.Opts.DataDir)
+			fmt.Printf("Units: %d\n", e.Status.Opts.NumUnits)
+			fmt.Printf("Files: %d\n", e.Status.Opts.NumFiles)
 			fmt.Printf("Bits per label: %d\n", cfg.BitsPerLabel)
 			fmt.Printf("Labels per unit: %d\n", cfg.LabelsPerUnit)
 			fmt.Printf("Labels: %+v\n", numLabels)
@@ -441,7 +441,7 @@ func (r *repl) printCurrentSmesherRewards() {
 			return
 		}
 
-		fmt.Printf("Total rewards: %d", total)
+		fmt.Printf("Total rewards: %d\n", total)
 		for i, r := range rewards {
 			if i != 0 {
 				fmt.Println("-----")
