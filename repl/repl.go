@@ -26,7 +26,6 @@ const (
 	commandStateAccount
 	commandStateStatus
 	commandStateState
-	commandStateMesh
 	commandStatePOS
 	commandStateSmesher
 	commandStateDBG
@@ -112,8 +111,6 @@ func (r *repl) initializeCommands() {
 		{commandStateRoot, "wallet", commandStateWallet, "Wallet related commands", nil},
 		{commandStateRoot, "state", commandStateState, "Global state commands", nil},
 		{commandStateRoot, "status", commandStateStatus, "Status commands", nil},
-		{commandStateRoot, "mesh", commandStateMesh, "Mesh data", nil},
-		{commandStateRoot, "smesher", commandStateMesh, "Smesher commands", nil},
 		{commandStateRoot, "pos", commandStatePOS, "Proof of spacetime commands", nil},
 		{commandStateRoot, "dbg", commandStateDBG, "Debugging commands", nil},
 		{commandStateRoot, "quit", commandStateLeaf, "Quit app", r.quit},
@@ -131,7 +128,6 @@ func (r *repl) initializeCommands() {
 			// local wallet account commands
 			{commandStateWallet, "info", commandStateLeaf, "Display wallet info", r.walletInfo},
 			{commandStateWallet, "mnemonic", commandStateLeaf, "Display wallet mnemonic", r.printWalletMnemonic},
-
 			{commandStateWallet, "close", commandStateLeaf, "Close current wallet", r.closeWallet},
 
 			{commandStateAccount, "new", commandStateLeaf, "Create a new account (key pair) and set as current", r.createAccount},
@@ -153,8 +149,9 @@ func (r *repl) initializeCommands() {
 
 		// global state
 		{commandStateState, "account", commandStateLeaf, "Display an account balance and nonce", r.printAccountState},
-		{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printAccountState},
 
+		// Note this hack - we currently use the MeshService to display transactions because transaction receipts api is not implemented yet in node
+		{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printMeshTransactions},
 		{commandStateState, "rewards", commandStateLeaf, "Display an account rewards ", r.printAccountRewards},
 
 		// global state streams
@@ -164,10 +161,7 @@ func (r *repl) initializeCommands() {
 		{commandStateState, "smesher-rewards", commandStateLeaf, "Display smesher rewards", r.printSmesherRewards},
 		{commandStateState, "global", commandStateLeaf, "Display the most recent network global state", r.printGlobalState},
 
-		// mesh
-		{commandStateMesh, "transactions", commandStateLeaf, "Display mesh transaction for an account", r.printMeshTransactions},
-
-		// smeshing - smesher ops
+		// smesher ops
 		{commandStateSmesher, "id", commandStateLeaf, "Display current smesher id", r.printSmesherId},
 		{commandStateSmesher, "rewards-address", commandStateLeaf, "Display current smesher rewards address", r.printRewardsAddress},
 		{commandStateSmesher, "set-rewards-address", commandStateLeaf, "Set the smesher's rewards address", r.setRewardsAddress},
