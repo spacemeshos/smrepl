@@ -11,7 +11,7 @@ import (
 	"github.com/spacemeshos/smrepl/log"
 )
 
-func (r* repl) printWalletMnemonic() {
+func (r *repl) printWalletMnemonic() {
 	r.client.PrintWalletMnemonic()
 }
 
