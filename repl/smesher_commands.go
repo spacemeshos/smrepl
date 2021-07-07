@@ -228,18 +228,21 @@ func (r *repl) setupPos() {
 		return
 	}
 
-	fmt.Println("Proof of spacetime setup has started and your node will start smeshing when it is complete.")
-	fmt.Println("IMPORTANT: Please add the following to your node's config file so it will smesh after you restart it.")
+	fmt.Println("👐 Proof of spacetime setup has started and your node will start smeshing when it is complete.")
+	fmt.Println("⚠️ IMPORTANT: Please update the smeshing section of your node's config file with the following so your node will smesh after you restart it.")
 	fmt.Println()
-	fmt.Println("\"post-init\": {")
-	fmt.Printf(" \"datadir\": \"%s\",\n", dataDir)
-	fmt.Println(" \"numfiles\": \"1\",")
-	fmt.Printf(" \"numunits\": \"%d\",\n", numUnits)
-	fmt.Printf(" \"provider\": \"%d\",\n", providerId)
-	fmt.Println(" \"throttle\": false,")
-	fmt.Println(" \"start-smeshing\": true,")
+	fmt.Println("\"smeshing:\" {")
+	fmt.Println("\"\tsmeshing-start\": true,")
+	fmt.Printf("\"\tsmeshing-coinbase\": \"%s\"\n", addrStr)
+	fmt.Println("\"\tsmeshing-opts:\" {")
+
+	fmt.Printf("\t\t\"smeshing-opts-datadir\": \"%s\",\n", dataDir)
+	fmt.Printf("\t\t\"smeshing-opts-numunits\": \"%d\",\n", numUnits)
+	fmt.Printf("\t\t\"smeshing-opts-numfiles\": \"%d\",\n", 1)
+	fmt.Printf("\t\t\"smeshing-opts-provider\": \"%d\",\n", providerId)
+	fmt.Println("\t\t\"smeshing-opts-throttle\": \"true\",")
+	fmt.Println("\t},")
 	fmt.Println("},")
-	fmt.Printf("\"coinbase\": \"%s\"\n", addrStr)
 	fmt.Println()
 
 	// save pos options in pos.json in cli-wallet directory:
@@ -247,7 +250,7 @@ func (r *repl) setupPos() {
 
 	err = ioutil.WriteFile(posDataFileName, data, 0644)
 	if err == nil {
-		fmt.Printf("Saved proof of spacetime setup options to %s.\n\n", posDataFileName)
+		fmt.Printf("Proof of spacetime seup options saved to %s.\n\n", posDataFileName)
 	} else {
 		log.Error("failed to save proof of spacetime setup options to %s: %v", posDataFileName, err)
 	}
