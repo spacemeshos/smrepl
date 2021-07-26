@@ -3,6 +3,7 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/spacemeshos/ed25519"
 	"strconv"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
@@ -60,29 +61,71 @@ func (r *repl) canSubmitTransactions() bool {
 	return status.IsSynced //&& status.TopLayer.Number > minVerifiedLayer
 }
 
-func (r *repl) submitCoinTransaction() {
+// Submit a transaction using the current set user account
+func (r *repl) submitCoinTransactionWithCurrentAccount() {
+
+	fmt.Println(printPrefix, initialTransferMsg)
 
 	if !r.canSubmitTransactions() {
-		fmt.Println(printPrefix, "Can't submit a new transaction. Please try again later")
-		return
-	}
-	fmt.Println(printPrefix, initialTransferMsg)
-	acc, err := r.getCurrent()
-	if err != nil {
-		log.Error("failed to get account", err)
+		fmt.Println(printPrefix, "Can't submit a new transaction right now because the node is not synced. Please try again later")
 		return
 	}
 
-	srcAddress := gosmtypes.BytesToAddress(acc.PubKey)
+	account, err := r.getCurrent()
+	if err != nil {
+		log.Error("failed to get current account", err)
+		return
+	}
+	srcAddress := gosmtypes.BytesToAddress(account.PubKey)
 	acctState, err := r.client.AccountState(srcAddress)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)
 		return
 	}
+	counter := acctState.StateProjected.Counter
+
+	r.submitCoinTransaction(srcAddress, counter, account.PrivKey)
+}
+
+// Submit a coin transaction from any account
+func (r *repl) submitCoinTransactionAnyAccount() {
+
+	fmt.Println(printPrefix, transferMsgAnyAccount)
+
+	if !r.canSubmitTransactions() {
+		fmt.Println(printPrefix, "Can't submit a new transaction right now because the node is not synced. Please try again later")
+		return
+	}
+
+	addrStr := inputNotBlank("Enter account address")
+	srcAddress, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid input address", err)
+		return
+	}
+	privateKeyStr := inputNotBlank("Enter account private key")
+	privateKeyBytes := util.FromHex(privateKeyStr)
+	privateKey := ed25519.PrivateKey(privateKeyBytes)
+
+	counterStr := inputNotBlank("Enter account counter")
+	counter, err := strconv.ParseUint(counterStr, 10, 64)
+	if err != nil {
+		log.Error("invalid counter. Must be 0 or larger integer", err)
+		return
+	}
+
+	r.submitCoinTransaction(srcAddress, counter, privateKey)
+}
+
+// Submit a new transaction using the provided sender data
+func (r *repl) submitCoinTransaction(srcAddress gosmtypes.Address, counter uint64, srcPrivateKey ed25519.PrivateKey) {
 
 	destAddressStr := inputNotBlank(destAddressMsg)
-	destAddress := gosmtypes.HexToAddress(destAddressStr)
-
+	destAddress, err := gosmtypes.StringToAddress(destAddressStr)
+	if err != nil {
+		log.Error("invalid destination address", err)
+		return
+	}
 	amountStr := inputNotBlank(amountToTransferMsg)
 
 	gas := uint64(1)
@@ -100,13 +143,13 @@ func (r *repl) submitCoinTransaction() {
 	fmt.Println(printPrefix, "To:    ", destAddress.String())
 	fmt.Println(printPrefix, "Amount:", amountStr, coinUnitName)
 	fmt.Println(printPrefix, "Fee:   ", gas, coinUnitName)
-	fmt.Println(printPrefix, "Nonce: ", acctState.StateProjected.Counter)
+	fmt.Println(printPrefix, "Nonce: ", counter)
 
 	amount, _ := strconv.ParseUint(amountStr, 10, 64)
 	// todo: handle error here!
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
-		txState, err := r.client.Transfer(destAddress, acctState.StateProjected.Counter, amount, gas, 100, acc.PrivKey)
+		txState, err := r.client.Transfer(destAddress, counter, amount, gas, 100, srcPrivateKey)
 		if err != nil {
 			log.Error(err.Error())
 			return
