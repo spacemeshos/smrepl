@@ -121,8 +121,7 @@ func (r *repl) initializeCommands() {
 		{commandStateWallet, "create", commandStateLeaf, "Create a wallet", r.createWallet},
 	}
 	if r.clientOpen {
-		firstStageCommands = append(firstStageCommands,
-			command{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil})
+		firstStageCommands = append([]command{{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil}}, firstStageCommands...)
 
 		accountCommands = []command{
 			// local wallet account commands
