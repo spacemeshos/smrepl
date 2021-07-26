@@ -130,7 +130,11 @@ func (r *repl) printRewardsAddress() {
 // setRewardsAddress sets the smesher's reward address to a user provider address
 func (r *repl) setRewardsAddress() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
 
 	resp, err := r.client.SetRewardsAddress(addr)
 

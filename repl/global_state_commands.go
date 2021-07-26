@@ -6,8 +6,6 @@ import (
 	"io"
 
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
-	"github.com/spacemeshos/go-spacemesh/common/util"
-
 	"github.com/spacemeshos/smrepl/log"
 )
 
@@ -30,14 +28,24 @@ func (r *repl) printRewards(address gosmtypes.Address) {
 // printAccountRewards prints all rewards awarded to an account
 func (r *repl) printAccountRewards() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
+
 	r.printRewards(addr)
 }
 
 // printAccountRewardsStream prints new rewards awarded to an account
 func (r *repl) printAccountRewardsStream() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
+
 	streamClient, err := r.client.AccountRewardsStream(addr)
 	if err != nil {
 		log.Error("failed to get rewards stream for account: %v", err)
@@ -68,7 +76,12 @@ func (r *repl) printAccountRewardsStream() {
 // printAccountRewardsStream prints account state updates
 func (r *repl) printAccountUpdatesStream() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	address := gosmtypes.HexToAddress(addrStr)
+	address, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address", err)
+		return
+	}
+
 	streamClient, err := r.client.AccountRewardsStream(address)
 	if err != nil {
 		log.Error("failed to get updates stream for account: %v", err)
@@ -110,8 +123,11 @@ func (r *repl) printGlobalState() {
 
 // printAccountState prints an account's global state
 func (r *repl) printAccountState() {
-	addressStr := inputNotBlank(enterAddressMsg)
-	address := gosmtypes.BytesToAddress(util.FromHex(addressStr))
+	address, err := gosmtypes.StringToAddress(inputNotBlank(enterAddressMsg))
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
 	account, err := r.client.AccountState(address)
 	if err != nil {
 		log.Error("failed to get account info: %v", err)

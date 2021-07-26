@@ -123,10 +123,14 @@ func (r *repl) submitCoinTransaction(srcAddress gosmtypes.Address, counter uint6
 	destAddressStr := inputNotBlank(destAddressMsg)
 	destAddress, err := gosmtypes.StringToAddress(destAddressStr)
 	if err != nil {
-		log.Error("invalid destination address", err)
+		log.Error("invalid address")
 		return
 	}
 	amountStr := inputNotBlank(amountToTransferMsg)
+	amount, err := strconv.ParseUint(amountStr, 10, 64)
+	if err != nil {
+		log.Error("invalid amount. Must be a non-negative integer number")
+	}
 
 	gas := uint64(1)
 	if yesOrNoQuestion(useDefaultGasMsg) == "n" {
@@ -144,9 +148,6 @@ func (r *repl) submitCoinTransaction(srcAddress gosmtypes.Address, counter uint6
 	fmt.Println(printPrefix, "Amount:", amountStr, coinUnitName)
 	fmt.Println(printPrefix, "Fee:   ", gas, coinUnitName)
 	fmt.Println(printPrefix, "Nonce: ", counter)
-
-	amount, _ := strconv.ParseUint(amountStr, 10, 64)
-	// todo: handle error here!
 
 	if yesOrNoQuestion(confirmTransactionMsg) == "y" {
 		txState, err := r.client.Transfer(destAddress, counter, amount, gas, 100, srcPrivateKey)
