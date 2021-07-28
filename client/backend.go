@@ -111,6 +111,10 @@ func accounts(num int) string {
 func (w *WalletBackend) OpenWallet() bool {
 	fmt.Println("Press the TAB key to select a wallet file")
 	walletToOpen := w.getWallet()
+	if len(walletToOpen) == 0 {
+		return false // abort if user just pressed enter instead of providing a wallet file
+	}
+
 	wallet, err := smWallet.LoadWallet(walletToOpen)
 	if err != nil {
 		fmt.Println("Error loading wallet from file", err)
