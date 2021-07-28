@@ -278,7 +278,7 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 }
 
 func (r *repl) firstTime() {
-	fmt.Print(splash)
+	// fmt.Print(splash)
 
 	_, err := r.client.GetMeshInfo()
 	if err != nil {
