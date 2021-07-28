@@ -60,7 +60,7 @@ func (r *repl) printAccountMeshTransactions(address gosmtypes.Address) {
 		if i != 0 {
 			fmt.Println("-----")
 		}
-		printTransaction(tx)
+		printMeshTransaction(tx)
 		fmt.Println("-----")
 	}
 }

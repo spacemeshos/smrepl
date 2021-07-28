@@ -8,8 +8,8 @@ import (
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/go-spacemesh/common/util"
 
-	"github.com/spacemeshos/smrepl/log"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 var transactionStateDisStringsMap = map[int32]string{
@@ -120,7 +120,13 @@ func (r *repl) submitCoinTransaction() {
 	}
 }
 
-// helper method - prints tx info
+// printMeshTransaction displays a MeshTransaction
+func printMeshTransaction(t *apitypes.MeshTransaction) {
+	printTransaction(t.Transaction)
+	fmt.Println("Layer number:", t.LayerId)
+}
+
+// printTransaction displays a Transaction
 func printTransaction(t *apitypes.Transaction) {
 
 	txIdStr := "0x" + util.Bytes2Hex(t.Id.Id)

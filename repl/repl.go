@@ -76,7 +76,7 @@ type Client interface {
 	Echo() error
 
 	// Mesh service
-	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
+	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.MeshTransaction, uint32, error)
 	GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
 	GetMeshInfo() (*common.NetInfo, error)
 

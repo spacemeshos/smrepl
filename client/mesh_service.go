@@ -9,8 +9,8 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
-// GetMeshTransactions returns the transactions on the mesh to or from an address.
-func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error) {
+// GetMeshTransactions returns the MeshTransactions on the mesh to or from an address.
+func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.MeshTransaction, uint32, error) {
 	ms := c.getMeshServiceClient()
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
 		Filter: &apitypes.AccountMeshDataFilter{
@@ -27,14 +27,14 @@ func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 	}
 
 	txsMap := make(map[string]bool)
-	txs := make([]*apitypes.Transaction, 0)
+	txs := make([]*apitypes.MeshTransaction, 0)
 
 	for _, data := range resp.Data {
 		tx := data.GetMeshTransaction()
 		if tx != nil {
 			if !txsMap[string(tx.Transaction.Id.Id)] {
 				txsMap[string(tx.Transaction.Id.Id)] = true
-				txs = append(txs, tx.Transaction)
+				txs = append(txs, tx)
 			}
 		}
 	}

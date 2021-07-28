@@ -26,7 +26,7 @@ func (r *repl) printRewards(address gosmtypes.Address) {
 			fmt.Println("-----")
 		}
 		printReward(r)
-		fmt.Println( "-----")
+		fmt.Println("-----")
 	}
 }
 
