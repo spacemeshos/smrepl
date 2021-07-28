@@ -59,7 +59,7 @@ func (r *repl) printAccountMeshTransactions(address gosmtypes.Address) {
 		return
 	}
 
-	fmt.Printf("Total mesh transactions: %d", total)
+	fmt.Printf("Total mesh transactions: %d\n", total)
 	for i, tx := range txs {
 		if i != 0 {
 			fmt.Println("-----")

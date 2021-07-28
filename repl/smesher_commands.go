@@ -51,9 +51,9 @@ func (r *repl) printPostStatus() {
 	case apitypes.PostSetupStatus_STATE_COMPLETE:
 		fmt.Println("👍  Proof of spacetime data was created and is used for smeshing.")
 	case apitypes.PostSetupStatus_STATE_ERROR:
-		fmt.Printf("⚠️  Proof of spacetime data creation error: %v", res.Status.ErrorMessage)
+		fmt.Printf("⚠️  Proof of spacetime data creation error: %v.\n", res.Status.ErrorMessage)
 	default:
-		fmt.Println("printPrefix", "Unexpected api result.")
+		fmt.Println("Unexpected api result.")
 		return
 	}
 
@@ -67,7 +67,6 @@ func (r *repl) printPostStatus() {
 	unitSizeInGiB := float32(unitSizeBytes) / float32(gib)
 	opts := res.Status.Opts
 
-	println()
 	fmt.Println("Proof of spacetime configuration:")
 	fmt.Println("  Data dir (relative to node or absolute):", opts.DataDir)
 	fmt.Println("  Date files:", opts.NumFiles)

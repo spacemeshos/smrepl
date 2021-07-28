@@ -59,16 +59,16 @@ func (r *repl) chooseAccount() {
 		return
 	}
 
-	fmt.Println("Choose an account to load:")
+	fmt.Println("Enter an account number:")
 	accNumber := multipleChoice(accs)
 	if accNumber == 0 {
-		fmt.Println("none selected")
+		fmt.Println("No account selected")
 		return
 	}
 	accNumber = accNumber - 1
 	err = r.client.SetCurrentAccount(accNumber)
 	if err != nil {
-		log.Error("failure to set current account", err)
+		log.Error("failed to set current account", err)
 		return
 	}
 
@@ -78,7 +78,7 @@ func (r *repl) chooseAccount() {
 		return
 	}
 
-	fmt.Printf("Loaded account alias: `%s`, address: %s\n", account.Name, account.Address().String())
+	fmt.Printf("Loaded account `%s`. Address: %s\n", account.Name, account.Address().String())
 
 }
 
