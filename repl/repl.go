@@ -88,13 +88,13 @@ type Client interface {
 	IsSmeshing() (*apitypes.IsSmeshingResponse, error)
 	StartSmeshing(request *apitypes.StartSmeshingRequest) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
-	GetPostComputeProviders(benchmark bool) ([]*apitypes.PoSTSetupComputeProvider, error)
+	GetPostComputeProviders(benchmark bool) ([]*apitypes.PostSetupComputeProvider, error)
 	GetSmesherId() ([]byte, error)
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
-	Config() (*apitypes.PoSTConfigResponse, error)
-	PostStatus() (*apitypes.PoSTSetupStatusResponse, error)
-	PostDataCreationProgressStream() (apitypes.SmesherService_PoSTSetupStatusStreamClient, error)
+	Config() (*apitypes.PostConfigResponse, error)
+	PostStatus() (*apitypes.PostSetupStatusResponse, error)
+	PostDataCreationProgressStream() (apitypes.SmesherService_PostSetupStatusStreamClient, error)
 
 	// debug service
 	DebugAllAccounts() ([]*apitypes.Account, error)

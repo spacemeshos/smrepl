@@ -30,11 +30,11 @@ func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 	txs := make([]*apitypes.Transaction, 0)
 
 	for _, data := range resp.Data {
-		tx := data.GetTransaction()
+		tx := data.GetMeshTransaction()
 		if tx != nil {
-			if !txsMap[string(tx.Id.Id)] {
-				txsMap[string(tx.Id.Id)] = true
-				txs = append(txs, tx)
+			if !txsMap[string(tx.Transaction.Id.Id)] {
+				txsMap[string(tx.Transaction.Id.Id)] = true
+				txs = append(txs, tx.Transaction)
 			}
 		}
 	}

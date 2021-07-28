@@ -35,9 +35,9 @@ func (c *gRPCClient) StopSmeshing(deleteFiles bool) (*status.Status, error) {
 }
 
 // GetPostComputeProviders returns the proof of space generators available on the system
-func (c *gRPCClient) GetPostComputeProviders(benchmark bool) ([]*apitypes.PoSTSetupComputeProvider, error) {
+func (c *gRPCClient) GetPostComputeProviders(benchmark bool) ([]*apitypes.PostSetupComputeProvider, error) {
 	s := c.getSmesherServiceClient()
-	if resp, err := s.PoSTSetupComputeProviders(context.Background(), &apitypes.PoSTSetupComputeProvidersRequest{Benchmark: benchmark}); err != nil {
+	if resp, err := s.PostSetupComputeProviders(context.Background(), &apitypes.PostSetupComputeProvidersRequest{Benchmark: benchmark}); err != nil {
 		return nil, err
 	} else {
 		return resp.Providers, nil
@@ -76,21 +76,21 @@ func (c *gRPCClient) SetRewardsAddress(address gosmtypes.Address) (*status.Statu
 }
 
 // Config returns the current smesher configuration
-func (c *gRPCClient) Config() (*apitypes.PoSTConfigResponse, error) {
+func (c *gRPCClient) Config() (*apitypes.PostConfigResponse, error) {
 	s := c.getSmesherServiceClient()
-	return s.PoSTConfig(context.Background(), &empty.Empty{})
+	return s.PostConfig(context.Background(), &empty.Empty{})
 }
 
 // PostStatus returns the current proof of space time status
-func (c *gRPCClient) PostStatus() (*apitypes.PoSTSetupStatusResponse, error) {
+func (c *gRPCClient) PostStatus() (*apitypes.PostSetupStatusResponse, error) {
 	s := c.getSmesherServiceClient()
-	return s.PoSTSetupStatus(context.Background(), &empty.Empty{})
+	return s.PostSetupStatus(context.Background(), &empty.Empty{})
 }
 
 // PostDataCreationProgressStream returns a stram client for post status updates
-func (c *gRPCClient) PostDataCreationProgressStream() (apitypes.SmesherService_PoSTSetupStatusStreamClient, error) {
+func (c *gRPCClient) PostDataCreationProgressStream() (apitypes.SmesherService_PostSetupStatusStreamClient, error) {
 	s := c.getSmesherServiceClient()
-	return s.PoSTSetupStatusStream(context.Background(), &empty.Empty{})
+	return s.PostSetupStatusStream(context.Background(), &empty.Empty{})
 }
 
 // todo: add SetMinGas and MinGas methods

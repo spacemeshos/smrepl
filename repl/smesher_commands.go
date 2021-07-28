@@ -8,13 +8,13 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/spacemeshos/CLIWallet/common"
+	"github.com/spacemeshos/smrepl/common"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 
-	"github.com/spacemeshos/CLIWallet/log"
 	"github.com/spacemeshos/go-spacemesh/common/util"
+	"github.com/spacemeshos/smrepl/log"
 )
 
 // gib is the number of bytes in 1 gibibyte (2^30 bytes)
@@ -39,14 +39,14 @@ func (r *repl) printPostStatus() {
 	}
 
 	switch res.Status.State {
-	case apitypes.PoSTSetupStatus_STATE_NOT_STARTED:
+	case apitypes.PostSetupStatus_STATE_NOT_STARTED:
 		fmt.Println("Proof of spacetime data is not set up. Use the `post setup` command to set it up.")
 		return
-	case apitypes.PoSTSetupStatus_STATE_IN_PROGRESS:
+	case apitypes.PostSetupStatus_STATE_IN_PROGRESS:
 		fmt.Println("⏱  Proof of spacetime data creation is in progress.")
-	case apitypes.PoSTSetupStatus_STATE_COMPLETE:
+	case apitypes.PostSetupStatus_STATE_COMPLETE:
 		fmt.Println("👍  Proof of spacetime data was created and is used for smeshing.")
-	case apitypes.PoSTSetupStatus_STATE_ERROR:
+	case apitypes.PostSetupStatus_STATE_ERROR:
 		fmt.Printf("⚠️  Proof of spacetime data creation error: %v", res.Status.ErrorMessage)
 	default:
 		fmt.Println("printPrefix", "Unexpected api result.")
@@ -209,7 +209,7 @@ func (r *repl) setupPos() {
 
 	req := &apitypes.StartSmeshingRequest{}
 	req.Coinbase = &apitypes.AccountId{Address: addr.Bytes()}
-	req.Opts = &apitypes.PoSTSetupOpts{
+	req.Opts = &apitypes.PostSetupOpts{
 		DataDir:           dataDir,
 		NumUnits:          uint32(numUnits),
 		NumFiles:          1,
