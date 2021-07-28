@@ -163,7 +163,7 @@ func (r *repl) initializeCommands() {
 
 		// global state
 		{commandStateState, "account", commandStateLeaf, "Display an account balance and nonce", r.printAccountState},
-		{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printAccountState},
+		//{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printAccountState},
 
 		{commandStateState, "rewards", commandStateLeaf, "Display an account rewards ", r.printAccountRewards},
 
@@ -175,7 +175,7 @@ func (r *repl) initializeCommands() {
 		{commandStateState, "global", commandStateLeaf, "Display the most recent network global state", r.printGlobalState},
 
 		// mesh
-		{commandStateMesh, "transactions", commandStateLeaf, "Display mesh transaction for an account", r.printMeshTransactions},
+		{commandStateMesh, "transactions", commandStateLeaf, "Display mesh transactions for an account", r.printMeshTransactions},
 
 		// smeshing - smesher ops
 

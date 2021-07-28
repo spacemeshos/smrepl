@@ -128,10 +128,10 @@ func (w *WalletBackend) OpenWallet() bool {
 	}
 	ne, err := w.wallet.GetNumberOfAccounts()
 	if err != nil {
-		fmt.Println("Invalid wallet format")
+		fmt.Println("Invalid wallet file")
 		return false
 	}
-	fmt.Println(w.wallet.Meta.DisplayName, "Successfully opened wallet with", accounts(ne))
+	fmt.Println("Wallet ", w.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
 	w.open = true
 	return true
 }
@@ -155,7 +155,7 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(wbe.wallet.Meta.DisplayName, "Successfully opened wallet with", accounts(ne))
+	fmt.Println("Wallet", wbe.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
 	wbe.open = true
 	return &wbe, nil
 }

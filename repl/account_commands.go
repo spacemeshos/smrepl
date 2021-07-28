@@ -23,7 +23,6 @@ func (r *repl) walletInfo() {
 func (r *repl) openWallet() {
 	r.clientOpen = r.client.OpenWallet()
 	if !r.clientOpen {
-		fmt.Println("Failed to open wallet. Check your password.")
 		return
 	}
 	r.client.WalletInfo()
@@ -164,7 +163,7 @@ func printAccount(account *apitypes.Account, address gosmtypes.Address) {
 	fmt.Println("Nonce:", account.StateCurrent.Counter)
 	fmt.Println("Projected balance:", coinAmount(projectedBalance)) // projectedBalance, coinUnitName)
 	fmt.Println("Projected nonce:", account.StateProjected.Counter)
-	fmt.Println("Projected state includes all pending transactions that haven't been added to the mesh yet.")
+	fmt.Println("Projected state includes all pending transactions that haven't been added to the mesh yet")
 }
 
 // printReward prints a Reward
