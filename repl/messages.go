@@ -10,14 +10,14 @@ const (
 	smesherIdMsg          = "Enter Smesher id: "
 	amountToTransferMsg   = "Enter amount to transfer in Smidge: "
 	confirmTransactionMsg = "Confirm transaction (y/n): "
-	confirmDeleteDataMsg  = "Delete the proof of space data file(s)? (y/n)"
+	confirmDeleteDataMsg  = "Delete the proof of spacetime data file(s)? (y/n)"
 	createAccountMsg      = "Account alias (name): "
 	useDefaultGasMsg      = "Use default transaction fee of 1 Smidge? (y/n) "
 	enterGasPrice         = "Enter transaction fee (Smidge):"
 
-	posDataDirMsg  = "Enter proof of space data directory (relative to node or absolute): "
+	posDataDirMsg  = "Enter proof of spacetime data directory (relative to node or absolute): "
 	posSizeMsg     = "Enter number of units. (%f GiB per unit. Min units: %d, Max units: %d): "
-	posProviderMsg = "Enter proof of space compute provider id number: "
+	posProviderMsg = "Enter proof of spacetime compute provider id number: "
 
 	msgSignMsg     = "Enter message to sign (in hex): "
 	msgTextSignMsg = "Enter text message to sign: "

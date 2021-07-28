@@ -119,14 +119,14 @@ type Client interface {
 
 func (r *repl) initializeCommands() {
 	firstStageCommands := []command{
-		{commandStateRoot, "wallet", commandStateWallet, "Wallet related commands", nil},
+		{commandStateRoot, "wallet", commandStateWallet, "Wallet commands", nil},
 		{commandStateRoot, "state", commandStateState, "Global state commands", nil},
 		{commandStateRoot, "status", commandStateStatus, "Status commands", nil},
 		{commandStateRoot, "mesh", commandStateMesh, "Mesh data", nil},
 		{commandStateRoot, "smesher", commandStateSmesher, "Smesher commands", nil},
 		{commandStateRoot, "post", commandStatePost, "Proof of spacetime commands", nil},
 		{commandStateRoot, "dbg", commandStateDBG, "Debugging commands", nil},
-		{commandStateRoot, "quit", commandStateLeaf, "Quit app", r.quit},
+		{commandStateRoot, "quit", commandStateLeaf, "Quit this app", r.quit},
 	}
 	accountCommands := []command{
 		// wallets
@@ -186,11 +186,11 @@ func (r *repl) initializeCommands() {
 		{commandStateSmesher, "status", commandStateLeaf, "Display smesher status", r.printSmeshingStatus},
 		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
 
-		{commandStatePost, "status", commandStateLeaf, "Display the proof of space status", r.printPostStatus},
-		{commandStatePost, "providers", commandStateLeaf, "Display the available proof of space providers", r.printPosProviders},
-		{commandStatePost, "setup", commandStateLeaf, "Set up (or change) smesher proof of space data", r.setupPos},
+		{commandStatePost, "status", commandStateLeaf, "Display the proof of spacetime status", r.printPostStatus},
+		{commandStatePost, "providers", commandStateLeaf, "Display the available proof of spacetime providers", r.printPosProviders},
+		{commandStatePost, "setup", commandStateLeaf, "Set up (or change) smesher proof of spacetime data", r.setupPos},
 
-		{commandStatePost, "progress", commandStateLeaf, "Stream proof of space data creation progress", r.printPostDataCreationProgress},
+		{commandStatePost, "stream-progress", commandStateLeaf, "Stream proof of spacetime data creation progress", r.printPostDataCreationProgress},
 
 		// debug commands
 		{commandStateDBG, "all-accounts", commandStateLeaf, "Display all global state accounts", r.printAllAccounts},
