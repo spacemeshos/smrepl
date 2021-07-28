@@ -28,7 +28,11 @@ func (r *repl) printSmeshingStatus() {
 		return
 	}
 
-	fmt.Printf("IsSmeshing: %v\n", res.IsSmeshing)
+	if res.IsSmeshing {
+		fmt.Println("Node is currently smeshing")
+	} else {
+		fmt.Print("Node is not smeshing")
+	}
 }
 
 func (r *repl) printPostStatus() {
