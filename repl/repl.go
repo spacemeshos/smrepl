@@ -135,8 +135,7 @@ func (r *repl) initializeCommands() {
 	}
 
 	if r.clientOpen {
-		firstStageCommands = append(firstStageCommands,
-			command{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil})
+		firstStageCommands = append([]command{{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil}}, firstStageCommands...)
 
 		accountCommands = []command{
 			// local wallet account commands
