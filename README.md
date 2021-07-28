@@ -90,7 +90,7 @@ config file:
 ```json
 {
    "api" : {
-      "grpc": "node, mesh, globalstate, transaction, smesher"
+      "grpc": "node,mesh,globalstate,transaction,smesher"
    }
 }
 ```
