@@ -2,6 +2,7 @@ package repl
 
 const (
 	initialTransferMsg    = "Transfer coins from local account to another account."
+	transferMsgAnyAccount = "Transfer coins from any account to another account."
 	destAddressMsg        = "Enter destination address: "
 	enterAddressMsg       = "Enter an address: "
 	enterRewardsAddress   = "Enter an address for smesher rewards: "

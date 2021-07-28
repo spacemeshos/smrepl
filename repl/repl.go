@@ -151,7 +151,7 @@ func (r *repl) initializeCommands() {
 			{commandStateAccount, "sign", commandStateLeaf, "Sign a hex message with the current account private key", r.sign},
 			{commandStateAccount, "text-sign", commandStateLeaf, "Sign a text message with the current account private key", r.signText},
 			{commandStateAccount, "txs", commandStateLeaf, "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
-			{commandStateAccount, "send-coin", commandStateLeaf, "Transfer coins from current account to another account", r.submitCoinTransaction},
+			{commandStateAccount, "send-coin", commandStateLeaf, "Transfer coins from current account to another account", r.submitCoinTransactionWithCurrentAccount},
 		}
 	}
 
@@ -194,6 +194,7 @@ func (r *repl) initializeCommands() {
 
 		// debug commands
 		{commandStateDBG, "all-accounts", commandStateLeaf, "Display all global state accounts", r.printAllAccounts},
+		{commandStateDBG, "send-coin", commandStateLeaf, "Transfer coins from any account to another account", r.submitCoinTransactionAnyAccount},
 	}
 	r.commands = append(firstStageCommands, append(accountCommands, otherCommands...)...)
 }

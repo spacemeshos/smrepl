@@ -41,7 +41,11 @@ func (r *repl) printCurrAccountMeshTransactions() {
 // printAccountMeshTransactions displays mesh transactions for an account
 func (r *repl) printMeshTransactions() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
 	r.printAccountMeshTransactions(addr)
 }
 

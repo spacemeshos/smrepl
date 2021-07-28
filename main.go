@@ -33,10 +33,10 @@ func main() {
 	}
 	if walletName != "" {
 		walletPath := dataDir + "/" + walletName
-		fmt.Println("opening ", walletPath)
+		fmt.Println("Loading wallet from ", walletPath)
 		be, err = client.OpenWalletBackend(walletPath, grpcServer, secureConnection)
 		if err != nil {
-			fmt.Println("failed to open wallet file : ", err)
+			fmt.Println("Failed to open wallet file : ", err)
 			os.Exit(1)
 		}
 	}
