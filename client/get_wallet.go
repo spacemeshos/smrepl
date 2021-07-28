@@ -83,7 +83,7 @@ func (w *WalletBackend) getWallet() string {
 	thisDir = w.workingDirectory
 	for {
 		t := prompt.Input(">", completer)
-		if len(t) == 0  {
+		if len(t) == 0 {
 			return ""
 		}
 
