@@ -60,6 +60,7 @@ type Client interface {
 	CloseWallet()
 
 	// Local account management methods
+
 	CreateAccount(alias string) (*common.LocalAccount, error)
 	CurrentAccount() (*common.LocalAccount, error)
 	SetCurrentAccount(accountNumber int) error
@@ -68,23 +69,28 @@ type Client interface {
 	StoreAccounts() error
 
 	// Local config
+
 	ServerInfo() string
 
 	// Node service
+
 	NodeStatus() (*apitypes.NodeStatus, error)
 	NodeInfo() (*common.NodeInfo, error)
 	Echo() error
 
 	// Mesh service
+
 	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.MeshTransaction, uint32, error)
 	GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
 	GetMeshInfo() (*common.NetInfo, error)
 
 	// Transaction service
+
 	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
 	TransactionState(txId []byte, includeTx bool) (*apitypes.TransactionState, *apitypes.Transaction, error)
 
 	// Smesher service
+
 	IsSmeshing() (*apitypes.IsSmeshingResponse, error)
 	StartSmeshing(request *apitypes.StartSmeshingRequest) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
@@ -97,9 +103,11 @@ type Client interface {
 	PostDataCreationProgressStream() (apitypes.SmesherService_PostSetupStatusStreamClient, error)
 
 	// debug service
+
 	DebugAllAccounts() ([]*apitypes.Account, error)
 
 	// global state service
+
 	AccountState(address gosmtypes.Address) (*apitypes.Account, error)
 	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
 	AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error)
@@ -125,6 +133,7 @@ func (r *repl) initializeCommands() {
 		{commandStateWallet, "open", commandStateLeaf, "Open a wallet", r.openWallet},
 		{commandStateWallet, "create", commandStateLeaf, "Create a wallet", r.createWallet},
 	}
+
 	if r.clientOpen {
 		firstStageCommands = append(firstStageCommands,
 			command{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil})
