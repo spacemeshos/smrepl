@@ -178,7 +178,7 @@ func (w *WalletBackend) NewWallet() bool {
 		return false
 	}
 
-	mnemonicString := getClearString("Use existing mnemonic (optional): ")
+	mnemonicString := getClearString("Mnemonic (leave empty for auto generated): ")
 	fmt.Println()
 	if len(mnemonicString) > 0 {
 		w.wallet, err = smWallet.NewWalletWithMnemonic(walletName, password, mnemonicString)

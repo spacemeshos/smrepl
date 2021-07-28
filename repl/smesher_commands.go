@@ -108,7 +108,7 @@ func (r *repl) setupPos() {
 
 	// If smeshing already started, StopSmeshing(false) should be called before init size could be adjusted.
 	if res.IsSmeshing {
-		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of spacetime setup, you must first stop smeshing. Would you like to stop smeshing? (y/n)") == "y"
+		stopSmeshing := yesOrNoQuestion("Your node is currently smeshing. To change your proof of spacetime setup, you must first stop smeshing.\nWould you like to stop smeshing? (y/n)") == "y"
 		if stopSmeshing {
 			// stop smeshing without deleting the data
 			resp, err := r.client.StopSmeshing(false)
