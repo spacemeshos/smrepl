@@ -195,6 +195,7 @@ func (r *repl) initializeCommands() {
 		// debug commands
 		{commandStateDBG, "all-accounts", commandStateLeaf, "Display all global state accounts", r.printAllAccounts},
 		{commandStateDBG, "send-coin", commandStateLeaf, "Transfer coins from any account to another account", r.submitCoinTransactionAnyAccount},
+		{commandStateDBG, "hex2base64", commandStateLeaf, "Display base64 string for hex input", r.hexToBase64},
 	}
 	r.commands = append(firstStageCommands, append(accountCommands, otherCommands...)...)
 }
