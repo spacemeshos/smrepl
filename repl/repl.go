@@ -16,8 +16,7 @@ import (
 )
 
 const (
-	prefix      = "$ "
-	printPrefix = ">"
+	prefix = "$ "
 )
 
 const (
@@ -26,7 +25,8 @@ const (
 	commandStateAccount
 	commandStateStatus
 	commandStateState
-	commandStatePOS
+	commandStateMesh
+	commandStatePost
 	commandStateSmesher
 	commandStateDBG
 	commandStateLeaf
@@ -60,6 +60,7 @@ type Client interface {
 	CloseWallet()
 
 	// Local account management methods
+
 	CreateAccount(alias string) (*common.LocalAccount, error)
 	CurrentAccount() (*common.LocalAccount, error)
 	SetCurrentAccount(accountNumber int) error
@@ -68,35 +69,45 @@ type Client interface {
 	StoreAccounts() error
 
 	// Local config
+
 	ServerInfo() string
 
 	// Node service
+
 	NodeStatus() (*apitypes.NodeStatus, error)
 	NodeInfo() (*common.NodeInfo, error)
 	Echo() error
 
 	// Mesh service
-	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error)
+
+	GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.MeshTransaction, uint32, error)
 	GetMeshActivations(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Activation, uint32, error)
 	GetMeshInfo() (*common.NetInfo, error)
 
 	// Transaction service
+
 	Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*apitypes.TransactionState, error)
 	TransactionState(txId []byte, includeTx bool) (*apitypes.TransactionState, *apitypes.Transaction, error)
 
 	// Smesher service
-	GetSmesherId() ([]byte, error)
-	IsSmeshing() (bool, error)
-	StartSmeshing(address gosmtypes.Address, dataDir string, dataSizeBytes uint64) (*status.Status, error)
+
+	IsSmeshing() (*apitypes.IsSmeshingResponse, error)
+	StartSmeshing(request *apitypes.StartSmeshingRequest) (*status.Status, error)
 	StopSmeshing(deleteFiles bool) (*status.Status, error)
+	GetPostComputeProviders(benchmark bool) ([]*apitypes.PostSetupComputeProvider, error)
+	GetSmesherId() ([]byte, error)
 	GetRewardsAddress() (*gosmtypes.Address, error)
 	SetRewardsAddress(coinbase gosmtypes.Address) (*status.Status, error)
-	GetPostStatus() (*apitypes.PostStatus, error)
+	Config() (*apitypes.PostConfigResponse, error)
+	PostStatus() (*apitypes.PostSetupStatusResponse, error)
+	PostDataCreationProgressStream() (apitypes.SmesherService_PostSetupStatusStreamClient, error)
 
 	// debug service
+
 	DebugAllAccounts() ([]*apitypes.Account, error)
 
 	// global state service
+
 	AccountState(address gosmtypes.Address) (*apitypes.Account, error)
 	AccountRewards(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Reward, uint32, error)
 	AccountRewardsStream(address gosmtypes.Address) (apitypes.GlobalStateService_AccountDataStreamClient, error)
@@ -108,26 +119,29 @@ type Client interface {
 
 func (r *repl) initializeCommands() {
 	firstStageCommands := []command{
-		{commandStateRoot, "wallet", commandStateWallet, "Wallet related commands", nil},
+		{commandStateRoot, "wallet", commandStateWallet, "Wallet commands", nil},
 		{commandStateRoot, "state", commandStateState, "Global state commands", nil},
 		{commandStateRoot, "status", commandStateStatus, "Status commands", nil},
-		{commandStateRoot, "pos", commandStatePOS, "Proof of spacetime commands", nil},
+		{commandStateRoot, "mesh", commandStateMesh, "Mesh data", nil},
+		{commandStateRoot, "smesher", commandStateSmesher, "Smesher commands", nil},
+		{commandStateRoot, "post", commandStatePost, "Proof of spacetime commands", nil},
 		{commandStateRoot, "dbg", commandStateDBG, "Debugging commands", nil},
-		{commandStateRoot, "quit", commandStateLeaf, "Quit app", r.quit},
+		{commandStateRoot, "quit", commandStateLeaf, "Quit this app", r.quit},
 	}
 	accountCommands := []command{
 		// wallets
 		{commandStateWallet, "open", commandStateLeaf, "Open a wallet", r.openWallet},
 		{commandStateWallet, "create", commandStateLeaf, "Create a wallet", r.createWallet},
 	}
+
 	if r.clientOpen {
-		firstStageCommands = append(firstStageCommands,
-			command{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil})
+		firstStageCommands = append([]command{{commandStateRoot, "account", commandStateAccount, "Wallet's accounts commands", nil}}, firstStageCommands...)
 
 		accountCommands = []command{
 			// local wallet account commands
 			{commandStateWallet, "info", commandStateLeaf, "Display wallet info", r.walletInfo},
 			{commandStateWallet, "mnemonic", commandStateLeaf, "Display wallet mnemonic", r.printWalletMnemonic},
+
 			{commandStateWallet, "close", commandStateLeaf, "Close current wallet", r.closeWallet},
 
 			{commandStateAccount, "new", commandStateLeaf, "Create a new account (key pair) and set as current", r.createAccount},
@@ -137,7 +151,7 @@ func (r *repl) initializeCommands() {
 			{commandStateAccount, "sign", commandStateLeaf, "Sign a hex message with the current account private key", r.sign},
 			{commandStateAccount, "text-sign", commandStateLeaf, "Sign a text message with the current account private key", r.signText},
 			{commandStateAccount, "txs", commandStateLeaf, "Display all outgoing and incoming transactions for the current account that are on the mesh", r.printCurrAccountMeshTransactions},
-			{commandStateAccount, "send-coin", commandStateLeaf, "Transfer coins from current account to another account", r.submitCoinTransaction},
+			{commandStateAccount, "send-coin", commandStateLeaf, "Transfer coins from current account to another account", r.submitCoinTransactionWithCurrentAccount},
 		}
 	}
 
@@ -149,9 +163,8 @@ func (r *repl) initializeCommands() {
 
 		// global state
 		{commandStateState, "account", commandStateLeaf, "Display an account balance and nonce", r.printAccountState},
+		//{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printAccountState},
 
-		// Note this hack - we currently use the MeshService to display transactions because transaction receipts api is not implemented yet in node
-		{commandStateState, "account-txs", commandStateLeaf, "Display account transactions in global state", r.printMeshTransactions},
 		{commandStateState, "rewards", commandStateLeaf, "Display an account rewards ", r.printAccountRewards},
 
 		// global state streams
@@ -161,20 +174,28 @@ func (r *repl) initializeCommands() {
 		{commandStateState, "smesher-rewards", commandStateLeaf, "Display smesher rewards", r.printSmesherRewards},
 		{commandStateState, "global", commandStateLeaf, "Display the most recent network global state", r.printGlobalState},
 
-		// smesher ops
+		// mesh
+		{commandStateMesh, "transactions", commandStateLeaf, "Display mesh transactions for an account", r.printMeshTransactions},
+
+		// smeshing - smesher ops
+
 		{commandStateSmesher, "id", commandStateLeaf, "Display current smesher id", r.printSmesherId},
 		{commandStateSmesher, "rewards-address", commandStateLeaf, "Display current smesher rewards address", r.printRewardsAddress},
-		{commandStateSmesher, "set-rewards-address", commandStateLeaf, "Set the smesher's rewards address", r.setRewardsAddress},
-
+		{commandStateSmesher, "set-rewards-address", commandStateLeaf, "Set the smesher rewards address", r.setRewardsAddress},
 		{commandStateSmesher, "rewards", commandStateLeaf, "Display current smesher rewards", r.printCurrentSmesherRewards},
-		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
 		{commandStateSmesher, "status", commandStateLeaf, "Display smesher status", r.printSmeshingStatus},
-		{commandStateSmesher, "post-status", commandStateLeaf, "Display the proof of space status", r.printPostStatus},
-		{commandStateSmesher, "post-providers", commandStateLeaf, "Display the available proof of space providers", r.printPostProviders},
-		{commandStateSmesher, "start", commandStateLeaf, "Start smeshing using the current wallet account as the rewards account", r.startSmeshing},
+		{commandStateSmesher, "stop", commandStateLeaf, "Stop smeshing", r.stopSmeshing},
+
+		{commandStatePost, "status", commandStateLeaf, "Display the proof of spacetime status", r.printPostStatus},
+		{commandStatePost, "providers", commandStateLeaf, "Display the available proof of spacetime providers", r.printPosProviders},
+		{commandStatePost, "setup", commandStateLeaf, "Set up (or change) smesher proof of spacetime data", r.setupPos},
+
+		{commandStatePost, "stream-progress", commandStateLeaf, "Stream proof of spacetime data creation progress", r.printPostDataCreationProgress},
 
 		// debug commands
 		{commandStateDBG, "all-accounts", commandStateLeaf, "Display all global state accounts", r.printAllAccounts},
+		{commandStateDBG, "send-coin", commandStateLeaf, "Transfer coins from any account to another account", r.submitCoinTransactionAnyAccount},
+		{commandStateDBG, "hex2base64", commandStateLeaf, "Display base64 string for hex input", r.hexToBase64},
 	}
 	r.commands = append(firstStageCommands, append(accountCommands, otherCommands...)...)
 }
@@ -185,7 +206,7 @@ func Start(c Client) {
 	// init logging system
 	path, err := os.Getwd()
 	if err != nil {
-		fmt.Println(printPrefix, "Aborting. Can't get current dir. Your system is high.", err)
+		fmt.Println("Aborting. Can't get current dir. Your system is high.", err)
 		return
 	}
 
@@ -224,7 +245,7 @@ func (r *repl) executor(text string) {
 		}
 	}
 
-	fmt.Println(printPrefix, "invalid command.")
+	fmt.Println("invalid command.")
 }
 
 func (r *repl) completer(in prompt.Document) []prompt.Suggest {
@@ -257,15 +278,8 @@ func (r *repl) completer(in prompt.Document) []prompt.Suggest {
 	return prompt.FilterHasPrefix(suggests, in.GetWordBeforeCursor(), true)
 }
 
-func (r *repl) commandLineParams(idx int, input string) string {
-	c := r.commands[idx]
-	params := strings.Replace(input, c.text, "", -1)
-
-	return strings.TrimSpace(params)
-}
-
 func (r *repl) firstTime() {
-	fmt.Print(printPrefix, splash)
+	// fmt.Print(splash)
 
 	_, err := r.client.GetMeshInfo()
 	if err != nil {

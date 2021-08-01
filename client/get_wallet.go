@@ -82,11 +82,14 @@ func completer(d prompt.Document) []prompt.Suggest {
 func (w *WalletBackend) getWallet() string {
 	thisDir = w.workingDirectory
 	for {
-
 		t := prompt.Input(">", completer)
+		if len(t) == 0 {
+			return ""
+		}
+
 		fi, err := os.Lstat(t)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error reading from wallet file. Press TAB and select another wallet file.")
 			continue
 		}
 

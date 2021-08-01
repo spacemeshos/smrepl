@@ -9,8 +9,8 @@ import (
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 )
 
-// GetMeshTransactions returns the transactions on the mesh to or from an address.
-func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.Transaction, uint32, error) {
+// GetMeshTransactions returns the MeshTransactions on the mesh to or from an address.
+func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint32, maxResults uint32) ([]*apitypes.MeshTransaction, uint32, error) {
 	ms := c.getMeshServiceClient()
 	resp, err := ms.AccountMeshDataQuery(context.Background(), &apitypes.AccountMeshDataQueryRequest{
 		Filter: &apitypes.AccountMeshDataFilter{
@@ -27,21 +27,21 @@ func (c *gRPCClient) GetMeshTransactions(address gosmtypes.Address, offset uint3
 	}
 
 	txsMap := make(map[string]bool)
-	txs := make([]*apitypes.Transaction, 0)
+	txs := make([]*apitypes.MeshTransaction, 0)
 
 	for _, data := range resp.Data {
-		tx := data.GetTransaction()
+		tx := data.GetMeshTransaction()
 		if tx != nil {
-			if !txsMap[string(tx.Id.Id)] {
-				txsMap[string(tx.Id.Id)] = true
+			if !txsMap[string(tx.Transaction.Id.Id)] {
+				txsMap[string(tx.Transaction.Id.Id)] = true
 				txs = append(txs, tx)
 			}
 		}
 	}
 	// hack alert: for now, we return the number of filtered results and not the results returned from the api
-	// because they include duplicated transactions in case where a transaction is on more than 1 mesh block
-
+	// because they include duplicated transactions in case where a transaction is on more than one mesh block
 	// todo: think about default sorting
+
 	return txs, uint32(len(txs)), nil
 }
 
@@ -75,6 +75,7 @@ func (c *gRPCClient) GetMeshActivations(address gosmtypes.Address, offset uint32
 	return activations, resp.TotalResults, nil
 }
 
+// GetMeshInfo returns basic mesh data
 func (c *gRPCClient) GetMeshInfo() (*common.NetInfo, error) {
 	netInfo := &common.NetInfo{}
 	ms := c.getMeshServiceClient()
@@ -119,7 +120,7 @@ func (c *gRPCClient) GetMeshInfo() (*common.NetInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	netInfo.MaxTxsPerSec = maxTxsPerSec.Maxtxpersecond.Value
+	netInfo.MaxTxsPerSec = maxTxsPerSec.MaxTxsPerSecond.Value
 
 	return netInfo, nil
 }

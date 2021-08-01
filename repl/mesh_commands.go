@@ -18,13 +18,14 @@ func (r *repl) printMeshInfo() {
 
 	localGenesisTime := time.Unix(int64(info.GenesisTime), 0)
 
-	fmt.Println(printPrefix, "Network id:", info.NetId)
-	fmt.Println(printPrefix, "Max transactions per second:", info.MaxTxsPerSec)
-	fmt.Println(printPrefix, "Layers per epoch:", info.LayerPerEpoch)
-	fmt.Println(printPrefix, fmt.Sprintf("Layer duration: %d seconds", info.LayerDuration))
-	fmt.Println(printPrefix, "Current layer:", info.CurrentLayer)
-	fmt.Println(printPrefix, "Current epoch:", info.CurrentEpoch)
-	fmt.Println(printPrefix, "Genesis time:", localGenesisTime.Local().String())
+	fmt.Println("Network info:")
+	fmt.Println("Network id:", info.NetId)
+	fmt.Println("Max transactions per second:", info.MaxTxsPerSec)
+	fmt.Println("Layers per epoch:", info.LayerPerEpoch)
+	fmt.Printf("Layer duration: %d seconds\n", info.LayerDuration)
+	fmt.Println("Current layer:", info.CurrentLayer)
+	fmt.Println("Current epoch:", info.CurrentEpoch)
+	fmt.Println("Genesis time:", localGenesisTime.Local().String())
 }
 
 // printCurrAccountMeshTransactions displays mesh transactions for the current account
@@ -40,7 +41,11 @@ func (r *repl) printCurrAccountMeshTransactions() {
 // printAccountMeshTransactions displays mesh transactions for an account
 func (r *repl) printMeshTransactions() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
 	r.printAccountMeshTransactions(addr)
 }
 
@@ -54,9 +59,12 @@ func (r *repl) printAccountMeshTransactions(address gosmtypes.Address) {
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Total mesh transactions: %d", total))
-	for _, tx := range txs {
-		printTransaction(tx)
-		fmt.Println(printPrefix, "-----")
+	fmt.Printf("Total mesh transactions: %d\n", total)
+	for i, tx := range txs {
+		if i != 0 {
+			fmt.Println("-----")
+		}
+		printMeshTransaction(tx)
+		fmt.Println("-----")
 	}
 }

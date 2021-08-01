@@ -109,11 +109,15 @@ func accounts(num int) string {
 
 // OpenWallet opens a wallet from file
 func (w *WalletBackend) OpenWallet() bool {
-	fmt.Println("Press on TAB to select wallet file")
+	fmt.Println("Press the TAB key to select a wallet file")
 	walletToOpen := w.getWallet()
+	if len(walletToOpen) == 0 {
+		return false // abort if user just pressed enter instead of providing a wallet file
+	}
+
 	wallet, err := smWallet.LoadWallet(walletToOpen)
 	if err != nil {
-		// error message
+		fmt.Println("Error loading wallet from file", err)
 		return false
 	}
 	w.wallet = wallet
@@ -121,16 +125,17 @@ func (w *WalletBackend) OpenWallet() bool {
 	if err != nil {
 		return false
 	}
-	fmt.Println("\nloading...")
+	fmt.Println("\nOpening wallet...")
 	if err = w.wallet.Unlock(password); err != nil {
-		fmt.Println(err)
+		fmt.Println("Wrong wallet password")
 		return false
 	}
 	ne, err := w.wallet.GetNumberOfAccounts()
 	if err != nil {
+		fmt.Println("Invalid wallet file")
 		return false
 	}
-	fmt.Println(w.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
+	fmt.Println("Wallet ", w.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
 	w.open = true
 	return true
 }
@@ -146,7 +151,7 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 	if err != nil {
 		return
 	}
-	fmt.Println("\nloading...")
+	fmt.Println("\nOpening wallet...")
 	if err = wbe.wallet.Unlock(password); err != nil {
 		return
 	}
@@ -154,19 +159,13 @@ func OpenWalletBackend(wallet string, grpcServer string, secureConnection bool) 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(wbe.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
-	wbe.gRPCClient = newGRPCClient(grpcServer, secureConnection)
-	if err = wbe.gRPCClient.Connect(); err != nil {
-		// failed to connect to grpc server
-		log.Error("failed to connect to the grpc server: %s", err)
-		return
-	}
+	fmt.Println("Wallet", wbe.wallet.Meta.DisplayName, "successfully opened with", accounts(ne))
 	wbe.open = true
 	return &wbe, nil
 }
 
 func (w *WalletBackend) NewWallet() bool {
-	walletName := getClearString("Wallet Display Name: ")
+	walletName := getClearString("Wallet display name: ")
 	fmt.Println()
 	password, err := getPassword()
 	fmt.Println()
@@ -179,11 +178,11 @@ func (w *WalletBackend) NewWallet() bool {
 		return false
 	}
 	if password != password2 {
-		fmt.Println("passwords do not match")
+		fmt.Println("Passwords do not match")
 		return false
 	}
 
-	mnemonicString := getClearString("Mnemonic (optional): ")
+	mnemonicString := getClearString("Mnemonic (leave empty for auto generated): ")
 	fmt.Println()
 	if len(mnemonicString) > 0 {
 		w.wallet, err = smWallet.NewWalletWithMnemonic(walletName, password, mnemonicString)
@@ -204,7 +203,7 @@ func (w *WalletBackend) NewWallet() bool {
 		fmt.Println(err)
 		return false
 	}
-	fmt.Println("Wallet created")
+	fmt.Println("Wallet successfully created")
 	w.open = true
 	return true
 }

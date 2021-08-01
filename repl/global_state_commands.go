@@ -20,31 +20,42 @@ func (r *repl) printRewards(address gosmtypes.Address) {
 		return
 	}
 
-	fmt.Println(printPrefix, fmt.Sprintf("Total rewards: %d", total))
-	for _, r := range rewards {
+	fmt.Printf("Total rewards: %d\n", total)
+	for i, r := range rewards {
+		if i != 0 {
+			fmt.Println("-----")
+		}
 		printReward(r)
-		fmt.Println(printPrefix, "-----")
 	}
 }
 
 // printAccountRewards prints all rewards awarded to an account
 func (r *repl) printAccountRewards() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
 	r.printRewards(addr)
 }
 
 // printAccountRewardsStream prints new rewards awarded to an account
 func (r *repl) printAccountRewardsStream() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	addr := gosmtypes.HexToAddress(addrStr)
+	addr, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
+
 	streamClient, err := r.client.AccountRewardsStream(addr)
 	if err != nil {
 		log.Error("failed to get rewards stream for account: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, "Listening to new rewards for address: ", addr.String())
+	fmt.Println("Listening to new rewards for address: ", addr.String())
 
 	done := make(chan bool)
 	go func() {
@@ -68,14 +79,18 @@ func (r *repl) printAccountRewardsStream() {
 // printAccountRewardsStream prints account state updates
 func (r *repl) printAccountUpdatesStream() {
 	addrStr := inputNotBlank(enterAddressMsg)
-	address := gosmtypes.HexToAddress(addrStr)
+	address, err := gosmtypes.StringToAddress(addrStr)
+	if err != nil {
+		log.Error("invalid address")
+		return
+	}
 	streamClient, err := r.client.AccountRewardsStream(address)
 	if err != nil {
 		log.Error("failed to get updates stream for account: %v", err)
 		return
 	}
 
-	fmt.Println(printPrefix, "Listening for new updates for address: ", address.String())
+	fmt.Println("Listening for new updates for address: ", address.String())
 
 	done := make(chan bool)
 	go func() {
@@ -104,8 +119,8 @@ func (r *repl) printGlobalState() {
 		return
 	}
 
-	fmt.Println(printPrefix, "Hash:", "0x"+hex.EncodeToString(resp.RootHash))
-	fmt.Println(printPrefix, "Layer:", resp.Layer.Number)
+	fmt.Println("Hash:", "0x"+hex.EncodeToString(resp.RootHash))
+	fmt.Println("Layer:", resp.Layer.Number)
 }
 
 // printAccountState prints an account's global state
