@@ -243,10 +243,10 @@ func (r *repl) setupPos() {
 	var builder strings.Builder
 	fmt.Println(&builder, "{")
 	fmt.Println(&builder, "{\t\"smeshing:\" {")
-	fmt.Println(&builder, "\t\"\tsmeshing-start\": true,")
+	fmt.Println(&builder, "\t\t\"smeshing-start\": true,")
 	_, _ = fmt.Fprintf(&builder, "\t\"\tsmeshing-coinbase\": \"%s\"\n", addrStr)
 
-	fmt.Println(&builder, "\t\"\tsmeshing-opts:\" {")
+	fmt.Println(&builder, "\t\t\"smeshing-opts:\" {")
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-datadir\": \"%s\",\n", dataDir)
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numunits\": \"%d\",\n", numUnits)
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numfiles\": \"%d\",\n", 1)
