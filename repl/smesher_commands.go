@@ -2,11 +2,11 @@ package repl
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"strconv"
+	"strings"
 
 	"github.com/spacemeshos/smrepl/common"
 
@@ -239,24 +239,28 @@ func (r *repl) setupPos() {
 	fmt.Println("👐 Proof of spacetime setup has started and your node will start smeshing when it is complete.")
 	fmt.Println("⚠️ IMPORTANT: Please update the smeshing section of your node's config file with the following so your node will smesh after you restart it.")
 	fmt.Println()
-	fmt.Println("\"smeshing:\" {")
-	fmt.Println("\"\tsmeshing-start\": true,")
-	fmt.Printf("\"\tsmeshing-coinbase\": \"%s\"\n", addrStr)
-	fmt.Println("\"\tsmeshing-opts:\" {")
 
-	fmt.Printf("\t\t\"smeshing-opts-datadir\": \"%s\",\n", dataDir)
-	fmt.Printf("\t\t\"smeshing-opts-numunits\": \"%d\",\n", numUnits)
-	fmt.Printf("\t\t\"smeshing-opts-numfiles\": \"%d\",\n", 1)
-	fmt.Printf("\t\t\"smeshing-opts-provider\": \"%d\",\n", providerId)
-	fmt.Println("\t\t\"smeshing-opts-throttle\": \"true\",")
-	fmt.Println("\t},")
-	fmt.Println("},")
+	var builder strings.Builder
+	fmt.Println(&builder, "{")
+	fmt.Println(&builder, "{\t\"smeshing:\" {")
+	fmt.Println(&builder, "\t\"\tsmeshing-start\": true,")
+	_, _ = fmt.Fprintf(&builder, "\t\"\tsmeshing-coinbase\": \"%s\"\n", addrStr)
+
+	fmt.Println(&builder, "\t\"\tsmeshing-opts:\" {")
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-datadir\": \"%s\",\n", dataDir)
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numunits\": \"%d\",\n", numUnits)
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numfiles\": \"%d\",\n", 1)
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-provider\": \"%d\",\n", providerId)
+	fmt.Println(&builder, "\t\t\t\"smeshing-opts-throttle\": \"true\",")
+	fmt.Println(&builder, "\t\t}")
+	fmt.Println(&builder, "\t}")
+	fmt.Println(&builder, "}")
+
+	fmt.Printf(builder.String())
 	fmt.Println()
 
-	// save pos options in pos.json in cli-wallet directory:
-	data, _ := json.MarshalIndent(req.Opts, "", " ")
+	err = ioutil.WriteFile(posDataFileName, []byte(builder.String()), 0644)
 
-	err = ioutil.WriteFile(posDataFileName, data, 0644)
 	if err == nil {
 		fmt.Printf("Proof of spacetime seup options saved to %s.\n\n", posDataFileName)
 	} else {
