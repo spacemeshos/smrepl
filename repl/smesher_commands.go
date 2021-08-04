@@ -242,7 +242,7 @@ func (r *repl) setupPos() {
 
 	var builder strings.Builder
 	_, _ = fmt.Fprintln(&builder, "{")
-	_, _ = fmt.Fprintln(&builder, "\t\"smeshing:\" {")
+	_, _ = fmt.Fprintln(&builder, "\t\"smeshing\": {")
 	_, _ = fmt.Fprintln(&builder, "\t\t\"smeshing-start\": true,")
 	_, _ = fmt.Fprintf(&builder, "\t\t\"smeshing-coinbase\": \"%s\"\n", addrStr)
 
