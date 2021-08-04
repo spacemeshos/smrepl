@@ -241,23 +241,22 @@ func (r *repl) setupPos() {
 	fmt.Println()
 
 	var builder strings.Builder
-	fmt.Println(&builder, "{")
-	fmt.Println(&builder, "{\t\"smeshing:\" {")
-	fmt.Println(&builder, "\t\t\"smeshing-start\": true,")
-	_, _ = fmt.Fprintf(&builder, "\t\"\tsmeshing-coinbase\": \"%s\"\n", addrStr)
+	_, _ = fmt.Fprintln(&builder, "{")
+	_, _ = fmt.Fprintln(&builder, "\t\"smeshing:\" {")
+	_, _ = fmt.Fprintln(&builder, "\t\t\"smeshing-start\": true,")
+	_, _ = fmt.Fprintf(&builder, "\t\t\"smeshing-coinbase\": \"%s\"\n", addrStr)
 
-	fmt.Println(&builder, "\t\t\"smeshing-opts:\" {")
+	_, _ = fmt.Fprintf(&builder, "\t\t\"smeshing-opts:\" {\n")
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-datadir\": \"%s\",\n", dataDir)
-	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numunits\": \"%d\",\n", numUnits)
-	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numfiles\": \"%d\",\n", 1)
-	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-provider\": \"%d\",\n", providerId)
-	fmt.Println(&builder, "\t\t\t\"smeshing-opts-throttle\": \"true\",")
-	fmt.Println(&builder, "\t\t}")
-	fmt.Println(&builder, "\t}")
-	fmt.Println(&builder, "}")
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numunits\": %d,\n", numUnits)
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numfiles\": %d,\n", 1)
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-provider\": %d,\n", providerId)
+	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-throttle\": true\n")
+	_, _ = fmt.Fprintf(&builder, "\t\t}\n")
+	_, _ = fmt.Fprintf(&builder, "\t}\n")
+	_, _ = fmt.Fprintf(&builder, "}\n")
 
-	fmt.Printf(builder.String())
-	fmt.Println()
+	fmt.Println(builder.String())
 
 	err = ioutil.WriteFile(posDataFileName, []byte(builder.String()), 0644)
 
