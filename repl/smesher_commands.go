@@ -31,7 +31,7 @@ func (r *repl) printSmeshingStatus() {
 	if res.IsSmeshing {
 		fmt.Println("Node is currently smeshing")
 	} else {
-		fmt.Println("Node is not smeshing")
+		fmt.Println("Node is not smeshing. To start smeshing enter `post setup`.")
 	}
 }
 
