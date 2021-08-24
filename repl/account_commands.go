@@ -107,9 +107,9 @@ const onesmh = 1000000000000
 // coinAmount formats an amount in base coin units to a display string
 func coinAmount(val uint64) string {
 	if val >= 1000000000000 {
-		return fmt.Sprintf("%d.%02d SMH, (%d smidge)", val/onesmh, val%onesmh, val)
+		return fmt.Sprintf("%d.%02d SMH, (%d Smidge)", val/onesmh, val%onesmh, val)
 	} else if val >= 10000000000 {
-		return fmt.Sprintf("0.%04d SMH, (%d smidge)", val%onesmh, val)
+		return fmt.Sprintf("0.%04d SMH, (%d Smidge)", val%onesmh, val)
 	} else {
 		return fmt.Sprint(val, " Smidge")
 	}
