@@ -246,7 +246,7 @@ func (r *repl) setupPos() {
 	_, _ = fmt.Fprintln(&builder, "\t\t\"smeshing-start\": true,")
 	_, _ = fmt.Fprintf(&builder, "\t\t\"smeshing-coinbase\": \"%s\"\n", addrStr)
 
-	_, _ = fmt.Fprintf(&builder, "\t\t\"smeshing-opts:\" {\n")
+	_, _ = fmt.Fprintf(&builder, "\t\t\"smeshing-opts\": {\n")
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-datadir\": \"%s\",\n", dataDir)
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numunits\": %d,\n", numUnits)
 	_, _ = fmt.Fprintf(&builder, "\t\t\t\"smeshing-opts-numfiles\": %d,\n", 1)
