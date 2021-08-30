@@ -13,7 +13,7 @@ includes a wallet and a full Spacemesh managed node.
 
 ----
 
-## TL;DR - User with a Spacemesh Devnet or Testnet 
+## TL;DR - Use with a Spacemesh Devnet or Testnet 
 1. Download [a release of smrepl](https://github.com/spacemeshos/smrepl/releases) that the devnet supports to your computer or build it from source code
 1. Download [a release of go-spacemesh node](https://github.com/spacemeshos/go-spacemesh/releases) that the devenet supports to your computer
 1. Download a devnet or a testnet config file to your computer and save it in the same directory as your downloaded node 
