@@ -20,7 +20,7 @@ func (r *repl) printMeshInfo() {
 
 	fmt.Println("Network info:")
 	fmt.Println("Network id:", info.NetId)
-	fmt.Println("Max transactions per second:", info.MaxTxsPerSec)
+	// fmt.Println("Max transactions per second:", info.MaxTxsPerSec)
 	fmt.Println("Layers per epoch:", info.LayerPerEpoch)
 	fmt.Printf("Layer duration: %d seconds\n", info.LayerDuration)
 	fmt.Println("Current layer:", info.CurrentLayer)
