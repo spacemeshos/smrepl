@@ -18,7 +18,7 @@ includes a wallet and a full Spacemesh managed node.
 1. Download [a release of go-spacemesh node](https://github.com/spacemeshos/go-spacemesh/releases) that the devenet supports to your computer
 1. Download a devnet or a testnet config file to your computer and save it in the same directory as your downloaded node 
 1. Start the node with the config file. e.g. `./go-spacemesh -c net_20_conf.json > node_logs.txt` in a terminal window
-1. Launch smrepl in another a terminal window
+1. Launch smrepl in another a terminal window. e.g. `./smrepl`
 
 Smrepl should connect to your node on startup.
 
