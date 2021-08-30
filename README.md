@@ -1,11 +1,28 @@
-# SMRepl - A Spacemesh Repl
+# SMRepl - A Spacemesh REPL
 
 ## Overview
 
-A basic reference Spacemesh Wallet and a full node manager command line REPL. Designed to work together with a locally running [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh) or with the public Spacemesh API.  Target users are developers who want to hack on the Spacemesh platform and Spacemesh testnet users who are comfortable with terminal apps and REPLs. 
+SMRepl is a basic reference Spacemesh wallet and a full node manager command line REPL. 
+
+Smrepl is designed to work together with a locally running [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh) or with the public Spacemesh API.
+
+Target users are developers who want to hack on the Spacemesh platform and Spacemesh devnet or testnet users who are comfortable with terminal apps and REPLs. 
 
 > For users who are not comfortable with terminal apps we recommend using [Smapp - the Spacemesh App](https://github.com/spacemeshos/smapp). Smapp is available for all major desktop platforms and
 includes a wallet and a full Spacemesh managed node.
+
+----
+
+## TL;DR - User with a Spacemesh Devnet or Testnet 
+1. Download [a release of smrepl](https://github.com/spacemeshos/smrepl/releases) that the devnet supports to your computer or build it from source code
+1. Download [a release of go-spacemesh node](https://github.com/spacemeshos/go-spacemesh/releases) that the devenet supports to your computer
+1. Download a devnet or a testnet config file to your computer and save it in the same directory as your downloaded node 
+1. Start the node with the config file. e.g. `./go-spacemesh -c net_20_conf.json > node_logs.txt` in a terminal window
+1. Launch smrepl in another a terminal window
+
+Smrepl should connect to your node on startup.
+
+----
 
 ## Features
 
