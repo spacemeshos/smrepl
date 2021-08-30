@@ -2,17 +2,18 @@
 
 ## Overview
 
-A basic reference Spacemesh Wallet and a full node manager command line REPL. 
-Designed to work together with a locally running [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh) or with the public Spacemesh API. 
-Target users are developers who want to hack on the Spacemesh platform and Spacemesh testnet users who are comfortable with terminal apps and repls. 
-For non-terminal savvy users we recommend using [Smapp - the Spacemesh App](https://github.com/spacemeshos/smapp). Smapp is available for all major desktop platforms and
-includes a wallet and a node manager.
+A basic reference Spacemesh Wallet and a full node manager command line REPL. Designed to work together with a locally running [go-spacemesh full node](https://github.com/spacemeshos/go-spacemesh) or with the public Spacemesh API.  Target users are developers who want to hack on the Spacemesh platform and Spacemesh testnet users who are comfortable with terminal apps and REPLs. 
+
+> For users who are not comfortable with terminal apps we recommend using [Smapp - the Spacemesh App](https://github.com/spacemeshos/smapp). Smapp is available for all major desktop platforms and
+includes a wallet and a full Spacemesh managed node.
 
 ## Features
 
 SMRepl is a Spacemesh API client and it implements basic wallet features via a REPL interface. Using it you can create a new coin account, execute transactions, check account balance and view transactions. You can also use it to se tup smeshing (Spacemesh mining) for your local node.
+
 You can also use it when working on Spacemesh code by connecting it to a locally built node or to a [local Spacemesh devnet](https://github.com/spacemeshos/local-testnet)
-You can also connect to a public Spacemesh network API. In this configuraiton you can execute transactions, view account balances, past transactions and smeshing rewards.
+
+You can also connect to a public Spacemesh network API. In this configuration you can execute transactions, view account balances, past transactions and smeshing rewards.
 
 ## Building
 
@@ -79,10 +80,10 @@ Your can find the grpc server url of a public Spacemesh testnet by copying the v
 
 ```bash
 make build-mac
-./cli_wallet_darwin_amd64
+./smrepl_darwin_amd64
 ```
 
-By default, the wallet attempts to connect to the api server provided by your locally running Spacemesh full node using
+By default, smrepl attempts to connect to the api server provided by your locally running Spacemesh full node using
 the default node's grpc api port (localhost:9092). When you run your full node directly in terminal, you can configure
 which api services will be available to your wallet by your node by changing entries int he api section of your node's
 config file:
