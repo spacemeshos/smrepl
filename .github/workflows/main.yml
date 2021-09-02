@@ -47,7 +47,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: macoOS.zip
+          name: macOS.zip
           path: smrepl_darwin_amd64
           
   release:
