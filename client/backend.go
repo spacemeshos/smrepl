@@ -2,7 +2,6 @@ package client
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -10,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	xdr "github.com/davecgh/go-xdr/xdr2"
 	pb "github.com/spacemeshos/api/release/go/spacemesh/v1"
 	"github.com/spacemeshos/ed25519"
+	"github.com/spacemeshos/go-spacemesh/codec"
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
 	"github.com/spacemeshos/smrepl/common"
 	"github.com/spacemeshos/smrepl/log"
@@ -241,30 +240,22 @@ func (w *WalletBackend) SetCurrentAccount(accountNumber int) error {
 	return w.wallet.SetCurrent(accountNumber)
 }
 
-func interfaceToBytes(i interface{}) ([]byte, error) {
-	var w bytes.Buffer
-	if _, err := xdr.Marshal(&w, &i); err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
-}
-
 func (w *WalletBackend) StoreAccounts() error {
 	return w.wallet.SaveWallet()
 }
 
 // Transfer creates a sign coin transaction and submits it
 func (w *WalletBackend) Transfer(recipient gosmtypes.Address, nonce, amount, gasPrice, gasLimit uint64, key ed25519.PrivateKey) (*pb.TransactionState, error) {
-	tx := common.SerializableSignedTransaction{}
+	tx := gosmtypes.Transaction{}
 	tx.AccountNonce = nonce
 	tx.Amount = amount
 	tx.Recipient = recipient
 	tx.GasLimit = gasLimit
-	tx.Price = gasPrice
+	tx.Fee = gasPrice
 
-	buf, _ := interfaceToBytes(&tx.InnerSerializableSignedTransaction)
+	buf, _ := codec.Encode(&tx.InnerTransaction)
 	copy(tx.Signature[:], ed25519.Sign2(key, buf))
-	b, err := interfaceToBytes(&tx)
+	b, err := codec.Encode(&tx)
 	if err != nil {
 		return nil, err
 	}
