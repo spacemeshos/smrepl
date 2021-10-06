@@ -261,7 +261,7 @@ func (r *repl) setupPos() {
 	err = ioutil.WriteFile(posDataFileName, []byte(builder.String()), 0644)
 
 	if err == nil {
-		fmt.Printf("Proof of spacetime seup options saved to %s.\n\n", posDataFileName)
+		fmt.Printf("Proof of spacetime setup options saved to %s.\n\n", posDataFileName)
 	} else {
 		log.Error("failed to save proof of spacetime setup options to %s: %v", posDataFileName, err)
 	}
