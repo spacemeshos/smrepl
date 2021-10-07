@@ -3,14 +3,14 @@ package repl
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/spacemeshos/ed25519"
 	"strconv"
 
 	apitypes "github.com/spacemeshos/api/release/go/spacemesh/v1"
-	"github.com/spacemeshos/go-spacemesh/common/util"
+	"github.com/spacemeshos/ed25519"
+	"github.com/spacemeshos/smrepl/log"
 
 	gosmtypes "github.com/spacemeshos/go-spacemesh/common/types"
-	"github.com/spacemeshos/smrepl/log"
+	"github.com/spacemeshos/go-spacemesh/common/util"
 )
 
 var transactionStateDisStringsMap = map[int32]string{
@@ -40,7 +40,7 @@ func (r *repl) printTransactionStatus() {
 		fmt.Println("Unknown transaction state")
 	}
 
-	if tx != nil {
+	if tx != nil && tx.Id != nil {
 		printTransaction(tx)
 	} else {
 		fmt.Println("Unknown transaction")
